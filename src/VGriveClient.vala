@@ -36,6 +36,7 @@ namespace App {
 
 
         private AppController app_controller;
+        // API realted attributes
         public string credentials = "";
         public string access_token = "";
         public string refresh_token = "";
@@ -45,15 +46,98 @@ namespace App {
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
         public string redirect = "urn:ietf:wg:oauth:2.0:oob";
+        // SYNC related sttributes
+        public string main_path;
+        public string trash_path;
+        public bool syncing = false;
 
-
-        public VGriveClient (AppController controler) {
+        public VGriveClient (AppController controler, owned string? main_path=null, owned string? trash_path=null) {
             this.app_controller = controler;
+
+            if (main_path == null) {
+                main_path = Environment.get_home_dir()+"/vGrive";
+            }
+            this.main_path = main_path;
+            File file = File.new_for_path(main_path);
+            if (!file.query_exists()) {
+                file.make_directory();
+            }
+
+            if (trash_path == null) {
+                trash_path = Environment.get_home_dir()+"/vGrive/.trash";
+            }
+            this.trash_path = trash_path;
+            file = File.new_for_path(trash_path);
+            if (!file.query_exists()) {
+                file.make_directory();
+            }
         }
 
         public string get_auth_uri() {
             return "https://accounts.google.com/o/oauth2/v2/auth?scope=%s&access_type=offline&redirect_uri=%s&response_type=code&client_id=%s".printf(scope, redirect, client_id);
         }
+
+        public void log_message(string msg) {
+            if (this.app_controller != null) {
+                this.app_controller.log_message(msg);
+            }
+        }
+////////////////////////////////////////////////////////////////////////////////
+/*
+ *
+ * SYNC RELATED METHODS
+ *
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+    public void start_syncing() {
+        // Starts the process to sync files
+        if (!this.syncing) {
+            this.syncing = true;
+            this.log_message("Start syncing files on %s".printf(this.main_path));
+            File maindir = File.new_for_path(this.main_path);
+            if (!maindir.query_exists()) {
+                maindir.make_directory();
+                this.log_message("Directory created: %s".printf(this.main_path));
+            }
+            File trashdir = File.new_for_path(this.trash_path);
+            if (!trashdir.query_exists()) trashdir.make_directory();
+            // Start sync
+            Thread<int> thread = new Thread<int>.try ("Sync thread", this.sync_files);
+        }
+    }
+
+    public int sync_files() {
+        // Check if we have changes in files and sync them
+        this.log_message("Syncing...");
+/*
+        if (this.library == null) {
+            this.library = this.create_library();
+            // Download all files that doesn't exist locally
+            this.download_remote_files(this.sync_dir, "");
+            // Upload all files that doesn't exist in remote
+            this.upload_local_files(this.sync_dir, "root");
+            // Initial sync is done
+            this.save_library();
+            this.app.client_status_log("Everything is up to date :)");
+        }
+
+        // Start watching for changes in local
+        this.watch_local_changes();
+
+        // Start watching for changes in remote
+        this.watch_remote_changes();
+*/
+        return 1;
+    }
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+ *
+ * CREDENTIALS RELATED METHODS
+ *
+*/
+////////////////////////////////////////////////////////////////////////////////
 
         public DriveRequestResult request_credentials(string drive_code) {
             string result = "";

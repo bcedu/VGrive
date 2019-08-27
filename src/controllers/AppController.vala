@@ -31,6 +31,7 @@ namespace App.Controllers {
         public ViewController view_controller;
         public Unity.LauncherEntry launcher;
         public App.VGriveClient vgrive;
+        public signal void log_event (string msg);
 
         public AppController (App.Application application) {
             this.application = application;
@@ -89,5 +90,8 @@ namespace App.Controllers {
 		    });
         }
 
+        public void log_message(string msg) {
+            log_event(msg);
+        }
     }
 }

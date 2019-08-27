@@ -16,10 +16,15 @@ namespace App.Views {
         }
 
         public void connect_signals(AppController controler) {
+            controler.log_event.connect ((msg) => {
+                print("LOG: "+msg);
+                print("\n");
+            });
         }
 
         public void update_view(AppController controler) {
             controler.window.headerbar.back_button.set_label ("Torna al inici");
+            controler.vgrive.start_syncing();
         }
 
 

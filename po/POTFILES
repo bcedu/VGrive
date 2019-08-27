@@ -1,0 +1,13 @@
+data/com.github.bcedu.vgrive.desktop.in
+data/com.github.bcedu.vgrive.appdata.xml.in
+data/com.github.bcedu.vgrive.gschema.xml
+src/configs/constants.vala
+src/widgets/header_bar.vala
+src/views/app_view.vala
+src/views/view1.vala
+src/views/view2.vala
+src/controllers/view_controller.vala
+src/controllers/app_controller.vala
+src/application.vala
+src/window.vala
+src/main.vala

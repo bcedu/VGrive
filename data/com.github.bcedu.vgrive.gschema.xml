@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+	<schema id="com.github.bcedu.vgrive.settings" path="/com/github/bcedu/vgrive/settings/">
+    <key type="i" name="window-width">
+      <default>800</default>
+      <summary>Window width</summary>
+      <description>Window width</description>
+    </key>
+    <key type="i" name="window-height">
+      <default>600</default>
+      <summary>Window height</summary>
+      <description>Window height</description>
+    </key>
+    <key type="i" name="window-posx">
+      <default>0</default>
+      <summary>Window hortitzontal position</summary>
+      <description>Window hortitzontal position</description>
+    </key>
+    <key type="i" name="window-posy">
+      <default>0</default>
+      <summary>Window vertical position</summary>
+      <description>Window vertical position</description>
+    </key>
+    <key type="i" name="window-state">
+        <!-- 0 = normal, 1 = maximized -->
+      <default>1</default>
+      <summary>The saved state of the window</summary>
+      <description>The saved state of the window</description>
+    </key>
+	</schema>
+</schemalist>

@@ -72,6 +72,7 @@ namespace App {
 
 
         private AppController app_controller;
+        public int log_level = 1;
         // API realted attributes
         public string access_token = "";
         public string refresh_token = "";
@@ -115,8 +116,8 @@ namespace App {
             return "https://accounts.google.com/o/oauth2/v2/auth?scope=%s&access_type=offline&redirect_uri=%s&response_type=code&client_id=%s".printf(scope, redirect, client_id);
         }
 
-        public void log_message(string msg) {
-            if (this.app_controller != null) {
+        public void log_message(string msg, int level=1) {
+            if (this.app_controller != null && level >= log_level) {
                 this.app_controller.log_message(msg);
             }
         }
@@ -166,11 +167,15 @@ namespace App {
         public int sync_files() {
             // Check if we have changes in files and sync them
             if (this.is_syncing ()) {
+                this.log_level=0;
                 this.check_deleted_files ();
+                this.save_library ();
                 this.check_remote_files (this.main_path);
+                this.save_library ();
                 this.check_local_files (this.main_path);
                 this.save_library ();
-                this.log_message (_("Everithing is up to date!"));
+                this.log_message (_("Everything is up to date!"));
+                this.log_level=1;
                 // fer trigger per revisar canvis quan canvia algo local
                 // fer trigger per revisar canvis quan canvia algo remot
                 return 1;
@@ -181,9 +186,43 @@ namespace App {
 
         private void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
-            // Si no existeixen ni en local ni remot, el treu de la llibreria
-            // Si només existeix en local o en remot i la hora de modificació NO és posterior al last_update de la llibreria, l'elimina
-            // Si només existeix en local o en remot i la hora de modificació SI que és posterior al last_update de la llibreria, el crea en local/remot
+            // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
+            // TODO: mirar data de modificacio per saber si eliminarlo o no
+            var it = this.library.map_iterator ();
+            bool exist_local, exist_remote, must_delete = false;
+            DriveFile remote_file;
+            string remote_id, filename, aux, lpath;
+            Array<string> to_delete = new Array<string> ();
+            for (var has_next = it.next (); has_next; has_next = it.next ()) {
+                // Check local exists
+                lpath = it.get_value();
+                aux = it.get_key();
+                filename = lpath.split("/")[lpath.split("/").length-1];
+                exist_local = this.local_file_exists(lpath);
+
+                // Check remote exists
+                remote_id = this.get_file_id(lpath);
+                exist_remote = remote_id != null && remote_id != "";
+
+                // Si fa falta, l'eliminem de on sigui (fa falta si en un dels dos llocs s'ha de eliminar
+                must_delete = !exist_local || !exist_remote;
+                if (must_delete) {
+                    to_delete.append_val(aux);
+                    if (exist_local) {
+                        this.log_message (_("DELETE LOCAL FILE: %s".printf (filename)));
+                        this.move_local_file_to_trash(lpath);
+                    }
+                    if (exist_remote) {
+                        this.log_message (_("DELETE REMOTE FILE: %s".printf (filename)));
+                        this.delete_file(remote_id);
+                    }
+                }else {
+                    this.log_message (_("INFO: %s not deleted/moved".printf (filename)));
+                }
+            }
+            for (int i = 0; i < to_delete.length ; i++) {
+		        this.library.unset(to_delete.index (i));
+	        }
         }
 
         private void check_remote_files (string current_path, string root_id="") {
@@ -209,7 +248,7 @@ namespace App {
                         DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
                         if (this.compare_files_write_time(extra_info_file.modifiedTime, current_path+"/"+f.name) == -1) {
                             this.download_new_version_remote_file(f, current_path);
-                        }else this.log_message(_("INFO: %s not changed").printf(f.name));
+                        }else this.log_message(_("INFO: %s not changed").printf(f.name), 0);
                     }
                 }
             }
@@ -232,9 +271,9 @@ namespace App {
                                 // Create DIR
                                 this.log_message(_("NEW LOCAL DIRECTORY: %s uploading...").printf(info.get_name()));
                                 remote_file = this.upload_new_local_dir(current_path+"/"+info.get_name(), root_id);
-                                this.log_message(_("NEW LOCAL DIRECTORY: %s uploaded").printf(remote_file.name));
+                                this.log_message(_("NEW LOCAL DIRECTORY: %s uploaded ✓").printf(remote_file.name));
                             }else {
-                                this.log_message(_("INFO: %s not changed").printf(remote_file.name));
+                                this.log_message(_("INFO: %s not changed").printf(remote_file.name), 0);
                             }
                             this.check_local_files(current_path+"/"+info.get_name(), remote_file.id);
                         } else {
@@ -247,7 +286,7 @@ namespace App {
                                 DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");
                                 if (this.compare_files_write_time(extra_info_file.modifiedTime, current_path+"/"+remote_file.name) == 1) {
                                     this.upload_local_file_update(current_path+"/"+info.get_name(), remote_file.id);
-                                } else this.log_message(_("INFO: %s not changed").printf(remote_file.name));
+                                } else this.log_message(_("INFO: %s not changed").printf(remote_file.name), 0);
                             }
                         }
                         if (!this.library.has_key(remote_file.id)) this.library.set(remote_file.id, current_path+"/"+info.get_name());
@@ -408,7 +447,7 @@ namespace App {
             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
             uri_auth = encode_uri_param(uri_auth);
-            stdout.printf("Request: %s %s\n", method, uri_auth);
+            //stdout.printf("Request: %s %s\n", method, uri_auth);
             var message = new Soup.Message (method, uri_auth);
             string res;
             uint8[] bres;
@@ -574,7 +613,6 @@ namespace App {
                 File doesn't exist in remote
             */
             string filename = filepath.split("/")[filepath.split("/").length-1];
-
             RequestParam[] params = new RequestParam[1];
             params[0] = {"uploadType", "resumable"};
             RequestContent body = {"application/json; charset=UTF-8", ("{\"name\": \"%s\", \"parents\": [\"%s\"]}".printf(filename, parent_id)).data};
@@ -746,7 +784,7 @@ namespace App {
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
             if (json_response.get_member("error") != null) {
-                stdout.printf("%s\n", res);
+                stdout.printf("%s\n%s\n", res, q);
                 return new DriveFile[0];
             }
             int nfiles = 0;
@@ -891,11 +929,16 @@ namespace App {
                 string current_file = path.split("/")[path.split("/").length-1];
                 string new_path = path.substring(0, path.length-current_file.length-1);
                 string parent_id = this.get_file_id(new_path);
+                if (parent_id == "") parent_id = "root";
                 string q = "trashed = False and name = '%s' and '%s' in parents".printf(current_file, parent_id);
                 DriveFile[] res = this.search_files(q);
                 if (res.length != 1) return "";
                 else return res[0].id;
             }
+        }
+
+        public void delete_file(string file_id) {
+            this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -922,7 +965,8 @@ namespace App {
 
         public void save_library() {
             File f = File.new_for_path(this.main_path+"/.vgrive_library");
-            if (!f.query_exists()) f.create(FileCreateFlags.NONE);
+            if (f.query_exists()) f.delete();
+            f.create(FileCreateFlags.NONE);
             FileIOStream io = f.open_readwrite();
             var writer = new DataOutputStream(io.output_stream);
             foreach (var entry in this.library.entries) {
@@ -934,9 +978,9 @@ namespace App {
             this.log_message(_("NEW REMOTE FILE: %s downloding...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.create_local_file(f, path);
-            this.log_message(_("NEW REMOTE FILE: %s downloaded").printf(f.name));
             DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
             this.update_local_write_date(extra_info_file.modifiedTime, path+"/"+f.name);
+            this.log_message(_("NEW REMOTE FILE: %s downloaded ✓").printf(f.name));
         }
 
         public void download_new_version_remote_file(DriveFile f, string path) {
@@ -945,7 +989,7 @@ namespace App {
             this.move_local_file_to_trash(path+"/"+f.name);
             this.create_local_file(f, path);
             this.update_local_write_date(f.modifiedTime, path+"/"+f.name);
-            this.log_message(_("CHANGE IN REMOTE FILE: %s downloaded").printf(f.name));
+            this.log_message(_("CHANGE IN REMOTE FILE: %s downloaded ✓").printf(f.name));
         }
 
         public void upload_local_file_update(string path, owned string? file_id) {
@@ -953,12 +997,13 @@ namespace App {
             this.log_message(_("CHANGE IN LOCAL FILE: %s uploading newest version...").printf(filename));
             if (file_id == null) file_id = this.get_file_id(path);
             DriveFile remote_file = this.upload_file_update(path, file_id);
-            this.log_message(_("CHANGE IN LOCAL FILE: %s uploaded").printf(remote_file.name));
+            this.update_local_write_date(remote_file.modifiedTime, path);
+            this.log_message(_("CHANGE IN LOCAL FILE: %s uploaded ✓").printf(remote_file.name));
         }
 
         public DriveFile upload_new_local_dir(string path, string? parent_id) {
             string parent = parent_id;
-            if (parent_id == null) {
+            if (parent_id == null || parent_id == "") {
                 string current_file = path.split("/")[path.split("/").length-1];
                 string new_path = path.substring(0, path.length-current_file.length-1);
                 parent = this.get_file_id(new_path);
@@ -972,7 +1017,7 @@ namespace App {
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("NEW LOCAL FILE: %s uploading...").printf(filename));
             string parent = parent_id;
-            if (parent == null) {
+            if (parent == null || parent == "") {
                 string partial_path = "";
                 foreach (string aux in path.strip().split("/")) {
                     if (aux != filename && aux != "") partial_path = partial_path+"/"+aux;
@@ -982,7 +1027,7 @@ namespace App {
             DriveFile remote_file = this.upload_file(path, parent);
             DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");
             this.update_local_write_date(extra_info_file.modifiedTime, path);
-            this.log_message(_("NEW LOCAL FILE: %s uploaded").printf(remote_file.name));
+            this.log_message(_("NEW LOCAL FILE: %s uploaded ✓").printf(remote_file.name));
             if (!this.library.has_key(remote_file.id)) this.library.set(remote_file.id, path);
             return remote_file;
         }
@@ -1027,11 +1072,22 @@ namespace App {
             return file.query_exists();
         }
 
-        public void update_local_write_date(string date, string filepath) {
+        public void update_local_write_date(string? date, string filepath) {
+            string? aux = date;
+            if (aux == null) {
+                this.log_message("WARNING: No date for %s. Asking to api...".printf(filepath));
+                string fid = this.get_file_id(filepath);
+                var dfile = this.get_file_info_extra (fid, "modifiedTime");
+                aux = dfile.modifiedTime;
+                this.log_message("New date: %s".printf(aux));
+            }
+            if (aux == null) {
+                this.log_message("ERROR: No date for %s.".printf(filepath));
+            }
             File f = File.new_for_path(filepath);
             FileInfo fileinfo = f.query_info ("*", FileQueryInfoFlags.NONE);
             TimeVal tv = new TimeVal();
-            tv.from_iso8601(date);
+            tv.from_iso8601(aux);
             fileinfo.set_modification_time(tv);
             f.set_attributes_from_info(fileinfo, FileQueryInfoFlags.NONE);
         }

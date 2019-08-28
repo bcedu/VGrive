@@ -1,5 +1,6 @@
 using App.Controllers;
 using Gtk;
+using App.Configs;
 
 namespace App.Views {
 
@@ -34,6 +35,7 @@ namespace App.Views {
         }
 
         public void update_view(AppController controler) {
+            controler.window.headerbar.set_title (Constants.APP_NAME);
 
         }
 

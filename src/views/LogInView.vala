@@ -1,5 +1,6 @@
 using App.Controllers;
 using Gtk;
+using App.Configs;
 namespace App.Views {
 
     public class LogInView : AppView, VBox {
@@ -67,7 +68,8 @@ namespace App.Views {
         }
 
         public void update_view(AppController controler) {
-            controler.window.headerbar.back_button.set_label ("Torna al inici");
+            controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Log In"));
+            controler.window.headerbar.back_button.set_label (_("Torna al inici"));
         }
 
         public void update_view_on_hide(AppController controler) {

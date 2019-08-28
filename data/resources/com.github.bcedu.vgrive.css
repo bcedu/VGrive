@@ -1,3 +1,25 @@
 .app_view {
   background-color: white;
 }
+
+.log_box {
+  padding: 10px 0px 10px 10px;
+}
+.log_text text{
+}
+
+.redbutton {
+    background-color: #f6474f;
+    color: white;
+    border-color: #f6474f;
+}
+.greenbutton {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.sync_title {
+  font-size: 16px;
+  font-weight: bolder;
+}

@@ -27,7 +27,7 @@ namespace App.Configs {
     public class Constants {
         public abstract const string ID = "com.github.bcedu.vgrive";
         public abstract const string APP_ICON = "com.github.bcedu.vgrive";
-        public abstract const string APP_NAME = _("vgrive");
+        public abstract const string APP_NAME = _("vGrive");
         public abstract const string LAUNCHER_ID = "com.github.bcedu.vgrive.desktop";
     }
 }

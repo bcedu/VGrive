@@ -89,28 +89,38 @@ namespace App {
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+    public bool is_syncing() {
+        return this.syncing;
+    }
+
     public void start_syncing() {
         // Starts the process to sync files.
         // If the sync was already started (`syncing` is True), nothing is done.
         // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
-        if (!this.syncing && this.has_credentials ()) {
+        if (!this.is_syncing () && this.has_credentials ()) {
             this.syncing = true;
-            this.log_message("Start syncing files on %s".printf(this.main_path));
+            this.log_message(_("Start syncing files on %s").printf(this.main_path));
             File maindir = File.new_for_path(this.main_path);
             if (!maindir.query_exists()) {
                 maindir.make_directory();
-                this.log_message("Directory created: %s".printf(this.main_path));
+                this.log_message(_("Directory created: %s").printf(this.main_path));
             }
             File trashdir = File.new_for_path(this.trash_path);
             if (!trashdir.query_exists()) trashdir.make_directory();
             // Start sync
-            Thread<int> thread = new Thread<int>.try ("Sync thread", this.sync_files);
+            //Thread<int> thread = new Thread<int>.try ("Sync thread", this.sync_files);
+            //GLib.Timeout.add_seconds (1, sync_files);
+            this.sync_files ();
         }
     }
 
-    public int sync_files() {
+    public void stop_syncing() {
+        this.syncing = false;
+        this.log_message(_("Syncing stoped by user request"));
+    }
+
+    public bool sync_files() {
         // Check if we have changes in files and sync them
-        this.log_message("Syncing...");
 /*
         if (this.library == null) {
             this.library = this.create_library();
@@ -129,7 +139,12 @@ namespace App {
         // Start watching for changes in remote
         this.watch_remote_changes();
 */
-        return 1;
+        if (this.is_syncing ()) {
+            return true;
+        }else {
+            return false;
+        }
+        //return 1;
     }
 
 ////////////////////////////////////////////////////////////////////////////////

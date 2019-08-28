@@ -159,9 +159,9 @@ namespace App {
 
         public void stop_syncing() {
             this.syncing = false;
-            this.save_library();
-            this.thread.exit(1);
-            this.log_message(_("Syncing stoped by user request"));
+            //this.save_library();
+            //this.thread.exit(1);
+            //this.log_message(_("Syncing stoped by user request"));
         }
 
         public int sync_files() {
@@ -169,15 +169,14 @@ namespace App {
             if (this.is_syncing ()) {
                 this.log_level=0;
                 this.check_deleted_files ();
-                this.save_library ();
                 this.check_remote_files (this.main_path);
-                this.save_library ();
                 this.check_local_files (this.main_path);
-                this.save_library ();
-                this.log_message (_("Everything is up to date!"));
+                if (this.is_syncing ()) this.log_message (_("Everything is up to date!"));
+                else this.log_message(_("Syncing stoped by user request"));
                 this.log_level=1;
                 // fer trigger per revisar canvis quan canvia algo local
                 // fer trigger per revisar canvis quan canvia algo remot
+                this.save_library ();
                 return 1;
             }else {
                 return -1;
@@ -188,12 +187,14 @@ namespace App {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             // TODO: mirar data de modificacio per saber si eliminarlo o no
+            if (!this.is_syncing ()) return;
             var it = this.library.map_iterator ();
             bool exist_local, exist_remote, must_delete = false;
             DriveFile remote_file;
             string remote_id, filename, aux, lpath;
             Array<string> to_delete = new Array<string> ();
             for (var has_next = it.next (); has_next; has_next = it.next ()) {
+                if (!this.is_syncing ()) return;
                 // Check local exists
                 lpath = it.get_value();
                 aux = it.get_key();
@@ -223,14 +224,17 @@ namespace App {
             for (int i = 0; i < to_delete.length ; i++) {
 		        this.library.unset(to_delete.index (i));
 	        }
+            this.save_library ();
         }
 
         private void check_remote_files (string current_path, string root_id="") {
             // Mira els fitxers que hi ha a la en remot
             // Si no existeixen en local el crea i l'afageix a la llibreria
             // Si existeix en local i la hora de modificació local NO és posterior al a la del remot, es baixa el remot i mou el local al .trash
+            if (!this.is_syncing ()) return;
             DriveFile[] res = this.list_files(-1, root_id, -1);
             foreach (DriveFile f in res) {
+                if (!this.is_syncing ()) return;
                 if (!this.library.has_key(f.id)) this.library.set(f.id, current_path+"/"+f.name);
                 // Check if it's a directory or a file
                 if (f.mimeType == "application/vnd.google-apps.folder") {
@@ -252,18 +256,21 @@ namespace App {
                     }
                 }
             }
+            this.save_library ();
         }
 
         private void check_local_files (string current_path, string root_id="") {
             // Mira els fitxers que hi ha en local
             // Si no existeixen en remot el crea i l'afageix a la llibreria
             // Si existeix en remot i la hora de modificació remot NO és posterior al a la del local, es puja el local i mou el remot al .trash
+            if (!this.is_syncing ()) return;
             try {
                 var directory = File.new_for_path (current_path);
                 var enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME, 0);
                 FileInfo info;
                 DriveFile remote_file;
                 while ((info = enumerator.next_file ()) != null) {
+                    if (!this.is_syncing ()) return;
                     if (this.is_regular_file(info.get_name())) {
                         remote_file = this.get_file_info(info.get_name(), root_id, -1);
                         if (info.get_file_type () == FileType.DIRECTORY) {
@@ -296,6 +303,7 @@ namespace App {
             } catch (Error e) {
                 stderr.printf ("Error: %s\n", e.message);
             }
+            this.save_library ();
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*

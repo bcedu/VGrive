@@ -27,11 +27,47 @@ namespace App {
         public string message;
     }
 
-    /**
-     * The {@code AppController} class.
-     *
-     * @since 1.0.0
-     */
+    public struct ResponseObject {
+        Soup.MessageHeaders headers;
+        string response;
+        uint8[] bresponse;
+    }
+
+    public struct RequestParam {
+        public string field_name;
+        public string field_value;
+    }
+
+    public struct RequestContent {
+        public string content_type;
+        public uint8[] content;
+    }
+
+    public struct DriveFile {
+        public string kind;
+        public string id;
+        public string name;
+        public uint8[] content;
+        public string mimeType;
+        public string parent_id;
+        public string modifiedTime;
+        public string createdTime;
+        public bool trashed;
+        public string[] parents;
+        public string local_path;
+    }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/*
+ * CLASS VGriveClient
+*/
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
     public class VGriveClient {
 
 
@@ -49,8 +85,11 @@ namespace App {
         public string main_path;
         public string trash_path;
         public bool syncing = false;
+        private Gee.HashMap<string,string>? library;
 
-        public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null) {
+        Thread<int> thread;
+
+        public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null, owned DateTime? last_sync_date=null) {
             this.app_controller = controler;
 
             if (main_path == null) {
@@ -89,64 +128,137 @@ namespace App {
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-    public bool is_syncing() {
-        return this.syncing;
-    }
+        public bool is_syncing() {
+            return this.syncing;
+        }
 
-    public void start_syncing() {
-        // Starts the process to sync files.
-        // If the sync was already started (`syncing` is True), nothing is done.
-        // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
-        if (!this.is_syncing () && this.has_credentials ()) {
-            this.syncing = true;
-            this.log_message(_("Start syncing files on %s").printf(this.main_path));
-            File maindir = File.new_for_path(this.main_path);
-            if (!maindir.query_exists()) {
-                maindir.make_directory();
-                this.log_message(_("Directory created: %s").printf(this.main_path));
+        public void start_syncing() {
+            // Starts the process to sync files.
+            // If the sync was already started (`syncing` is True), nothing is done.
+            // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
+            if (!this.is_syncing () && this.has_credentials ()) {
+                this.syncing = true;
+                this.log_message(_("Start syncing files on %s").printf(this.main_path));
+                File maindir = File.new_for_path(this.main_path);
+                if (!maindir.query_exists()) {
+                    maindir.make_directory();
+                    this.log_message(_("Directory created: %s").printf(this.main_path));
+                }
+                File trashdir = File.new_for_path(this.trash_path);
+                if (!trashdir.query_exists()) trashdir.make_directory();
+                if (this.library == null) {
+                    this.library = this.load_library();
+                }
+                // Start sync
+                this.thread = new Thread<int>.try ("Sync thread", this.sync_files);
+                //GLib.Timeout.add_seconds (1, sync_files);
+                //this.sync_files ();
             }
-            File trashdir = File.new_for_path(this.trash_path);
-            if (!trashdir.query_exists()) trashdir.make_directory();
-            // Start sync
-            //Thread<int> thread = new Thread<int>.try ("Sync thread", this.sync_files);
-            //GLib.Timeout.add_seconds (1, sync_files);
-            this.sync_files ();
         }
-    }
 
-    public void stop_syncing() {
-        this.syncing = false;
-        this.log_message(_("Syncing stoped by user request"));
-    }
-
-    public bool sync_files() {
-        // Check if we have changes in files and sync them
-/*
-        if (this.library == null) {
-            this.library = this.create_library();
-            // Download all files that doesn't exist locally
-            this.download_remote_files(this.sync_dir, "");
-            // Upload all files that doesn't exist in remote
-            this.upload_local_files(this.sync_dir, "root");
-            // Initial sync is done
+        public void stop_syncing() {
+            this.syncing = false;
             this.save_library();
-            this.app.client_status_log("Everything is up to date :)");
+            this.thread.exit(1);
+            this.log_message(_("Syncing stoped by user request"));
         }
 
-        // Start watching for changes in local
-        this.watch_local_changes();
-
-        // Start watching for changes in remote
-        this.watch_remote_changes();
-*/
-        if (this.is_syncing ()) {
-            return true;
-        }else {
-            return false;
+        public int sync_files() {
+            // Check if we have changes in files and sync them
+            if (this.is_syncing ()) {
+                this.check_deleted_files ();
+                this.check_remote_files (this.main_path);
+                this.check_local_files (this.main_path);
+                this.save_library ();
+                // fer trigger per revisar canvis quan canvia algo local
+                // fer trigger per revisar canvis quan canvia algo remot
+                print("THREAD ACABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT");
+                return 1;
+            }else {
+                print("THREAD PARAAAAAAAAAAAAAAAAAAAAAAT");
+                return -1;
+            }
         }
-        //return 1;
-    }
 
+        private void check_deleted_files () {
+            // Mira els fitxers que hi ha a la llibreria
+            // Si no existeixen ni en local ni remot, el treu de la llibreria
+            // Si només existeix en local o en remot i la hora de modificació NO és posterior al last_update de la llibreria, l'elimina
+            // Si només existeix en local o en remot i la hora de modificació SI que és posterior al last_update de la llibreria, el crea en local/remot
+        }
+
+        private void check_remote_files (string current_path, string root_id="") {
+            // Mira els fitxers que hi ha a la en remot
+            // Si no existeixen en local el crea i l'afageix a la llibreria
+            // Si existeix en local i la hora de modificació local NO és posterior al a la del remot, es baixa el remot i mou el local al .trash
+            DriveFile[] res = this.list_files(-1, root_id, -1);
+            foreach (DriveFile f in res) {
+                if (!this.library.has_key(f.id)) this.library.set(f.id, current_path+"/"+f.name);
+                // Check if it's a directory or a file
+                if (f.mimeType == "application/vnd.google-apps.folder") {
+                    // It's a directory. Create it if doesn't exist
+                    // Get it's id to get its files and download them if necessary
+                    if (!this.local_file_exists(current_path+"/"+f.name)) this.create_local_file(f, current_path);
+                    this.check_remote_files(current_path+"/"+f.name, f.id);
+                }else {
+                    // It's a file. Download it if it doesn't exist
+                    if (!this.local_file_exists(current_path+"/"+f.name)) {
+                        this.download_new_remote_file(f, current_path);
+                    }else {
+                        // Detect if the remote version is newer than the local one.
+                        // If it's the case, move the local versio to .trash and download remote
+                        DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
+                        if (this.compare_files_write_time(extra_info_file.modifiedTime, current_path+"/"+f.name) == -1) {
+                            this.download_new_version_remote_file(f, current_path);
+                        }else this.log_message(_("%s already newest version locally.").printf(f.name));
+                    }
+                }
+            }
+        }
+
+        private void check_local_files (string current_path, string root_id="") {
+            // Mira els fitxers que hi ha en local
+            // Si no existeixen en remot el crea i l'afageix a la llibreria
+            // Si existeix en remot i la hora de modificació remot NO és posterior al a la del local, es puja el local i mou el remot al .trash
+            try {
+                var directory = File.new_for_path (current_path);
+                var enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME, 0);
+                FileInfo info;
+                DriveFile remote_file;
+                while ((info = enumerator.next_file ()) != null) {
+                    if (this.is_regular_file(info.get_name())) {
+                        remote_file = this.get_file_info(info.get_name(), root_id, -1);
+                        if (info.get_file_type () == FileType.DIRECTORY) {
+                            if (remote_file.id == null) {
+                                // Create DIR
+                                this.log_message(_("%s doesn't exist in remote. Creating directory...").printf(info.get_name()));
+                                remote_file = this.upload_new_local_dir(current_path+"/"+info.get_name(), root_id);
+                                this.log_message(_("%s remote directory succesfully created").printf(remote_file.name));
+                            }else {
+                                this.log_message(_("%s already exists in remote").printf(remote_file.name));
+                            }
+                            this.check_local_files(current_path+"/"+info.get_name(), remote_file.id);
+                        } else {
+                            if (remote_file.id == null) {
+                                // Create File
+                                remote_file = this.upload_new_local_file(current_path+"/"+info.get_name(), root_id);
+                            }else {
+                                // Detect if the local version is newer than the remote one.
+                                // If it's the case, upload local one
+                                DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");
+                                if (this.compare_files_write_time(extra_info_file.modifiedTime, current_path+"/"+remote_file.name) == 1) {
+                                    this.upload_local_file_update(current_path+"/"+info.get_name(), remote_file.id);
+                                } else this.log_message(_("%s already newest version in remote.").printf(remote_file.name));
+                            }
+                        }
+                        if (!this.library.has_key(remote_file.id)) this.library.set(remote_file.id, current_path+"/"+info.get_name());
+                    }
+                }
+
+            } catch (Error e) {
+                stderr.printf ("Error: %s\n", e.message);
+            }
+        }
 ////////////////////////////////////////////////////////////////////////////////
 /*
  *
@@ -279,5 +391,694 @@ namespace App {
             // Else False
             return this.access_token != "" && this.refresh_token != "";
         }
+
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+ *
+ * GOOGLE DRIVE API RELATED METHODS
+ *
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+        public ResponseObject make_request(string method, string uri, RequestParam[]? params_list=null, RequestParam[]? request_headers=null, RequestContent? request_content=null, bool without_acces_token=false) {
+            // Fa una petició HTTP a la API de Google Drive amb els paràmetres proporcionats
+            var session = new Soup.Session ();
+            string uri_auth;
+            if (without_acces_token) uri_auth = uri;
+            else uri_auth = uri + "?access_token=%s".printf(this.access_token);
+            if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
+            uri_auth = encode_uri_param(uri_auth);
+            stdout.printf("Request: %s %s\n", method, uri_auth);
+            var message = new Soup.Message (method, uri_auth);
+            string res;
+            uint8[] bres;
+            Soup.MessageHeaders res_header;
+            try {
+                // send the HTTP request and wait for response
+                if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
+                if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
+                session.send_message (message);
+                bres = message.response_body.data;
+                res = (string) message.response_body.data;
+                res_header = message.response_headers;
+                // Parse response
+                var parser = new Json.Parser ();
+                parser.load_from_data (res, -1);
+                Json.Object json_response = parser.get_root().get_object();
+                // Check if we had an error
+                if (json_response.get_member("error") != null) {
+                    Json.Object error_obj = json_response.get_object_member("error");
+                    // Check if it's Auth error.
+                    if (error_obj.get_string_member("message") == "Invalid Credentials") {
+                        // If it's auth error we will try to refresh the token
+                        string refresh_uri = "https://www.googleapis.com/oauth2/v4/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=refresh_token".printf(this.refresh_token, this.client_id, this.client_secret);
+                        message = new Soup.Message ("POST", refresh_uri);
+                        message.set_request("", Soup.MemoryUse.COPY, "{}".data);
+                        stdout.printf("Authentication error. Refreshing token. Request: POST %s\n", refresh_uri);
+                        session.send_message (message);
+                        string refresh_res = (string) message.response_body.data;
+                        parser = new Json.Parser ();
+                        parser.load_from_data (refresh_res, -1);
+                        json_response = parser.get_root().get_object();
+                        if (json_response.get_member("access_token") != null) {
+                            // Retry request with new token
+                            this.access_token = json_response.get_string_member("access_token");
+                            if (without_acces_token) uri_auth = uri;
+                            else uri_auth = uri + "?access_token=%s".printf(this.access_token);
+                            if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
+                            uri_auth = encode_uri_param(uri_auth);
+                            stdout.printf("Retrying request: %s %s\n", method, uri_auth);
+                            message = new Soup.Message (method, uri_auth);
+                            if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
+                            if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
+                            session.send_message (message);
+                            bres = message.response_body.data;
+                            res = (string) message.response_body.data;
+                            res_header = message.response_headers;
+                            return {res_header, res, bres};
+                        } else {
+                            // Refresh token failure
+                            stdout.printf("Error trying to refresh token\n");
+                            return {res_header, res, bres};
+                        }
+                    }else {
+                        // Unknown error. Return recived response
+                        return {res_header, res, bres};
+                    }
+                }
+            } catch (Error e) {
+                if (res == null || res == "") res = e.message;
+            }
+            return {res_header, res, bres};
+        }
+
+        public DriveFile[] list_files(int number, string parent_id, int trashed) {
+        /*
+            * number: number of files to list. If it's set to -1, list all files
+            * parent_id: id of directory where listed files are. If it's set to "", list files from root directory
+            * trashed: -1 = list non trashed files, 0 = list both trashed and non trashed files, 1 = list trashed files
+            Returns a list {number} DriveFile files in {parent_id} with the following information:
+              * kind: usually drive#file
+              * id: unic resource identifier
+              * name
+              * mimeType
+              * parent_id
+        */
+            RequestParam[] params = new RequestParam[2];
+
+            int pageSize = 1000;
+            if (number > -1 && number <= 1000) pageSize = number;
+            params[0] = {"pageSize", pageSize.to_string()};
+
+            string q = "";
+            if (parent_id == "") q = q.concat("'root' in parents");
+            else if (parent_id != "") q = q.concat("'%s' in parents".printf(parent_id));
+            if (trashed < 0) q = q.concat(" and trashed = False");
+            else if (trashed > 0) q = q.concat(" and trashed = True");
+            params[1] = {"q", q};
+
+            string res = this.make_request("GET", this.api_uri+"/files", params, null, null, false).response;
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res);
+                return new DriveFile[0];
+            }
+            int nfiles = 0;
+            DriveFile[] results = new DriveFile[pageSize];
+            Json.Array json_files = json_response.get_member("files").get_array ();
+            unowned Json.Object obj;
+            foreach (unowned Json.Node item in json_files.get_elements ()) {
+                obj = item.get_object ();
+                results[nfiles] = {
+                    obj.get_string_member("kind"), // kind
+                    obj.get_string_member("id"), // id
+                    obj.get_string_member("name"), // name
+                    "".data, // content
+                    obj.get_string_member("mimeType"), // mimeType
+                    parent_id, // parent_id
+                    obj.get_string_member("modifiedTime"),
+                    obj.get_string_member("createdTime"),
+                    obj.get_boolean_member("trashed"),
+                    new string[0]
+                };
+                nfiles += 1;
+                if (nfiles == results.length) results.resize(results.length*2);
+            }
+
+            bool files_left = json_response.get_member("nextPageToken") != null && (number < 0 || nfiles < number);
+            RequestParam[] params2 = new RequestParam[3];
+            while (files_left) {
+                params2[0] = params[0];
+                params2[1] = params[1];
+                params2[2] = {"pageToken", json_response.get_string_member("nextPageToken")};
+                res = this.make_request("GET", this.api_uri+"/files", params2, null, null, false).response;
+                parser.load_from_data (res, -1);
+                json_response = parser.get_root().get_object();
+                if (json_response.get_member("error") != null) {
+                    stdout.printf("%s\n", res);
+                    return results[0:nfiles];
+                }
+                json_files = json_response.get_member("files").get_array ();
+                foreach (unowned Json.Node item in json_files.get_elements ()) {
+                    obj = item.get_object ();
+                    results[nfiles] = {
+                        obj.get_string_member("kind"), // kind
+                        obj.get_string_member("id"), // id
+                        obj.get_string_member("name"), // name
+                        "".data, // content
+                        obj.get_string_member("mimeType"), // mimeType
+                        parent_id, // parent_id
+                        obj.get_string_member("modifiedTime"),
+                        obj.get_string_member("createdTime"),
+                        obj.get_boolean_member("trashed"),
+                        new string[0]
+                    };
+                    nfiles += 1;
+                    if (nfiles == results.length) results.resize(results.length*2);
+                }
+                files_left = json_response.get_member("nextPageToken") != null && (number < 0 || nfiles < number);
+            }
+
+            if (number > -1 && nfiles > number) nfiles = number;
+
+            return results[0:nfiles];
+        }
+
+        public DriveFile upload_file(string filepath, string parent_id) {
+            /*
+                Update the file identified by {filepath}
+                    * {filepath} is the complet path of the file to be uploaded
+                      with the {sync_dir} as root. It must exist locally.
+                File doesn't exist in remote
+            */
+            string filename = filepath.split("/")[filepath.split("/").length-1];
+
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"uploadType", "resumable"};
+            RequestContent body = {"application/json; charset=UTF-8", ("{\"name\": \"%s\", \"parents\": [\"%s\"]}".printf(filename, parent_id)).data};
+            RequestParam[] headers = new RequestParam[2];
+            headers[0] = {"Content-Type", "application/json; charset=UTF-8"};
+            headers[1] = {"Content-Length", body.content.length.to_string()};
+            ResponseObject res = this.make_request("POST", this.upload_uri+"/files", params, headers, body, false);
+
+            string location = res.headers.get_one("Location");
+            try {
+                File file = File.new_for_path(filepath);
+                var dis = new DataInputStream (file.read ());
+                dis.set_byte_order (DataStreamByteOrder.LITTLE_ENDIAN);
+                int bytes_readed = 0;
+                uint8[] content = new uint8[64];
+                uint8 readed;
+                try {
+                    readed = dis.read_byte(null);
+                    while (true) {
+                        if (content.length <= bytes_readed) content.resize(bytes_readed*2);
+                        content[bytes_readed] = readed;
+                        bytes_readed += 1;
+                        readed = dis.read_byte(null);
+                    }
+                }catch (Error e) {}
+
+                RequestContent file_content = {"", content[0:bytes_readed]};
+
+                headers = new RequestParam[1];
+                headers[0] = {"Content-Length", bytes_readed.to_string()};
+
+                ResponseObject res2 = this.make_request("PUT", location, null, headers, file_content, true);
+                var parser = new Json.Parser ();
+                parser.load_from_data (res2.response, -1);
+                Json.Object json_response = parser.get_root().get_object();
+                if (json_response.get_member("error") != null) {
+                    stdout.printf("%s\n", res2.response);
+                    return {};
+                }
+                return {
+                    json_response.get_string_member("kind"), // kind
+                    json_response.get_string_member("id"), // id
+                    json_response.get_string_member("name"), // name
+                    "".data, // content
+                    json_response.get_string_member("mimeType"), // mimeType
+                    parent_id, // parent_id
+                    json_response.get_string_member("modifiedTime"),
+                    json_response.get_string_member("createdTime"),
+                    json_response.get_boolean_member("trashed"),
+                    new string[0]
+                };
+            } catch (Error e) {
+                stderr.printf ("Error: %s\n", e.message);
+                return  {};
+            }
+        }
+
+        public DriveFile upload_file_update(string filepath, string file_id) {
+            /*
+                Update the file identified by {filepath}
+                    * {filepath} is the complet path of the file to be uploaded
+                      with the {sync_dir} as root. It must exist locally.
+                File exists in remote with id {file_id}
+            */
+
+            string filename = filepath.split("/")[filepath.split("/").length-1];
+
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"uploadType", "resumable"};
+            RequestParam[] headers = new RequestParam[2];
+            headers[0] = {"Content-Type", "application/json; charset=UTF-8"};
+            headers[1] = {"Content-Length", "0"};
+            ResponseObject res = this.make_request("PATCH", this.upload_uri+"/files/"+file_id, params, headers, null, false);
+
+            string location = res.headers.get_one("Location");
+            try {
+                File file = File.new_for_path(filepath);
+                var dis = new DataInputStream (file.read ());
+                dis.set_byte_order (DataStreamByteOrder.LITTLE_ENDIAN);
+                int bytes_readed = 0;
+                uint8[] content = new uint8[64];
+                uint8 readed;
+                try {
+                    readed = dis.read_byte(null);
+                    while (true) {
+                        if (content.length <= bytes_readed) content.resize(bytes_readed*2);
+                        content[bytes_readed] = readed;
+                        bytes_readed += 1;
+                        readed = dis.read_byte(null);
+                    }
+                }catch (Error e) {}
+
+                RequestContent file_content = {"", content[0:bytes_readed]};
+
+                headers = new RequestParam[1];
+                headers[0] = {"Content-Length", bytes_readed.to_string()};
+
+                ResponseObject res2 = this.make_request("PUT", location, null, headers, file_content, true);
+                var parser = new Json.Parser ();
+                parser.load_from_data (res2.response, -1);
+                Json.Object json_response = parser.get_root().get_object();
+                if (json_response.get_member("error") != null) {
+                    stdout.printf("%s\n", res2.response);
+                    return {};
+                }
+                return {
+                    json_response.get_string_member("kind"), // kind
+                    json_response.get_string_member("id"), // id
+                    json_response.get_string_member("name"), // name
+                    "".data, // content
+                    json_response.get_string_member("mimeType"), // mimeType
+                    "", // parent_id
+                    json_response.get_string_member("modifiedTime"),
+                    json_response.get_string_member("createdTime"),
+                    json_response.get_boolean_member("trashed"),
+                    new string[0]
+                };
+            } catch (Error e) {
+                stderr.printf ("Error: %s\n", e.message);
+                return  {};
+            }
+        }
+
+        public DriveFile upload_dir(string path, string parent_id) {
+            string dirname = path.split("/")[path.split("/").length-1];
+
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"uploadType", "resumable"};
+            RequestContent body = {"application/json; charset=UTF-8", ("{\"name\": \"%s\", \"mimeType\": \"application/vnd.google-apps.folder\", \"parents\": [\"%s\"]}".printf(dirname, parent_id)).data};
+            RequestParam[] headers = new RequestParam[2];
+            headers[0] = {"Content-Type", "application/json; charset=UTF-8"};
+            headers[1] = {"Content-Length", body.content.length.to_string()};
+            ResponseObject res = this.make_request("POST", this.upload_uri+"/files", params, headers, body, false);
+
+            string location = res.headers.get_one("Location");
+            RequestContent file_content = {"", new uint8[0]};
+
+            headers = new RequestParam[1];
+            headers[0] = {"Content-Length", "0"};
+
+            ResponseObject res2 = this.make_request("PUT", location, null, headers, file_content, true);
+            var parser = new Json.Parser ();
+            parser.load_from_data (res2.response, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res2.response);
+                return {};
+            }
+            return {
+                json_response.get_string_member("kind"), // kind
+                json_response.get_string_member("id"), // id
+                json_response.get_string_member("name"), // name
+                "".data, // content
+                json_response.get_string_member("mimeType"), // mimeType
+                parent_id, // parent_id
+                json_response.get_string_member("modifiedTime"),
+                json_response.get_string_member("createdTime"),
+                json_response.get_boolean_member("trashed"),
+                new string[0]
+            };
+        }
+
+        public DriveFile[] search_files(string q) {
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"q", q};
+
+            string res = this.make_request("GET", this.api_uri+"/files", params, null, null, false).response;
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res);
+                return new DriveFile[0];
+            }
+            int nfiles = 0;
+            DriveFile[] results = new DriveFile[5];
+            Json.Array json_files = json_response.get_member("files").get_array ();
+            unowned Json.Object obj;
+            foreach (unowned Json.Node item in json_files.get_elements ()) {
+                obj = item.get_object ();
+                results[nfiles] = {
+                    obj.get_string_member("kind"), // kind
+                    obj.get_string_member("id"), // id
+                    obj.get_string_member("name"), // name
+                    "".data, // content
+                    obj.get_string_member("mimeType"), // mimeType
+                    "", // parent_id
+                    obj.get_string_member("modifiedTime"),
+                    obj.get_string_member("createdTime"),
+                    obj.get_boolean_member("trashed"),
+                    new string[0]
+                };
+                nfiles += 1;
+                if (nfiles == results.length) results.resize(results.length*2);
+            }
+
+            bool files_left = json_response.get_member("nextPageToken") != null;
+            params = new RequestParam[2];
+            while (files_left) {
+                params[0] = {"q", q};
+                params[1] = {"pageToken", json_response.get_string_member("nextPageToken")};
+                res = this.make_request("GET", this.api_uri+"/files", params, null, null, false).response;
+                parser.load_from_data (res, -1);
+                json_response = parser.get_root().get_object();
+                if (json_response.get_member("error") != null) {
+                    stdout.printf("%s\n", res);
+                    return results[0:nfiles];
+                }
+                json_files = json_response.get_member("files").get_array ();
+                foreach (unowned Json.Node item in json_files.get_elements ()) {
+                    obj = item.get_object ();
+                    results[nfiles] = {
+                        obj.get_string_member("kind"), // kind
+                        obj.get_string_member("id"), // id
+                        obj.get_string_member("name"), // name
+                        "".data, // content
+                        obj.get_string_member("mimeType"), // mimeType
+                        "", // parent_id
+                        obj.get_string_member("modifiedTime"),
+                        obj.get_string_member("createdTime"),
+                        obj.get_boolean_member("trashed"),
+                        new string[0]
+                    };
+                    nfiles += 1;
+                    if (nfiles == results.length) results.resize(results.length*2);
+                }
+                files_left = json_response.get_member("nextPageToken") != null;
+            }
+            return results[0:nfiles];
+        }
+
+        public uint8[] get_file_content(string file_id) {
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"alt", "media"};
+            return this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).bresponse;
+        }
+
+        public DriveFile get_file_info(string name, string parent_id, int trashed) {
+            RequestParam[] params = new RequestParam[1];
+
+            string q = "";
+            if (parent_id == "") q = q.concat("'root' in parents");
+            else if (parent_id != "") q = q.concat("'%s' in parents".printf(parent_id));
+            if (trashed < 0) q = q.concat(" and trashed = False");
+            else if (trashed > 0) q = q.concat(" and trashed = True");
+            q = q.concat(" and name = \"%s\"".printf(name));
+            params[0] = {"q", q};
+
+            string res = this.make_request("GET", this.api_uri+"/files", params, null, null, false).response;
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res);
+                return {};
+            }
+            DriveFile result = {};
+            Json.Array json_files = json_response.get_member("files").get_array ();
+            unowned Json.Object obj;
+            foreach (unowned Json.Node item in json_files.get_elements ()) {
+                obj = item.get_object ();
+                result = {
+                    obj.get_string_member("kind"), // kind
+                    obj.get_string_member("id"), // id
+                    obj.get_string_member("name"), // name
+                    "".data, // content
+                    obj.get_string_member("mimeType"), // mimeType
+                    parent_id, // parent_id
+                    obj.get_string_member("modifiedTime"),
+                    obj.get_string_member("createdTime"),
+                    obj.get_boolean_member("trashed"),
+                    new string[0]
+                };
+            }
+            return result;
+        }
+
+        public DriveFile get_file_info_extra(string file_id, string fields) {
+            RequestParam[1] params = new RequestParam[1];
+            params[0] = {"fields", fields};
+            string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res);
+                return {};
+            }
+            string[] parents = new string[2];
+            uint nparents = 0;
+            Json.Array json_parents = json_response.get_member("parents").get_array ();
+            foreach (unowned Json.Node item in json_parents.get_elements ()) {
+                parents[nparents] = json_parents.get_string_element(nparents);
+                nparents += 1;
+                if (parents.length >= nparents) parents.resize(parents.length*2);
+            }
+            return {
+                json_response.get_string_member("kind"), // kind
+                json_response.get_string_member("id"), // id
+                json_response.get_string_member("name"), // name
+                "".data, // content
+                json_response.get_string_member("mimeType"), // mimeType
+                "", // parent_id
+                json_response.get_string_member("modifiedTime"),
+                json_response.get_string_member("createdTime"),
+                json_response.get_boolean_member("trashed"),
+                parents[0:nparents]
+            };
+        }
+
+        public string get_file_id(string path) {
+            if (path == this.main_path) return "root";
+            else {
+                string current_file = path.split("/")[path.split("/").length-1];
+                string new_path = path.substring(0, path.length-current_file.length-1);
+                string parent_id = this.get_file_id(new_path);
+                string q = "trashed = False and name = '%s' and '%s' in parents".printf(current_file, parent_id);
+                DriveFile[] res = this.search_files(q);
+                if (res.length != 1) return "";
+                else return res[0].id;
+            }
+        }
+////////////////////////////////////////////////////////////////////////////////
+/*
+ *
+ * LIBRARY RELATED METHODS
+ *
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+        public Gee.HashMap<string,string>? load_library() {
+            File f = File.new_for_path(this.main_path+"/.vgrive_library");
+            if (!f.query_exists()) {
+                f.create(FileCreateFlags.NONE);
+                return new Gee.HashMap<string,string>();
+            }
+            else {
+                Gee.HashMap<string,string>? aux = new Gee.HashMap<string,string> ();
+                DataInputStream reader = new DataInputStream(f.read());
+                string line;
+                while ((line=reader.read_line(null)) != null) aux.set(line.split(";")[0], line.split(";")[1]);
+                return aux;
+            }
+        }
+
+        public void save_library() {
+            File f = File.new_for_path(this.main_path+"/.vgrive_library");
+            if (!f.query_exists()) f.create(FileCreateFlags.NONE);
+            FileIOStream io = f.open_readwrite();
+            var writer = new DataOutputStream(io.output_stream);
+            foreach (var entry in this.library.entries) {
+                writer.put_string("%s;%s\n".printf(entry.key, entry.value));
+            }
+        }
+
+        public void download_new_remote_file(DriveFile f, string path) {
+            this.log_message(_("%s doesn't exist. Downloding...").printf(f.name));
+            f.content = this.get_file_content(f.id);
+            this.create_local_file(f, path);
+            this.log_message(_("%s downloaded").printf(f.name));
+            DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
+            this.update_local_write_date(extra_info_file.modifiedTime, path+"/"+f.name);
+        }
+
+        public void download_new_version_remote_file(DriveFile f, string path) {
+            this.log_message(_("%s has changed. Downloding newest version...").printf(f.name));
+            f.content = this.get_file_content(f.id);
+            this.move_local_file_to_trash(path+"/"+f.name);
+            this.create_local_file(f, path);
+            this.update_local_write_date(f.modifiedTime, path+"/"+f.name);
+            this.log_message(_("%s newest version downloaded.").printf(f.name));
+        }
+
+        public void upload_local_file_update(string path, owned string? file_id) {
+            string filename = path.split("/")[path.split("/").length-1];
+            this.log_message(_("%s has changed. Updating newest version...").printf(filename));
+            if (file_id == null) file_id = this.get_file_id(path);
+            DriveFile remote_file = this.upload_file_update(path, file_id);
+            this.log_message(_("%s newest version uploaded.").printf(remote_file.name));
+        }
+
+        public DriveFile upload_new_local_dir(string path, string? parent_id) {
+            string parent = parent_id;
+            if (parent_id == null) {
+                string current_file = path.split("/")[path.split("/").length-1];
+                string new_path = path.substring(0, path.length-current_file.length-1);
+                parent = this.get_file_id(new_path);
+            }
+            DriveFile dfile = this.upload_dir(path, parent);
+            if (!this.library.has_key(dfile.id)) this.library.set(dfile.id, path);
+            return dfile;
+        }
+
+        public DriveFile upload_new_local_file(string path, string? parent_id) {
+            string filename = path.split("/")[path.split("/").length-1];
+            this.log_message(_("%s doesn't exist in remote. Uploading...").printf(filename));
+            string parent = parent_id;
+            if (parent == null) {
+                string partial_path = "";
+                foreach (string aux in path.strip().split("/")) {
+                    if (aux != filename && aux != "") partial_path = partial_path+"/"+aux;
+                }
+                parent = this.get_file_id(partial_path);
+            }
+            DriveFile remote_file = this.upload_file(path, parent);
+            DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");
+            this.update_local_write_date(extra_info_file.modifiedTime, path);
+            this.log_message(_("%s uploaded.").printf(remote_file.name));
+            if (!this.library.has_key(remote_file.id)) this.library.set(remote_file.id, path);
+            return remote_file;
+        }
+
+        public void create_local_file(DriveFile dfile, string path) {
+            File file = File.new_for_path(path+"/"+dfile.name);
+            if (dfile.mimeType == "application/vnd.google-apps.folder") {
+                if (!file.query_exists()) file.make_directory();
+            }
+            else {
+                // It shouldn't exist, we checked it...
+                if (!file.query_exists()) file.create(FileCreateFlags.NONE);
+                FileIOStream io = file.open_readwrite();
+                var writer = new DataOutputStream(io.output_stream);
+                foreach (uint8 b in dfile.content) writer.put_byte(b);
+            }
+        }
+
+        public bool is_regular_file(string fname) {
+            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library";
+        }
+////////////////////////////////////////////////////////////////////////////////
+/*
+ *
+ * UTILS METHODS
+ *
+*/
+////////////////////////////////////////////////////////////////////////////////
+        private string encode_uri_param(string param) {
+            /*
+                Replaces:
+                 * ' -> %27
+                 * spaces -> +
+            */
+            string aux = param.replace("'", "%27");
+            aux = aux.replace(" ", "+");
+            return aux;
+        }
+
+        public bool local_file_exists(string path) {
+            File file = File.new_for_path(path);
+            return file.query_exists();
+        }
+
+        public void update_local_write_date(string date, string filepath) {
+            File f = File.new_for_path(filepath);
+            FileInfo fileinfo = f.query_info ("*", FileQueryInfoFlags.NONE);
+            TimeVal tv = new TimeVal();
+            tv.from_iso8601(date);
+            fileinfo.set_modification_time(tv);
+            f.set_attributes_from_info(fileinfo, FileQueryInfoFlags.NONE);
+        }
+
+        public void move_local_file_to_trash(string filepath) {
+            File f = File.new_for_path(filepath);
+            DateTime dt = new DateTime.now_utc();
+            File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
+            f.move(dest, FileCopyFlags.NONE);
+        }
+
+        public int compare_files_write_time(string dfile_write_date, string filepath) {
+            /*
+                Compare the write date of dfile with the write date of filepath,
+                drivefile is newest -> -1
+                drivefile == filepath -> 0
+                filepath is newest -> 1
+            */
+            File lfile = File.new_for_path(filepath);
+            FileInfo fileinfo = lfile.query_info ("*", FileQueryInfoFlags.NONE);
+            TimeVal lfile_wdate = fileinfo.get_modification_time();
+
+            string year, month, day, hour, minutes, seconds,timezone;
+            string strtime = lfile_wdate.to_iso8601();
+            year =  strtime.split("-")[0];
+            month =  strtime.split("-")[1];
+            day =  strtime.split("-")[2].split("T")[0];
+            hour = strtime.split("T")[1].split(":")[0];
+            minutes = strtime.split("T")[1].split(":")[1];
+            seconds = strtime.split("T")[1].split(":")[2].substring(0, 2);
+            timezone = strtime.substring(strtime.last_index_of_char('Z'), 1);
+            DateTime local =  new DateTime (new TimeZone(timezone), year.to_int(), month.to_int(), day.to_int(), hour.to_int(), minutes.to_int(), seconds.to_double());
+
+            strtime = dfile_write_date;
+            year =  strtime.split("-")[0];
+            month =  strtime.split("-")[1];
+            day =  strtime.split("-")[2].split("T")[0];
+            hour = strtime.split("T")[1].split(":")[0];
+            minutes = strtime.split("T")[1].split(":")[1];
+            seconds = strtime.split("T")[1].split(":")[2].substring(0, 2);
+            timezone = strtime.substring(strtime.last_index_of_char('Z'), 1);
+            DateTime remote =  new DateTime (new TimeZone(timezone), year.to_int(), month.to_int(), day.to_int(), hour.to_int(), minutes.to_int(), seconds.to_double());
+            return local.compare(remote);
+        }
+
     }
+
 }
+

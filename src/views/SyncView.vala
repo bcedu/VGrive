@@ -84,7 +84,15 @@ namespace App.Views {
 
         public void update_view(AppController controler) {
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Syncing with Google Drive"));
-            controler.vgrive.start_syncing();
+            if (!controler.vgrive.is_syncing ()) {
+                this.start_stop_btn.get_style_context().remove_class ("redbutton");
+                this.start_stop_btn.get_style_context().add_class ("greenbutton");
+                this.start_stop_btn.set_label (_("Start"));
+            } else {
+                this.start_stop_btn.get_style_context().remove_class ("greenbutton");
+                this.start_stop_btn.get_style_context().add_class ("redbutton");
+                this.start_stop_btn.set_label (_("Stop"));
+            }
         }
 
 

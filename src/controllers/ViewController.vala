@@ -89,6 +89,7 @@ namespace App.Controllers {
 
         public void set_registered_view(string identifier) {
             this.set_view (registered_views[identifier]);
+            this.update_views ();
         }
 
         public void register_view(AppView new_view) {

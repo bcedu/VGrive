@@ -37,7 +37,6 @@ namespace App {
 
         private AppController app_controller;
         // API realted attributes
-        public string credentials = "";
         public string access_token = "";
         public string refresh_token = "";
         public string client_id = "8532198801-7heceng058ouc4mj495a321s8s96b0e5.apps.googleusercontent.com";
@@ -51,7 +50,7 @@ namespace App {
         public string trash_path;
         public bool syncing = false;
 
-        public VGriveClient (AppController controler, owned string? main_path=null, owned string? trash_path=null) {
+        public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null) {
             this.app_controller = controler;
 
             if (main_path == null) {
@@ -91,8 +90,10 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
     public void start_syncing() {
-        // Starts the process to sync files
-        if (!this.syncing) {
+        // Starts the process to sync files.
+        // If the sync was already started (`syncing` is True), nothing is done.
+        // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
+        if (!this.syncing && this.has_credentials ()) {
             this.syncing = true;
             this.log_message("Start syncing files on %s".printf(this.main_path));
             File maindir = File.new_for_path(this.main_path);
@@ -139,22 +140,18 @@ namespace App {
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+
         public DriveRequestResult request_credentials(string drive_code) {
+            // Request credentials to Drive API.
+            // If success, returns code 1 and message=credentials.
+            // Else returns code=-1 ans message=error_description
             string result = "";
-            string dirpath = Environment.get_home_dir()+"/.vgrive";
-            File file = File.new_for_path(dirpath);
-            if (!file.query_exists()) {
-                file.make_directory();
-            }
-            string path = Environment.get_home_dir()+"/.vgrive/credentials.json";
             var session = new Soup.Session ();
             string uri = "https://www.googleapis.com/oauth2/v4/token?grant_type=authorization_code&code=%s&client_id=%s&client_secret=%s&redirect_uri=%s".printf(drive_code, client_id, client_secret, redirect);
             var message = new Soup.Message ("POST", uri);
             message.set_request("", Soup.MemoryUse.COPY, "{}".data);
             session.send_message (message);
             string res = (string) message.response_body.data;
-            print(res);
-            print("\n");
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
@@ -168,53 +165,104 @@ namespace App {
                 };
                 return aux;
             }else {
-                access_token = json_response.get_string_member("access_token");
-                refresh_token = json_response.get_string_member("refresh_token");
-                // store them in path
-                file = File.new_for_path(path);
-                if (file.query_exists()) {
-                    stdout.printf("Warning: file %s already exists and it will be deleted.", path);
-                    try {
-		                file.delete ();
-	                } catch (Error e) {
-		                print ("Error: %s\n", e.message);
-	                }
-                }
-                file.create(FileCreateFlags.NONE);
-                FileIOStream io = file.open_readwrite();
-                io.seek (0, SeekType.END);
-                var writer = new DataOutputStream(io.output_stream);
-                writer.put_string(res);
                 DriveRequestResult aux = DriveRequestResult() {
                     code = 1,
-                    message = _("Success")
+                    message = res
                 };
                 return aux;
             }
         }
 
-        public bool has_local_credentials() {
-            string path = Environment.get_home_dir()+"/.vgrive/credentials.json";
+        public DriveRequestResult request_and_set_credentials(string drive_code, bool store_credentials=true, owned string? credentials_file_path=null) {
+            // Request credentials to Drive API.
+            // If success, returns code 1 and message=credentials and the attributes `access_token` and `refresh_token` are set. Also if `store_credentials` is True, the credentials are written in the `credentials_file_path`
+            // Else returns code=-1 ans message=error_description
+            var res = this.request_credentials (drive_code);
+            if (res.code == 1) {
+                var parser = new Json.Parser ();
+                parser.load_from_data (res.message, -1);
+                Json.Object json_response = parser.get_root().get_object();
+                // Check if we had an error
+                if (json_response.get_member("error") != null) {
+                    string result = "Error trying to get acces token: \n%s\n".printf(res.message);
+                    stdout.printf(result);
+                    DriveRequestResult aux = DriveRequestResult() {
+                        code = -1,
+                        message = result
+                    };
+                    return aux;
+                }else {
+                    this.access_token = json_response.get_string_member("access_token");
+                    this.refresh_token = json_response.get_string_member("refresh_token");
+                    if (store_credentials) {
+                        File file;
+                        if (credentials_file_path == null) {
+                            credentials_file_path = Environment.get_home_dir()+"/.vgrive/credentials.json";
+                            string dirpath = Environment.get_home_dir()+"/.vgrive";
+                            file = File.new_for_path(dirpath);
+                            if (!file.query_exists()) {
+                                file.make_directory();
+                            }
+                        }
+                        // store them in path
+                        file = File.new_for_path(credentials_file_path);
+                        if (file.query_exists()) {
+                            stdout.printf("Warning: file %s already exists and it will be deleted.", credentials_file_path);
+                        try {
+                            file.delete ();
+                        } catch (Error e) {
+                            print ("Error: %s\n", e.message);
+                        }
+                        }
+                        file.create(FileCreateFlags.NONE);
+                        FileIOStream io = file.open_readwrite();
+                        io.seek (0, SeekType.END);
+                        var writer = new DataOutputStream(io.output_stream);
+                        writer.put_string(res.message);
+                    }
+                    return res;
+                }
+            } else {
+                return res;
+            }
+        }
+
+        public bool has_local_credentials(owned string? path=null) {
+            // Check if the there are local credentials.
+            // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
+            if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
             File file = File.new_for_path(path);
             if (!file.query_exists()) return false;
             else return true;
         }
 
-        public void load_local_credentials() {
+        public int load_local_credentials(owned string? path=null) {
+            // Loads local credentials.
+            // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
+            // If they are loaded succesfully the attributes `access_token` and `refresh_token` are set and `1` is returned to indicate de success.
+            // Else `-1` is returned
+            if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
+            if (!this.has_local_credentials (path)) {
+                return -1;
+            }
             string res = "";
-            string path = Environment.get_home_dir()+"/.vgrive/credentials.json";
             File file = File.new_for_path(path);
             DataInputStream reader = new DataInputStream(file.read());
             string line;
             while ((line=reader.read_line(null)) != null) res = res.concat(line);
-            this.credentials = res;
             // parse credentials to get token and refresh token
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
             Json.Object root_obj = parser.get_root().get_object();
             this.access_token = root_obj.get_string_member("access_token");
             this.refresh_token = root_obj.get_string_member("refresh_token");
+            return 1;
         }
 
+        public bool has_credentials () {
+            // Returns True if attribures `access_token` and `refresh_token` are set.
+            // Else False
+            return this.access_token != "" && this.refresh_token != "";
+        }
     }
 }

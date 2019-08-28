@@ -61,7 +61,7 @@ namespace App.Views {
 
         public void connect_signals(AppController controler) {
             continue_button.clicked.connect (() => {
-                var res = controler.vgrive.request_credentials(grive_code.get_text());
+                var res = controler.vgrive.request_and_set_credentials(grive_code.get_text());
                 this.update_view_on_hide (controler);
 		    });
         }
@@ -71,7 +71,7 @@ namespace App.Views {
         }
 
         public void update_view_on_hide(AppController controler) {
-            if (controler.vgrive.access_token == "") controler.set_registered_view ("init");
+            if (!controler.vgrive.has_credentials ()) controler.set_registered_view ("init");
             else  controler.set_registered_view ("sync_view");
         }
 

@@ -45,8 +45,9 @@ namespace App.Controllers {
             this.connect_signals();
             this.launcher = Unity.LauncherEntry.get_for_desktop_id (Constants.LAUNCHER_ID);
             if (vgrive.has_local_credentials()) {
-                vgrive.load_local_credentials();
-                view_controller.set_registered_view ("sync_view");
+                if (vgrive.load_local_credentials() == 1) {
+                    view_controller.set_registered_view ("sync_view");
+                }
             }
         }
 

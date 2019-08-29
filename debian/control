@@ -8,10 +8,12 @@ Build-Depends: debhelper (>= 9),
                libgtk-3-dev,
                libsoup2.4-dev,
                libgee-0.8-dev,
-               libgranite-dev,
-               libunity-dev
+               libunity-dev,
+               libgranite-dev
 Standards-Version: 3.9.3
+
 Package: com.github.bcedu.vgrive
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: VGrive is a client (back-end and front-end) for Google Drive made in vala.
+ Automaticlly detects changes in local and remote files and sync them.

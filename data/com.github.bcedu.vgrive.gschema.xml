@@ -27,5 +27,10 @@
       <summary>The saved state of the window</summary>
       <description>The saved state of the window</description>
     </key>
+    <key type="i" name="auto-sync">
+      <default>1</default>
+      <summary>The saved state of auto-sync</summary>
+      <description>The saved state of auto-sync</description>
+    </key>
 	</schema>
 </schemalist>

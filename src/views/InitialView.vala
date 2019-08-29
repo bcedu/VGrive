@@ -35,7 +35,6 @@ namespace App.Views {
 
         public void update_view(AppController controler) {
             controler.window.headerbar.set_title (Constants.APP_NAME);
-
         }
 
         public void update_view_on_hide(AppController controler) {

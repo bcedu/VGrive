@@ -44,6 +44,9 @@ namespace App.Views {
             laux = this.create_label(_("Begin sync when app is started:"));
             general_grid.attach (laux, 0, 1, 1, 1);
             auto_sync = this.create_switch();
+            var saved_state = AppSettings.get_default();
+            if (saved_state.auto_sync == 1) auto_sync.set_active (true);
+            else auto_sync.set_active (false);
             general_grid.attach (auto_sync, 1, 1, 1, 1);
 
             return general_grid;
@@ -63,6 +66,7 @@ namespace App.Views {
                 controler.vgrive.delete_credentials ();
                 controler.vgrive.delete_local_credentials ();
                 controler.set_registered_view ("init");
+                conf_button.visible = true;
             });
         }
 
@@ -74,6 +78,9 @@ namespace App.Views {
 
         public void update_view_on_hide(AppController controler) {
             conf_button.visible = true;
+            var saved_state = AppSettings.get_default();
+            if (auto_sync.get_active ()) saved_state.auto_sync = 1;
+            else  saved_state.auto_sync = 0;
         }
 
         private Gtk.Label create_label (string text) {

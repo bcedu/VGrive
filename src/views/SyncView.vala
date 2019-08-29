@@ -7,6 +7,7 @@ namespace App.Views {
 
         private Gtk.TextView log_text;
         private Gtk.Button start_stop_btn;
+        private bool initial_action = true;
 
         public SyncView (AppController controler) {
             Gtk.Box mainbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
@@ -83,6 +84,13 @@ namespace App.Views {
         }
 
         public void update_view(AppController controler) {
+            var saved_state = AppSettings.get_default();
+            if (initial_action) {
+                initial_action = false;
+                if (saved_state.auto_sync == 1 && !controler.vgrive.is_syncing ()) {
+                    controler.vgrive.start_syncing ();
+                }
+            }
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Syncing with Google Drive"));
             if (!controler.vgrive.is_syncing ()) {
                 this.start_stop_btn.get_style_context().remove_class ("redbutton");

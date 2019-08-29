@@ -75,6 +75,7 @@ namespace App.Views {
         public void update_view_on_hide(AppController controler) {
             if (!controler.vgrive.has_credentials ()) controler.set_registered_view ("init");
             else  controler.set_registered_view ("sync_view");
+            grive_code.set_text("");
         }
 
     }

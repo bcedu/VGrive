@@ -432,6 +432,19 @@ namespace App {
             return 1;
         }
 
+        public void delete_local_credentials(owned string? path=null) {
+            if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
+            if (this.has_local_credentials (path)) {
+                File file = File.new_for_path(path);
+                file.delete ();
+            }
+        }
+
+        public void delete_credentials() {
+            this.access_token = "";
+            this.refresh_token = "";
+        }
+
         public bool has_credentials () {
             // Returns True if attribures `access_token` and `refresh_token` are set.
             // Else False

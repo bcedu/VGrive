@@ -28,8 +28,7 @@ namespace App.Views {
             // Connect welcome button activated
             this.welcome.activated.connect ((index) => {
                 if (index == open_index) {
-                    controler.view_controller.add_registered_view("login_view");
-                    controler.update_window_view ();
+                    controler.add_registered_view("login_view");
                 }
             });
         }

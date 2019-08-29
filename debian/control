@@ -10,9 +10,7 @@ Build-Depends: debhelper (>= 9),
                libgee-0.8-dev,
                libgranite-dev,
                libunity-dev
-
 Standards-Version: 3.9.3
-
 Package: com.github.bcedu.vgrive
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

@@ -86,6 +86,8 @@ namespace App {
         public string main_path;
         public string trash_path;
         public bool syncing = false;
+        public bool change_detected = false;
+        public int changes_check_period = 10;
         private Gee.HashMap<string,string>? library;
 
         Thread<int> thread;
@@ -168,6 +170,7 @@ namespace App {
         public void stop_syncing() {
             this.syncing = false;
             int result = this.thread.join ();
+            this.log_message(_("Syncing stoped by user request"));
             //this.save_library();
             //this.thread.exit(1);
             //this.log_message(_("Syncing stoped by user request"));
@@ -180,18 +183,37 @@ namespace App {
                 this.check_deleted_files ();
                 this.check_remote_files (this.main_path);
                 this.check_local_files (this.main_path);
-                if (this.is_syncing ()) this.log_message (_("Everything is up to date!"));
-                else this.log_message(_("Syncing stoped by user request"));
                 this.log_level=1;
-                // fer trigger per revisar canvis quan canvia algo local
-                // fer trigger per revisar canvis quan canvia algo remot
-                this.save_library ();
+                if (this.is_syncing ()) {
+                    this.log_message (_("Everything is up to date!"));
+                    // fer trigger per revisar canvis quan canvia algo local
+                    this.watch_local_changes ();
+                    // fer trigger per revisar canvis quan canvia algo remot
+                    while (this.is_syncing ()) {
+                        Thread.usleep (this.changes_check_period*1000000);
+                        this.process_changes ();
+                    }
+                }
                 return 1;
             }else {
                 return -1;
             }
         }
 
+        public bool process_changes() {
+            if (this.is_syncing ()) {
+                if (this.change_detected) {
+                    this.log_message(_("Change detected. Updating files..."));
+                    this.change_detected = false;
+                    this.check_deleted_files ();
+                    this.check_remote_files (this.main_path);
+                    this.check_local_files (this.main_path);
+                }
+                return true;
+            }else {
+                return false;
+            }
+        }
         private void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
@@ -227,7 +249,7 @@ namespace App {
                         this.delete_file(remote_id);
                     }
                 }else {
-                    this.log_message (_("INFO: %s not deleted/moved".printf (filename)));
+                    this.log_message (_("INFO: %s not deleted/moved".printf (filename)), 0);
                 }
             }
             for (int i = 0; i < to_delete.length ; i++) {
@@ -314,6 +336,27 @@ namespace App {
             }
             this.save_library ();
         }
+
+        private void watch_local_changes() {
+            try {
+                string[] dirs_to_watch = this.get_all_dirs(this.main_path);
+
+                foreach (string dir_to_watch in dirs_to_watch) {
+                    new Thread<int>.try ("Watch %s thread".printf(dir_to_watch), () => {
+                        File dir_to_watch_file = File.new_for_path (dir_to_watch);
+                        FileMonitor monitor = dir_to_watch_file.monitor (FileMonitorFlags.WATCH_MOVES, null);
+                        monitor.changed.connect ((changed_file, other_file, event_type) => {
+                            if (this.is_regular_file (changed_file.get_basename ())) this.change_detected = true;
+                        });
+                        new MainLoop ().run ();
+                        return 1;
+                    });
+                }
+            } catch (Error err) {
+                stdout.printf ("Error: %s\n", err.message);
+            }
+        }
+
 ////////////////////////////////////////////////////////////////////////////////
 /*
  *
@@ -1177,6 +1220,30 @@ namespace App {
             timezone = strtime.substring(strtime.last_index_of_char('Z'), 1);
             DateTime remote =  new DateTime (new TimeZone(timezone), year.to_int(), month.to_int(), day.to_int(), hour.to_int(), minutes.to_int(), seconds.to_double());
             return local.compare(remote);
+        }
+
+        public string[] get_all_dirs(string path) {
+            File file =  File.new_for_path(path);
+            var enumerator = file.enumerate_children (FileAttribute.STANDARD_NAME, 0);
+            string[] dirs = new string[5];
+            dirs[0] = path;
+            int ndirs = 1;
+            FileInfo info;
+            string new_path;
+            string[] new_dirs;
+            while ((info = enumerator.next_file ()) != null) {
+                new_path = path+"/"+info.get_name();
+                if (info.get_file_type () == FileType.DIRECTORY && new_path.split("/")[new_path.split("/").length-1] != ".trash") {
+                    new_dirs = this.get_all_dirs(new_path);
+                    foreach (string new_dir in new_dirs) {
+                        dirs[ndirs] = new_dir;
+                        ndirs += 1;
+                        if (ndirs >= dirs.length) dirs.resize(ndirs*2);
+                    }
+                }
+                if (ndirs >= dirs.length) dirs.resize(ndirs*2);
+            }
+            return dirs[0:ndirs];
         }
 
     }

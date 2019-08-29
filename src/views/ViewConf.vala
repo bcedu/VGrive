@@ -95,6 +95,7 @@ namespace App.Views {
                 }
             });
             sign_out.clicked.connect(() => {
+                controler.vgrive.stop_syncing ();
                 controler.vgrive.delete_credentials ();
                 controler.vgrive.delete_local_credentials ();
                 controler.set_registered_view ("init");

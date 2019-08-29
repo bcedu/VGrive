@@ -1,3 +1,16 @@
+icon_size = ['16', '24', '32', '48', '64', '128', '256']
+foreach i : icon_size
+    install_data(
+        join_paths('icons', i, meson.project_name() + '.png'),
+        install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', i + 'x' + i, 'apps')
+    )
+    install_data(
+        join_paths('icons', i, meson.project_name() + '.png'),
+        install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', i + 'x' + i +'@2', 'apps')
+    )
+endforeach
+
+
 desktop_file = i18n.merge_file(
   input: 'com.github.bcedu.vgrive.desktop.in',
   output: 'com.github.bcedu.vgrive.desktop',

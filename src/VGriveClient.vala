@@ -103,7 +103,7 @@ namespace App {
             }
 
             if (trash_path == null) {
-                trash_path = Environment.get_home_dir()+"/vGrive/.trash";
+                trash_path = main_path+"/.trash";
             }
             this.trash_path = trash_path;
             file = File.new_for_path(trash_path);
@@ -1077,6 +1077,22 @@ namespace App {
  *
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+        public void empty_trash(string? current_path=null) {
+            if (current_path == null) current_path = this.trash_path;
+            FileInfo info;
+            File f = File.new_for_path(current_path);
+            File auxf;
+            var enumerator = f.enumerate_children (FileAttribute.STANDARD_NAME, 0);
+            while ((info = enumerator.next_file ()) != null) {
+                if (info.get_file_type () == FileType.DIRECTORY) {
+                    this.empty_trash (current_path+"/"+info.get_name());
+                }
+                auxf = File.new_for_path(current_path+"/"+info.get_name());
+                auxf.delete();
+            }
+        }
+
         private string encode_uri_param(string param) {
             /*
                 Replaces:

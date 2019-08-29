@@ -8,6 +8,7 @@ namespace App.Configs {
         public int window_posy { get; set; }
         public int window_state { get; set; }
         public int auto_sync { get; set; }
+        public string sync_folder { get; set; }
 
         private static AppSettings _settings;
 

@@ -36,7 +36,11 @@ namespace App.Controllers {
 
         public AppController (App.Application application) {
             this.application = application;
-            this.vgrive = new App.VGriveClient(this);
+
+            var saved_state = AppSettings.get_default();
+            if (saved_state.sync_folder == "null") saved_state.sync_folder = Environment.get_home_dir()+"/vGrive";
+
+            this.vgrive = new App.VGriveClient(this, saved_state.sync_folder);
             // Create the main window
             this.window = new AppWindow (this.application);
             this.application.add_window (this.window);

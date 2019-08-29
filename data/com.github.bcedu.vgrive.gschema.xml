@@ -32,5 +32,10 @@
       <summary>The saved state of auto-sync</summary>
       <description>The saved state of auto-sync</description>
     </key>
+    <key type="s" name="sync-folder">
+      <default>'null'</default>
+      <summary>The saved state of sync-folder</summary>
+      <description>The saved state of sync-folder</description>
+    </key>
 	</schema>
 </schemalist>

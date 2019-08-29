@@ -15,7 +15,10 @@ namespace App.Views {
         private Gtk.Button conf_button;
         private Gtk.Button sign_out;
         private Gtk.Button empty_trash;
+        private Gtk.Button change_folder;
+        private Gtk.Label selected_folder;
         private Gtk.Switch auto_sync;
+        private bool folder_changed = false;
 
         public ViewConf (AppController controler) {
             Gtk.Box mainbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
@@ -68,6 +71,16 @@ namespace App.Views {
             else auto_sync.set_active (false);
             general_grid.attach (auto_sync, 1, 5, 1, 1);
 
+            laux = this.create_label(_("vGrive foler:"));
+            general_grid.attach (laux, 0, 6, 1, 1);
+            selected_folder = this.create_label(saved_state.sync_folder, 0, Gtk.Align.START);
+            change_folder = this.create_button(_("Change folder"));
+            Gtk.Box baux = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
+            baux.halign = Gtk.Align.START;
+            baux.pack_start(selected_folder, false, false, 0);
+            baux.pack_start(change_folder, false, false, 0);
+            general_grid.attach (baux, 1, 6, 1, 1);
+
             return general_grid;
         }
 
@@ -90,6 +103,9 @@ namespace App.Views {
             empty_trash.clicked.connect(() => {
                 this.build_trash_confirmation_dialog (controler);
             });
+            change_folder.clicked.connect(() => {
+                this.build_select_sync_folder (controler);
+            });
         }
 
         public void update_view(AppController controler) {
@@ -103,6 +119,11 @@ namespace App.Views {
             var saved_state = AppSettings.get_default();
             if (auto_sync.get_active ()) saved_state.auto_sync = 1;
             else  saved_state.auto_sync = 0;
+            if (this.folder_changed) {
+                folder_changed = false;
+                saved_state.sync_folder = this.selected_folder.get_label();
+                controler.vgrive.change_main_path(saved_state.sync_folder);
+            }
         }
 
         private Gtk.Label create_label (string text, int margin=20, Gtk.Align alg=Gtk.Align.END) {
@@ -132,6 +153,29 @@ namespace App.Views {
             label.get_style_context ().add_class ("h4");
             label.halign = alg;
             return label;
+        }
+
+        private void build_select_sync_folder(AppController controler) {
+            Gtk.FileChooserDialog file_chooser = new Gtk.FileChooserDialog (
+                _("Select a foler"), controler.window, Gtk.FileChooserAction.SELECT_FOLDER, _("Cancel"),
+                Gtk.ResponseType.CANCEL, _("Open"), Gtk.ResponseType.ACCEPT
+            );
+
+            // Connect folder selected
+            file_chooser.response.connect((response) => {
+                if (response == Gtk.ResponseType.ACCEPT) {
+                    string? sel = file_chooser.get_filename ();
+                    if (sel != null && this.selected_folder.get_label () != sel) {
+                        this.selected_folder.set_label(sel);
+                        this.folder_changed = true;
+                    }
+                    file_chooser.destroy ();
+                } else {
+                    file_chooser.destroy();
+                }
+            });
+
+            file_chooser.run ();
         }
 
         private void build_trash_confirmation_dialog(AppController controler) {
@@ -189,7 +233,7 @@ namespace App.Views {
             btnBox.pack_start (btn, false, false, 0);
 
             // Empty Trash Button
-            btn = this.create_button (_("Empty trash"), Gtk.Align.CENTER);
+            btn = this.create_button (_("Empty the trash"), Gtk.Align.CENTER);
             btn.get_style_context().add_class ("redbutton");
             btn.clicked.connect(() => {
                 controler.vgrive.empty_trash();

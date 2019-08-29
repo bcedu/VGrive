@@ -90,7 +90,7 @@ namespace App {
 
         Thread<int> thread;
 
-        public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null, owned DateTime? last_sync_date=null) {
+        public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null) {
             this.app_controller = controler;
 
             if (main_path == null) {
@@ -120,6 +120,14 @@ namespace App {
             if (this.app_controller != null && level >= log_level) {
                 this.app_controller.log_message(msg);
             }
+        }
+
+        public void change_main_path(string new_path) {
+            this.stop_syncing ();
+            this.main_path = new_path;
+            this.trash_path = main_path+"/.trash";
+            this.library = null;
+            this.log_message (_("Main folder changed to %s").printf(new_path));
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -159,6 +167,7 @@ namespace App {
 
         public void stop_syncing() {
             this.syncing = false;
+            int result = this.thread.join ();
             //this.save_library();
             //this.thread.exit(1);
             //this.log_message(_("Syncing stoped by user request"));

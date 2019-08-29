@@ -82,6 +82,7 @@ namespace App {
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
         public string redirect = "urn:ietf:wg:oauth:2.0:oob";
+        string page_token = "";
         // SYNC related sttributes
         public string main_path;
         public string trash_path;
@@ -186,9 +187,10 @@ namespace App {
                 this.log_level=1;
                 if (this.is_syncing ()) {
                     this.log_message (_("Everything is up to date!"));
-                    // fer trigger per revisar canvis quan canvia algo local
+                    // trigger per revisar canvis quan canvia algo local
                     this.watch_local_changes ();
-                    // fer trigger per revisar canvis quan canvia algo remot
+                    // trigger per revisar canvis quan canvia algo remot
+                    this.watch_remote_changes ();
                     while (this.is_syncing ()) {
                         Thread.usleep (this.changes_check_period*1000000);
                         this.process_changes ();
@@ -208,6 +210,7 @@ namespace App {
                     this.check_deleted_files ();
                     this.check_remote_files (this.main_path);
                     this.check_local_files (this.main_path);
+                    if (!this.change_detected) this.log_message (_("Everything is up to date!"));
                 }
                 return true;
             }else {
@@ -355,6 +358,26 @@ namespace App {
             } catch (Error err) {
                 stdout.printf ("Error: %s\n", err.message);
             }
+        }
+
+        private void watch_remote_changes () {
+            this.page_token = this.request_page_token();
+            try {
+                new Thread<int>.try ("Watch remote thread", () => {
+                    while (this.is_syncing ()) {
+                        Thread.usleep (this.changes_check_period*1000000);
+                        this.change_detected = this.check_remote_changes (this.page_token);
+                    }
+                    new MainLoop ().run ();
+                    return 1;
+                });
+            } catch (Error err) {
+                stdout.printf ("Error: %s\n", err.message);
+            }
+        }
+
+        private bool check_remote_changes(string token) {
+            return this.has_remote_changes (token);
         }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1013,6 +1036,53 @@ namespace App {
         public void delete_file(string file_id) {
             this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
         }
+
+        public string request_page_token() {
+            string res = this.make_request("GET", this.api_uri+"/changes/startPageToken", null, null, null, false).response;
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            return json_response.get_string_member("startPageToken");
+        }
+
+        public bool has_remote_changes(string pageToken) {
+            RequestParam[] params = new RequestParam[1];
+            params[0] = {"pageToken", pageToken};
+            string res = this.make_request("GET", this.api_uri+"/changes", params, null, null, false).response;
+
+            var parser = new Json.Parser ();
+            parser.load_from_data (res, -1);
+            Json.Object json_response = parser.get_root().get_object();
+            if (json_response.get_member("error") != null) {
+                stdout.printf("%s\n", res);
+                return false;
+            }
+            // Mirem si hi ha 1 element com a minim al llistat de canvis. Si n'hi ha, vol dir que hi ha algun canvi per processar
+            Json.Array json_files = json_response.get_member("changes").get_array ();
+            bool final_res = json_files.get_length () > 0;
+
+            // Acavem de demanar tota la resta de canvis perqué quan hi tornem ja no els ens torni a ensenyar
+            string nextToken = "";
+            if (json_response.get_member("newStartPageToken") != null) nextToken = json_response.get_string_member("newStartPageToken");
+
+            bool changes_left = json_response.get_member("nextPageToken") != null;
+            while (changes_left) {
+                params[0] = {"pageToken", json_response.get_string_member("nextPageToken")};
+                res = this.make_request("GET", this.api_uri+"/changes", params, null, null, false).response;
+                parser.load_from_data (res, -1);
+                json_response = parser.get_root().get_object();
+                if (json_response.get_member("error") != null) {
+                    stdout.printf("%s\n", res);
+                    return false;
+                }
+                if (json_response.get_member("newStartPageToken") != null) nextToken = json_response.get_string_member("newStartPageToken");
+                changes_left = json_response.get_member("nextPageToken") != null;
+            }
+
+            if (nextToken != "" && nextToken != null) this.page_token = nextToken;
+            return final_res;
+        }
+
 ////////////////////////////////////////////////////////////////////////////////
 /*
  *

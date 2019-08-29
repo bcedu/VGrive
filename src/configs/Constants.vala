@@ -29,5 +29,7 @@ namespace App.Configs {
         public abstract const string APP_ICON = "com.github.bcedu.vgrive";
         public abstract const string APP_NAME = _("vGrive");
         public abstract const string LAUNCHER_ID = "com.github.bcedu.vgrive.desktop";
+        public const string FILES_DBUS_ID = "org.freedesktop.FileManager1";
+        public const string FILES_DBUS_PATH = "/org/freedesktop/FileManager1";
     }
 }

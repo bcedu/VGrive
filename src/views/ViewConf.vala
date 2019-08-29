@@ -5,6 +5,11 @@ using App.Configs;
 
 namespace App.Views {
 
+    [DBus (name = "org.freedesktop.FileManager1")]
+    interface DBus.Files : Object {
+        public abstract void show_items (string[] uris, string startup_id) throws IOError, DBusError;
+        public abstract void show_folders (string[] uris, string startup_id) throws IOError, DBusError;
+    }
 
     public class ViewConf : AppView, VBox {
         private Gtk.Button conf_button;
@@ -130,42 +135,70 @@ namespace App.Views {
         }
 
         private void build_trash_confirmation_dialog(AppController controler) {
+            // New window
             Gtk.Window edit_window = new Gtk.Window();
             edit_window.window_position = Gtk.WindowPosition.CENTER;
             edit_window.set_resizable(false);
+            // New header
             var header_bar = new Gtk.HeaderBar ();
             header_bar.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
             header_bar.show_close_button = true;
             header_bar.has_subtitle = false;
             edit_window.set_titlebar(header_bar);
 
-            // Create content widgets
+            // Main Box
             Gtk.Box editBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             editBox.expand = true;
             editBox.margin = 10;
 
+            // Labels with info
             Gtk.Label lbl = this.create_heading (_("Are you sure tou want to permanently erase the items in the Trash?"), Gtk.Align.START);
             editBox.pack_start (lbl, false, false, 0);
             lbl = this.create_label (_("Trash localted in: %s").printf(controler.vgrive.trash_path), 0, Gtk.Align.START);
             editBox.pack_start (lbl, false, false, 0);
 
+            // Buttons Box
             Gtk.Box btnBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
             btnBox.expand = true;
             btnBox.margin = 10;
-            Gtk.Button btn = this.create_button (_("Cancel"), Gtk.Align.END);
+
+            // Cancel button
+            Gtk.Button btn = this.create_button (_("Cancel"), Gtk.Align.CENTER);
             btn.clicked.connect(() => {
                 edit_window.destroy();
             });
             btnBox.pack_start (btn, false, false, 0);
-            btn = this.create_button (_("Empty trash"), Gtk.Align.END);
+
+            // Show in Files button
+            btn = this.create_button (_("Show In File Browser"), Gtk.Align.CENTER);
+            btn.clicked.connect(() => {
+                DBus.Files files;
+                try {
+                    files = Bus.get_proxy_sync (BusType.SESSION, Constants.FILES_DBUS_ID, Constants.FILES_DBUS_PATH);
+                    var path = controler.vgrive.trash_path;
+                    var file = File.new_for_path (path);
+                    if (file.query_exists ()) {
+                        info (file.get_uri ());
+                        files.show_items ({ file.get_uri () }, Constants.APP_NAME);
+                    }
+                } catch (IOError e) {
+                    warning ("Unable to connect to FileManager1 interface to show file. Error: %s", e.message);
+                    return;
+                }
+            });
+            btnBox.pack_start (btn, false, false, 0);
+
+            // Empty Trash Button
+            btn = this.create_button (_("Empty trash"), Gtk.Align.CENTER);
             btn.get_style_context().add_class ("redbutton");
             btn.clicked.connect(() => {
                 controler.vgrive.empty_trash();
                 edit_window.destroy();
             });
-            btnBox.pack_start (btn, false, false, 10);
-            editBox.pack_start (btnBox, false, false, 10);
+            btnBox.pack_start (btn, false, false, 0);
 
+            // Pack everything
+            editBox.pack_start (btnBox, false, false, 10);
             edit_window.add(editBox);
             edit_window.show_all();
         }

@@ -9,6 +9,7 @@ Build-Depends: debhelper (>= 9),
                libsoup2.4-dev,
                libgee-0.8-dev,
                libunity-dev,
+               libjson-glib-1.0-0,
                libgranite-dev
 Standards-Version: 3.9.3
 

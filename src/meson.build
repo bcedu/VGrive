@@ -21,7 +21,8 @@ srcs = files([
 deps = [
     dependency('granite'),
     dependency('libsoup-2.4'),
-    dependency('json-glib-1.0')
+    dependency('json-glib-1.0'),
+    dependency('unity')
 ]
 
 

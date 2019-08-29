@@ -58,6 +58,7 @@ namespace App.Controllers {
 
         public void activate () {
             this.closed = false;
+            this.launcher.progress_visible = false;
             // Show all elements from window
             window.init ();
             // Set current view
@@ -98,13 +99,32 @@ namespace App.Controllers {
 		    this.window.delete_event.connect (() => {
                 if (this.vgrive.is_syncing ()) {
                     this.closed = true;
+                    this.notify (_("Sync continues in background"));
+                    this.launcher.progress_visible = true;
+                    this.launcher.progress = 0;
                     return this.window.hide_on_delete ();
-                }else return false;
+                }else {
+                    this.vgrive.stop_syncing ();
+                    this.notify (_("Sync stopped"));
+                    this.launcher.progress_visible = false;
+                    return false;
+                }
             });
         }
 
         public void log_message(string msg) {
             log_event(msg);
+        }
+
+        public void notify(string text) {
+            var notification = new Notification (Constants.APP_NAME);
+            try {
+                notification.set_icon ( new Gdk.Pixbuf.from_file (Constants.APP_ICON));
+            }catch (GLib.Error e) {
+                stdout.printf("Notification logo not found. Error: %s\n", e.message);
+            }
+            notification.set_body (text);
+            this.application.send_notification (this.application.application_id, notification);
         }
     }
 }

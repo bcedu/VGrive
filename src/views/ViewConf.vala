@@ -35,19 +35,24 @@ namespace App.Views {
 
             Gtk.Label laux;
 
-            laux = this.create_label(_("Change account:"));
-            general_grid.attach (laux, 0, 0, 1, 1);
-            sign_out = this.create_button(_("Sign Out"));
-            general_grid.attach (sign_out, 1, 0, 1, 1);
+            laux = this.create_heading(_("Actions"));
+            general_grid.attach (laux, 0, 0, 2, 1);
 
+            laux = this.create_label(_("Change account:"));
+            general_grid.attach (laux, 0, 1, 1, 1);
+            sign_out = this.create_button(_("Sign Out"));
+            general_grid.attach (sign_out, 1, 1, 1, 1);
+
+            laux = this.create_heading(_("Preferences"));
+            general_grid.attach (laux, 0, 3, 2, 1);
 
             laux = this.create_label(_("Begin sync when app is started:"));
-            general_grid.attach (laux, 0, 1, 1, 1);
+            general_grid.attach (laux, 0, 4, 1, 1);
             auto_sync = this.create_switch();
             var saved_state = AppSettings.get_default();
             if (saved_state.auto_sync == 1) auto_sync.set_active (true);
             else auto_sync.set_active (false);
-            general_grid.attach (auto_sync, 1, 1, 1, 1);
+            general_grid.attach (auto_sync, 1, 4, 1, 1);
 
             return general_grid;
         }
@@ -104,6 +109,14 @@ namespace App.Views {
             toggle.hexpand = true;
             return toggle;
         }
+
+        private Gtk.Label create_heading (string text) {
+            var label = new Gtk.Label (text);
+            label.get_style_context ().add_class ("h4");
+            label.halign = Gtk.Align.CENTER;
+            return label;
+        }
+
     }
 
 }

@@ -89,6 +89,8 @@ namespace App.Views {
                 initial_action = false;
                 if (saved_state.auto_sync == 1 && !controler.vgrive.is_syncing ()) {
                     controler.vgrive.start_syncing ();
+                } else {
+                    controler.log_message (_("Sync is stopped. Press start to begin."));
                 }
             }
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Syncing with Google Drive"));

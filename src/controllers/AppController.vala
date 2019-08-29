@@ -31,6 +31,7 @@ namespace App.Controllers {
         public ViewController view_controller;
         public Unity.LauncherEntry launcher;
         public App.VGriveClient vgrive;
+        public bool closed;
         public signal void log_event (string msg);
 
         public AppController (App.Application application) {
@@ -52,6 +53,7 @@ namespace App.Controllers {
         }
 
         public void activate () {
+            this.closed = false;
             // Show all elements from window
             window.init ();
             // Set current view
@@ -89,6 +91,12 @@ namespace App.Controllers {
                 this.view_controller.get_previous_view ();
                 this.update_window_view ();
 		    });
+		    this.window.delete_event.connect (() => {
+                if (this.vgrive.is_syncing ()) {
+                    this.closed = true;
+                    return this.window.hide_on_delete ();
+                }else return false;
+            });
         }
 
         public void log_message(string msg) {

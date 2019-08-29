@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-29 14:43+0200\n"
+"POT-Creation-Date: 2019-08-29 19:11+0200\n"
 "PO-Revision-Date: 2019-08-29 14:43+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -24,7 +24,8 @@ msgstr "VGrive"
 #: data/com.github.bcedu.vgrive.desktop.in:4
 #: data/com.github.bcedu.vgrive.appdata.xml.in:9
 msgid "Google Drive client with automatic syncronization for linux."
-msgstr "Client de Google Drive amb sincronització automàtica de fitxers per linux."
+msgstr ""
+"Client de Google Drive amb sincronització automàtica de fitxers per linux."
 
 #: data/com.github.bcedu.vgrive.desktop.in:5
 msgid "com.github.bcedu.vgrive"
@@ -41,17 +42,22 @@ msgstr "Eduard Berloso Clarà"
 #: data/com.github.bcedu.vgrive.appdata.xml.in:11
 msgid ""
 "VGrive is a client (back-end and front-end) for Google Drive made in vala."
-msgstr "VGrive es un client (back-end and front-end) de Google Drive fet en vala."
+msgstr ""
+"VGrive es un client (back-end and front-end) de Google Drive fet en vala."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:13
 msgid ""
 "Start VGrive and sync your files with Google Drive through a clean and "
 "minimalist gui."
-msgstr "Inicia VGrive isincronitza els teus fitxers amb Google Drive a través de una interfície neta i senzilla."
+msgstr ""
+"Inicia VGrive isincronitza els teus fitxers amb Google Drive a través de una "
+"interfície neta i senzilla."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:14
 msgid "Automaticlly detects changes in local and remote files and sync them."
-msgstr "Detecta automàticament els canvis en fitxers locals i remots i els sincronitza."
+msgstr ""
+"Detecta automàticament els canvis en fitxers locals i remots i els "
+"sincronitza."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:15
 msgid "Choose the local path where VGrive syncs your files."
@@ -60,6 +66,14 @@ msgstr "Tria la carpeta local on vos dur a terme la sinccronització."
 #: data/com.github.bcedu.vgrive.appdata.xml.in:40
 msgid "VGrive initial release!"
 msgstr "VGrive versió inicial!"
+
+#: src/controllers/AppController.vala:102
+msgid "Sync continues in background"
+msgstr "La sincronització continua en segon pla"
+
+#: src/controllers/AppController.vala:108
+msgid "Sync stopped"
+msgstr "S'ha aturat la sincronització"
 
 #: src/widgets/HeaderBar.vala:46 src/views/LogInView.vala:72
 msgid "Back"
@@ -252,8 +266,7 @@ msgstr "Buida la paparera"
 msgid ""
 "(note: vGrive doesn't delete any file, they are moved to the \".trash\" "
 "folder)"
-msgstr ""
-"(nota: VGrive no elimina cap fitxer, els mou a la carpeta \".trash\""
+msgstr "(nota: VGrive no elimina cap fitxer, els mou a la carpeta \".trash\""
 
 #: src/views/ViewConf.vala:63
 msgid "Preferences"
@@ -293,7 +306,8 @@ msgstr "Obrir"
 
 #: src/views/ViewConf.vala:200
 msgid "Are you sure tou want to permanently erase the items in the Trash?"
-msgstr "Estàs segur que vols eliminar permanentment els fitxers de la Paparera?"
+msgstr ""
+"Estàs segur que vols eliminar permanentment els fitxers de la Paparera?"
 
 #: src/views/ViewConf.vala:202
 #, c-format

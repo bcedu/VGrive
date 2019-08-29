@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-29 14:43+0200\n"
+"POT-Creation-Date: 2019-08-29 19:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,6 +60,14 @@ msgstr ""
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:40
 msgid "VGrive initial release!"
+msgstr ""
+
+#: src/controllers/AppController.vala:102
+msgid "Sync continues in background"
+msgstr ""
+
+#: src/controllers/AppController.vala:108
+msgid "Sync stopped"
 msgstr ""
 
 #: src/widgets/HeaderBar.vala:46 src/views/LogInView.vala:72

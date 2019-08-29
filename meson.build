@@ -1,4 +1,4 @@
-project('com.github.bcedu.vgrive', 'c', 'vala', version: '0.1.0')
+project('com.github.bcedu.vgrive', 'c', 'vala', version: '1.0.0')
 
 i18n = import('i18n')
 gnome = import('gnome')

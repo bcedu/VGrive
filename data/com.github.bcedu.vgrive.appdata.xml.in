@@ -1,9 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2018 Eduard Berloso Clarà <eduard.bc.95@gmail.com> -->
 <component type="desktop">
 	<id>com.github.bcedu.vgrive.desktop</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
+  <developer_name>Eduard Berloso Clarà</developer_name>
+  <name>VGrive</name>
+  <summary>Google Drive client with automatic syncronization for linux.</summary>
 	<description>
+    <p>VGrive is a client (back-end and front-end) for Google Drive made in vala.</p>
+    <ul>
+    <li>Start VGrive and sync your files with Google Drive through a clean and minimalist gui.</li>
+    <li>Automaticlly detects changes in local and remote files and sync them.</li>
+    <li>Choose the local path where VGrive syncs your files.</li>
+    </ul>
 	</description>
+  <custom>
+      <value key="x-appcenter-color-primary">#a56de2</value>
+      <value key="x-appcenter-color-primary-text">rgb(0,0,0)</value>
+      <value key="x-appcenter-suggested-price">0</value>
+  </custom>
+  <screenshots>
+      <screenshot type="default">
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/init.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/sync.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/conf.png</image>
+      </screenshot>
+  </screenshots>
+      <releases>
+      <release version="1.0.0" date="2019-08-29">
+        <description>
+          <p>VGrive initial release!</p>
+        </description>
+      </release>
+    </releases>
+  <provides>
+      <binary>com.github.bcedu.vgrive</binary>
+  </provides>
+  <url type="homepage">https://github.com/bcedu/VGrive</url>
+  <url type="bugtracker">https://github.com/bcedu/VGrive/issues</url>
+  <url type="translate">https://github.com/bcedu/VGrive/tree/master/po#readme</url>
+  <url type="help">https://github.com/bcedu/VGrive/issues</url>
+  <update_contact>eduard.bc.95@gmail.com</update_contact>
 </component>
+
 

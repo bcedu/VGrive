@@ -244,15 +244,15 @@ namespace App {
                 if (must_delete) {
                     to_delete.append_val(aux);
                     if (exist_local) {
-                        this.log_message (_("DELETE LOCAL FILE: %s".printf (filename)));
+                        this.log_message (_("DELETE LOCAL FILE: %s").printf (filename));
                         this.move_local_file_to_trash(lpath);
                     }
                     if (exist_remote) {
-                        this.log_message (_("DELETE REMOTE FILE: %s".printf (filename)));
+                        this.log_message (_("DELETE REMOTE FILE: %s").printf (filename));
                         this.delete_file(remote_id);
                     }
                 }else {
-                    this.log_message (_("INFO: %s not deleted/moved".printf (filename)), 0);
+                    this.log_message (_("INFO: %s not deleted/moved").printf (filename), 0);
                 }
             }
             for (int i = 0; i < to_delete.length ; i++) {
@@ -1234,14 +1234,14 @@ namespace App {
         public void update_local_write_date(string? date, string filepath) {
             string? aux = date;
             if (aux == null) {
-                this.log_message("WARNING: No date for %s. Asking to api...".printf(filepath));
+                //this.log_message("WARNING: No date for %s. Asking to api...".printf(filepath));
                 string fid = this.get_file_id(filepath);
                 var dfile = this.get_file_info_extra (fid, "modifiedTime");
                 aux = dfile.modifiedTime;
-                this.log_message("New date: %s".printf(aux));
+                //this.log_message("New date: %s".printf(aux));
             }
             if (aux == null) {
-                this.log_message("ERROR: No date for %s.".printf(filepath));
+                //this.log_message("ERROR: No date for %s.".printf(filepath));
             }
             File f = File.new_for_path(filepath);
             FileInfo fileinfo = f.query_info ("*", FileQueryInfoFlags.NONE);

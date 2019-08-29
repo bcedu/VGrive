@@ -1,11 +1,27 @@
-# ProgramaTest
+# VGrive
 
+VGrive is a client (back-end and front-end) for Google Drive made in vala.
+
+<ul>
+<li>Start VGrive and sync your files with Google Drive through a clean and minimalist gui.</li>
+<li>Automaticlly detects changes in local and remote files and sync them.</li>
+<li>Choose the local path where VGrive syncs your files.</li>
+</ul>
+
+<p float="left">
+  <img src="/data/imgs/init.png" width="49%" />
+  <img src="/data/imgs/login.png" width="49%" />
+</p>
+<p float="left">
+  <img src="/data/imgs/sync.png" width="49%" />
+  <img src="/data/imgs/conf.png" width="49%" />
+</p>
 
 ## Installation
 
 ### Elementary AppCenter
 
-Install VServer through the elementary AppCenter. It's always updated to lastest version.
+Install VGrive through the elementary AppCenter. It's always updated to lastest version.
 Easy and fast.
 
 <p align="center">
@@ -13,12 +29,6 @@ Easy and fast.
 </p>
 
 ### Manual Instalation
-
-You will need the following packages, that can be installed through apt:
-- gobject-2.0
-- glib-2.0
-- gtk+-3.0
-- gee-0.8
 
 Download last release (zip file), extract files and enter to the folder where they where extracted.
 

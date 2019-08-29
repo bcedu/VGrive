@@ -1,7 +1,10 @@
 [Desktop Entry]
-Name=vgrive
-Exec=vgrive
+Name=VGrive
+Comment=Google Drive client with automatic syncronization for linux.
+Icon=com.github.bcedu.vgrive
+Exec=com.github.bcedu.vgrive
 Terminal=false
 Type=Application
-Categories=GTK;
 StartupNotify=true
+Categories=GNOME;GTK;Network;
+Keywords=app;vala;share;files;drive;google;

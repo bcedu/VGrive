@@ -71,7 +71,7 @@ namespace App.Views {
             else auto_sync.set_active (false);
             general_grid.attach (auto_sync, 1, 5, 1, 1);
 
-            laux = this.create_label(_("vGrive foler:"));
+            laux = this.create_label(_("vGrive folder:"));
             general_grid.attach (laux, 0, 6, 1, 1);
             selected_folder = this.create_label(saved_state.sync_folder, 0, Gtk.Align.START);
             change_folder = this.create_button(_("Change folder"));
@@ -158,7 +158,7 @@ namespace App.Views {
 
         private void build_select_sync_folder(AppController controler) {
             Gtk.FileChooserDialog file_chooser = new Gtk.FileChooserDialog (
-                _("Select a foler"), controler.window, Gtk.FileChooserAction.SELECT_FOLDER, _("Cancel"),
+                _("Select a folder"), controler.window, Gtk.FileChooserAction.SELECT_FOLDER, _("Cancel"),
                 Gtk.ResponseType.CANCEL, _("Open"), Gtk.ResponseType.ACCEPT
             );
 

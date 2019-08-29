@@ -27,7 +27,7 @@ namespace App.Views {
             Gtk.Label lb1 = new Gtk.Label (_("1. Click in the following link:"));
             lb1.set_use_markup (true);
             lb1.set_line_wrap (true);
-            Gtk.LinkButton lb2 = new Gtk.LinkButton.with_label (controler.vgrive.get_auth_uri (), _("Give acces to eGrive"));
+            Gtk.LinkButton lb2 = new Gtk.LinkButton.with_label (controler.vgrive.get_auth_uri (), _("Give acces to VGrive"));
             var box = new Gtk.Box(Orientation.VERTICAL, 10);
             box.pack_start(lb1, false, false, 0);
             box.pack_start(lb2, false, false, 0);
@@ -69,7 +69,7 @@ namespace App.Views {
 
         public void update_view(AppController controler) {
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Log In"));
-            controler.window.headerbar.back_button.set_label (_("Torna al inici"));
+            controler.window.headerbar.back_button.set_label (_("Back"));
         }
 
         public void update_view_on_hide(AppController controler) {

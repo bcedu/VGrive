@@ -107,7 +107,6 @@ namespace App.Views {
 
 
         public void update_view_on_hide(AppController controler) {
-            print("view2 says: Adeu!\n");
         }
 
     }

@@ -19,15 +19,9 @@ srcs = files([
 
 # Dependences
 deps = [
-    dependency('gobject-2.0'),
-    dependency('glib-2.0'),
-    dependency('gtk+-3.0'),
     dependency('granite'),
-    dependency('gee-0.8'),
     dependency('libsoup-2.4'),
-    dependency('json-glib-1.0'),
-    meson.get_compiler('vala').find_library('posix'),
-    dependency('unity')
+    dependency('json-glib-1.0')
 ]
 
 

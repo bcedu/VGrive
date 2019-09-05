@@ -28,9 +28,9 @@ Easy and fast.
   <a href="https://appcenter.elementary.io/com.github.bcedu.vgrive"><img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter" /></a>
 </p>
 
-### Install from .deb file 
+### Debiand and Debian and Derivatives: Install from .deb file 
 
-For debian based distributions (ubuntu, linux mint, elementary,...) you can install VGrive directlly with the .deb file attached to the newest release of VGrive. 
+For debian based distributions (ubuntu, linux mint, elementary, ...) you can install VGrive directlly with the .deb file attached to the newest release of VGrive. 
 
 ### Manual Instalation
 

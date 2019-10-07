@@ -55,7 +55,7 @@ namespace App.Views {
             laux = this.create_label(_("Delete all files from \".trash\":"));
             general_grid.attach (laux, 0, 2, 1, 1);
             empty_trash = this.create_button(_("Empty the trash"));
-            empty_trash.get_style_context().add_class ("redbutton");
+            empty_trash.get_style_context().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
             general_grid.attach (empty_trash, 1, 2, 1, 1);
             laux = this.create_label(_("(note: vGrive doesn't delete any file, they are moved to the \".trash\" folder)"), 0, Gtk.Align.CENTER);
             general_grid.attach (laux, 0, 3, 2, 1);

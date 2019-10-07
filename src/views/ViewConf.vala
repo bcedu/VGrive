@@ -235,7 +235,7 @@ namespace App.Views {
 
             // Empty Trash Button
             btn = this.create_button (_("Empty the trash"), Gtk.Align.CENTER);
-            btn.get_style_context().add_class ("redbutton");
+            btn.get_style_context().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
             btn.clicked.connect(() => {
                 controler.vgrive.empty_trash();
                 edit_window.destroy();

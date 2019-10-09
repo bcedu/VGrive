@@ -220,7 +220,6 @@ namespace App {
         private void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
-            // TODO: mirar data de modificacio per saber si eliminarlo o no
             if (!this.is_syncing ()) return;
             var it = this.library.map_iterator ();
             bool exist_local, exist_remote, must_delete = false;
@@ -1026,6 +1025,12 @@ namespace App {
                 string new_path = path.substring(0, path.length-current_file.length-1);
                 string parent_id = this.get_file_id(new_path);
                 if (parent_id == "") parent_id = "root";
+
+                // Escapem caracters especials del nom del fitxer
+                current_file = current_file.replace("\\", "\\\\");  // contrabarra
+                current_file = current_file.replace("#", "\\#");  // hashtag
+                current_file = current_file.replace("'", "\\'");  // cometa simple
+
                 string q = "trashed = False and name = '%s' and '%s' in parents".printf(current_file, parent_id);
                 DriveFile[] res = this.search_files(q);
                 if (res.length != 1) return "";

@@ -404,7 +404,7 @@ namespace App {
             Json.Object json_response = parser.get_root().get_object();
             // Check if we had an error
             if (json_response.get_member("error") != null) {
-                result = "Error trying to get acces token: \n%s\n".printf(res);
+                result = "Error trying to get access token: \n%s\n".printf(res);
                 stdout.printf(result);
                 DriveRequestResult aux = DriveRequestResult() {
                     code = -1,
@@ -431,7 +431,7 @@ namespace App {
                 Json.Object json_response = parser.get_root().get_object();
                 // Check if we had an error
                 if (json_response.get_member("error") != null) {
-                    string result = "Error trying to get acces token: \n%s\n".printf(res.message);
+                    string result = "Error trying to get access token: \n%s\n".printf(res.message);
                     stdout.printf(result);
                     DriveRequestResult aux = DriveRequestResult() {
                         code = -1,

@@ -27,7 +27,7 @@ namespace App.Views {
             Gtk.Label lb1 = new Gtk.Label (_("1. Click in the following link:"));
             lb1.set_use_markup (true);
             lb1.set_line_wrap (true);
-            Gtk.LinkButton lb2 = new Gtk.LinkButton.with_label (controler.vgrive.get_auth_uri (), _("Give acces to VGrive"));
+            Gtk.LinkButton lb2 = new Gtk.LinkButton.with_label (controler.vgrive.get_auth_uri (), _("Give access to VGrive"));
             var box = new Gtk.Box(Orientation.VERTICAL, 10);
             box.pack_start(lb1, false, false, 0);
             box.pack_start(lb2, false, false, 0);

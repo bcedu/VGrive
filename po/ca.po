@@ -198,7 +198,7 @@ msgid "1. Click in the following link:"
 msgstr "1. Clica al següent enllaç:"
 
 #: src/views/LogInView.vala:30
-msgid "Give acces to VGrive"
+msgid "Give access to VGrive"
 msgstr "Dona accés a VGrive"
 
 #: src/views/LogInView.vala:38

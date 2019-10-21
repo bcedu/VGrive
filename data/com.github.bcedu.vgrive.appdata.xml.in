@@ -6,10 +6,10 @@
 	<project_license>GPL-3.0+</project_license>
   <developer_name>Eduard Berloso Clarà</developer_name>
   <name>VGrive</name>
-  <summary>Google Drive client with automatic syncronization for linux</summary>
+  <summary>Google Drive client with automatic synchronization for Linux</summary>
   <description>
-    <p>VGrive is a client (back-end and front-end) for Google Drive made in vala.
-Automaticlly detects changes in local and remote files and sync them.</p>
+    <p>VGrive is a client (back-end and front-end) for Google Drive made in Vala.
+Automatically detects changes in local and remote files and syncs them.</p>
   </description>
   <custom>
       <value key="x-appcenter-color-primary">#a56de2</value>

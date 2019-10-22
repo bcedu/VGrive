@@ -31,7 +31,7 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
-      <release version="1.0.9" date="2019-10-22">
+      <release version="1.0.10" date="2019-10-22">
         <description>
           <ul>
             <li>New logo by @Fatih20</li>

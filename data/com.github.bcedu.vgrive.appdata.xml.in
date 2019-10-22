@@ -30,7 +30,16 @@ Automatically detects changes in local and remote files and syncs them.</p>
           <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/conf.png</image>
       </screenshot>
   </screenshots>
-      <releases>
+    <releases>
+      <release version="1.0.9" date="2019-10-22">
+        <description>
+          <ul>
+            <li>New logo by @Fatih20</p>
+            <li>Use buil-in red button.</li>
+            <li>Fix detecting files with specials caracters though google drive api.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.0.0" date="2019-08-29">
         <description>
           <p>VGrive initial release!</p>

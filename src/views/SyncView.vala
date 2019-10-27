@@ -12,7 +12,7 @@ namespace App.Views {
         private Gtk.Box simple_view_box;
         private Gtk.Label status_lb;
         private Gtk.Spinner spinner;
-        private Gtk.Switch change_view;
+        private Gtk.CheckButton change_view;
         private Gtk.Label last_log;
 
         public SyncView (AppController controler) {
@@ -27,9 +27,9 @@ namespace App.Views {
             Gtk.Box start_stop_box = this.build_start_stop_buttons(controler);
             // Add themto the box
             //mainbox.pack_start (title_box, false, false, 0);
-            mainbox.attach (simple_view_box, 0, 0, 3, 2);
-            mainbox.attach (log_box, 0, 0, 3, 2);
-            mainbox.attach (start_stop_box, 1, 2, 1, 1);
+            mainbox.attach (simple_view_box, 0, 0, 20, 2);
+            mainbox.attach (log_box, 0, 0, 20, 2);
+            mainbox.attach (start_stop_box, 10, 2, 1, 1);
 		    this.pack_start (mainbox, true, true, 0);
             this.get_style_context().add_class ("app_view");
             this.show_all();
@@ -83,17 +83,13 @@ namespace App.Views {
         }
 
         private Gtk.Box build_start_stop_buttons(AppController controler) {
-            this.change_view = new Gtk.Switch ();
-            Gtk.Label change_label = new Gtk.Label(_("Advanced View"));
-            var hbox = new Gtk.Box(Orientation.HORIZONTAL, 10);
-		    hbox.pack_start (change_view, false, false, 0);
-		    hbox.pack_start (change_label, false, false, 0);
+            this.change_view = new CheckButton.with_label (_("Advanced View"));
 
             this.start_stop_btn = new Gtk.Button.with_label (_("Stop"));
             this.start_stop_btn.get_style_context().add_class ("redbutton");
             var box = new Gtk.Box(Orientation.VERTICAL, 10);
 		    box.pack_start (start_stop_btn, false, false, 0);
-		    box.pack_start (hbox, false, false, 0);
+		    box.pack_start (change_view, false, false, 0);
             box.expand = false;
             var boxc = new Gtk.Box(Orientation.VERTICAL, 0);
             boxc.set_center_widget (box);
@@ -130,9 +126,8 @@ namespace App.Views {
                     this.spinner.start ();
                 }
             });
-            this.change_view.state_set.connect((state) => {
+            this.change_view.clicked.connect(() => {
                 this.switch_log_views (controler);
-                return false;
             });
         }
 

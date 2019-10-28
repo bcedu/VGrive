@@ -29,7 +29,9 @@ namespace App.Controllers {
         public App.Application application;
         public AppWindow window;
         public ViewController view_controller;
+#if LIBUNITY
         public Unity.LauncherEntry launcher;
+#endif
         public App.VGriveClient vgrive;
         public bool closed;
         public signal void log_event (string msg);
@@ -48,7 +50,9 @@ namespace App.Controllers {
             this.view_controller = new ViewController (this);
             // Connect the signals
             this.connect_signals();
+#if LIBUNITY
             this.launcher = Unity.LauncherEntry.get_for_desktop_id (Constants.LAUNCHER_ID);
+#endif
             if (vgrive.has_local_credentials()) {
                 if (vgrive.load_local_credentials() == 1) {
                     this.set_registered_view ("sync_view");
@@ -58,7 +62,9 @@ namespace App.Controllers {
 
         public void activate () {
             this.closed = false;
+#if LIBUNITY
             this.launcher.progress_visible = false;
+#endif
             // Show all elements from window
             window.init ();
             // Set current view
@@ -100,13 +106,17 @@ namespace App.Controllers {
                 if (this.vgrive.is_syncing ()) {
                     this.closed = true;
                     this.notify (_("Sync continues in background"));
+#if LIBUNITY
                     this.launcher.progress_visible = true;
                     this.launcher.progress = 0;
+#endif
                     return this.window.hide_on_delete ();
                 }else {
                     this.vgrive.stop_syncing ();
                     this.notify (_("Sync stopped"));
+#if LIBUNITY
                     this.launcher.progress_visible = false;
+#endif
                     return false;
                 }
             });

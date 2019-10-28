@@ -1,0 +1,4 @@
+option('libunity',
+       type : 'boolean',
+       value : true,
+       description : 'build with unity support')

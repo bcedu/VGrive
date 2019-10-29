@@ -10,11 +10,15 @@ VGrive is a client (back-end and front-end) for Google Drive made in vala.
 
 <p float="left">
   <img src="/data/imgs/init.png" width="49%" />
-  <img src="/data/imgs/login.png" width="49%" />
+  <img src="/data/imgs/conf.png" width="49%" />
 </p>
 <p float="left">
+  <img src="/data/imgs/login_1.png" width="49%" />
+  <img src="/data/imgs/login_3.png" width="49%" />
+</p>
+<p float="left">
+  <img src="/data/imgs/sync_simple.png" width="49%" />
   <img src="/data/imgs/sync.png" width="49%" />
-  <img src="/data/imgs/conf.png" width="49%" />
 </p>
 
 ## Installation

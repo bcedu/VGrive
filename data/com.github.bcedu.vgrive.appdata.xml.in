@@ -21,7 +21,13 @@ Automatically detects changes in local and remote files and syncs them.</p>
           <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/init.png</image>
       </screenshot>
       <screenshot>
-          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login.png</image>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login_1.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login_3.png</image>
+      </screenshot>
+      <screenshot>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/sync_simple.png</image>
       </screenshot>
       <screenshot>
           <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/sync.png</image>
@@ -31,6 +37,24 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.1.0" date="2019-10-29">
+        <description>
+          <ul>
+            <li><p>New Login view (designed by @Fatih20 )</p>
+              <ul>
+                <li>Login process separated in diferents views</li>
+                <li>Allow select preferences  from the login view</li>
+              </ul>
+            </li>
+            <li><p>New Sync view (designed by @Fatih20 )</p>
+              <ul>
+                <li>The default is cleaner and shows less information to the user</li>
+                <li>There is an option to switch between this new view and the old view (named "Advanced view")</li>
+              </ul>
+            </li>
+          </ul>
+        </description>
+      </release>
       <release version="1.0.10" date="2019-10-22">
         <description>
           <ul>

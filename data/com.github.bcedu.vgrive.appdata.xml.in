@@ -52,6 +52,7 @@ Automatically detects changes in local and remote files and syncs them.</p>
                 <li>There is an option to switch between this new view and the old view (named "Advanced view")</li>
               </ul>
             </li>
+            <li>Make unity support optional (by @dguglielmi)</li>
           </ul>
         </description>
       </release>

@@ -25,9 +25,15 @@ deps = [
     dependency('gee-0.8'),
     dependency('json-glib-1.0'),
     dependency('libsoup-2.4'),
-    dependency('unity')
 ]
 
+libunity_dep = []
+if get_option('libunity')
+    add_project_arguments('-D', 'LIBUNITY', language: 'vala')
+    libunity_dep = [dependency('unity')]
+endif
+
+deps += libunity_dep
 
 executable(
     meson.project_name(),

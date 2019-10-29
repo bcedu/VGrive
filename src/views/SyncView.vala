@@ -137,6 +137,11 @@ namespace App.Views {
                 initial_action = false;
                 if (saved_state.auto_sync == 1 && !controler.vgrive.is_syncing ()) {
                     controler.vgrive.start_syncing ();
+                    this.start_stop_btn.get_style_context().remove_class ("greenbutton");
+                    this.start_stop_btn.get_style_context().add_class ("redbutton");
+                    this.start_stop_btn.set_label (_("Stop"));
+                    this.status_lb.set_label (_("Syncing"));
+                    this.spinner.start ();
                 } else {
                     controler.log_message (_("Sync is stopped. Press start to begin."));
                 }

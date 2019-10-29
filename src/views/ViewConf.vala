@@ -113,6 +113,9 @@ namespace App.Views {
             controler.window.headerbar.back_button.set_label (_("Save"));
             conf_button.visible = false;
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Configuration"));
+            var saved_state = AppSettings.get_default();
+            auto_sync.active = (bool) saved_state.auto_sync;
+            selected_folder.label = saved_state.sync_folder;
         }
 
         public void update_view_on_hide(AppController controler) {

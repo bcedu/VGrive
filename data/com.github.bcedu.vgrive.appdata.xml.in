@@ -12,7 +12,7 @@
 Automatically detects changes in local and remote files and syncs them.</p>
   </description>
   <custom>
-      <value key="x-appcenter-color-primary">#a56de2</value>
+      <value key="x-appcenter-color-primary">#bfbfbf</value>
       <value key="x-appcenter-color-primary-text">rgb(0,0,0)</value>
       <value key="x-appcenter-suggested-price">0</value>
   </custom>

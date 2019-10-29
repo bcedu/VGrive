@@ -40,6 +40,15 @@ For debian based distributions (ubuntu, linux mint, elementary, ...) you can ins
 
 Download last release (zip file), extract files and enter to the folder where they where extracted.
 
+Install the 'build' pre-requisites ( eg on ubuntu, something like this ):
+- sudo apt install meson
+- sudo apt install valac
+- sudo apt-get install build-essential libgtk-3-dev
+- sudo apt install libgranite*
+- sudo apt install libjson-glib*
+- sudo apt install libsoup*
+- sudo apt install libunity-dev
+
 Install your application with the following commands:
 - meson build --prefix=/usr
 - cd build

@@ -9,8 +9,8 @@ Build-Depends: debhelper (>= 9),
                libgranite-dev,
                libgee-0.8-dev,
                libjson-glib-dev,
-               libsoup2.4-dev,
-               libunity-dev
+               libsoup2.4-dev
+Recommends: libunity-dev
 Standards-Version: 3.9.3
 
 Package: com.github.bcedu.vgrive

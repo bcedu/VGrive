@@ -37,5 +37,10 @@
       <summary>The saved state of sync-folder</summary>
       <description>The saved state of sync-folder</description>
     </key>
+    <key name="dark-mode" type="b">
+      <default>false</default>
+      <summary>Change to dark mode</summary>
+      <description>Change to dark mode.</description>
+    </key>
 	</schema>
 </schemalist>

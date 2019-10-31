@@ -53,6 +53,8 @@ namespace App.Controllers {
 #if LIBUNITY
             this.launcher = Unity.LauncherEntry.get_for_desktop_id (Constants.LAUNCHER_ID);
 #endif
+            this.window.headerbar.add_dark_mode ();
+
             if (vgrive.has_local_credentials()) {
                 if (vgrive.load_local_credentials() == 1) {
                     this.set_registered_view ("sync_view");

@@ -52,7 +52,6 @@ namespace App.Views {
             mainbox.pack_start (action_area, false, false, 0);
 
 		    this.set_center_widget (mainbox);
-            this.get_style_context().add_class ("app_view");
             this.show_all();
         }
 

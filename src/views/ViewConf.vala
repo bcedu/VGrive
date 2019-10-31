@@ -26,7 +26,6 @@ namespace App.Views {
             var conf_box = this.build_conf_box(controler);
             mainbox.set_center_widget (conf_box);
 		    this.set_center_widget (mainbox);
-            this.get_style_context().add_class ("app_view");
             // Conf button
             conf_button = new Gtk.Button.from_icon_name ("open-menu-symbolic", Gtk.IconSize.BUTTON);
             conf_button.tooltip_text = _("Configuration");

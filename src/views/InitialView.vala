@@ -11,12 +11,10 @@ namespace App.Views {
 
         public InitialView (AppController controler) {
             welcome = new Granite.Widgets.Welcome (_("Welcome"), _("Start syncing your Google Drive files"));
-            this.set_center_widget (welcome);
+            this.pack_start (welcome, true, true, 0);
 
             welcome.margin_start = welcome.margin_end = 6;
             open_index = welcome.append ("next", _("Log in"), _("Sync your files"));
-
-            this.get_style_context().add_class ("app_view");
             this.show_all();
         }
 

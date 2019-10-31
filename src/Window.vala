@@ -48,13 +48,14 @@ namespace App {
                 resizable: true
             );
             // Set the custom headerbar
-            this.headerbar = new AppHeaderBar (false);
-            this.set_titlebar (this.headerbar);
             this.init_css ();
+            this.get_style_context ().add_class ("app");
+            this.headerbar = new AppHeaderBar (false, this);
+            this.set_titlebar (this.headerbar);
             this.load_window_state ();
             this.set_min_size(700, 500);
             this.delete_event.connect (save_window_state);
-       }
+        }
 
         public void init() {
             this.show_all ();

@@ -1,5 +1,9 @@
-.app_view {
+.app {
   background-color: white;
+}
+
+.dark {
+  background-color: #404040;
 }
 
 .log_box {

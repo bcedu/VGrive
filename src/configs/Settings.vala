@@ -9,6 +9,7 @@ namespace App.Configs {
         public int window_state { get; set; }
         public int auto_sync { get; set; }
         public string sync_folder { get; set; }
+        public bool dark_mode { get; set; }
 
         private static AppSettings _settings;
 

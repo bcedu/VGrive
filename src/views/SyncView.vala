@@ -31,7 +31,6 @@ namespace App.Views {
             mainbox.attach (log_box, 0, 0, 20, 2);
             mainbox.attach (start_stop_box, 10, 2, 1, 1);
 		    this.pack_start (mainbox, true, true, 0);
-            this.get_style_context().add_class ("app_view");
             this.show_all();
         }
 

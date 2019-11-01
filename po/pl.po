@@ -1,0 +1,320 @@
+# Polish translations for com.github.bcedu.vgrive package.
+# Copyright (C) 2019 THE com.github.bcedu.vgrive'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the com.github.bcedu.vgrive package.
+# Lukas Piekarski <roypen@outlook.com>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: com.github.bcedu.vgrive\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-29 19:11+0200\n"
+"PO-Revision-Date: 2019-11-01 20:12+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"Last-Translator: Lukas Piekarski <roypen@outlook.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: pl\n"
+
+#: data/com.github.bcedu.vgrive.desktop.in:3
+#: data/com.github.bcedu.vgrive.appdata.xml.in:8 src/configs/Constants.vala:30
+msgid "VGrive"
+msgstr "VGrive"
+
+#: data/com.github.bcedu.vgrive.desktop.in:4
+#: data/com.github.bcedu.vgrive.appdata.xml.in:9
+msgid "Google Drive client with automatic syncronization for linux."
+msgstr "Klient Google Drive dla Linux z automatyczną synchronizacją."
+
+#: data/com.github.bcedu.vgrive.desktop.in:5
+msgid "com.github.bcedu.vgrive"
+msgstr "com.github.bcedu.vgrive"
+
+#: data/com.github.bcedu.vgrive.desktop.in:10
+msgid "app;vala;share;files;drive;google;"
+msgstr "app;vala;share;files;drive;google;"
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:7
+msgid "Eduard Berloso Clarà"
+msgstr "Eduard Berloso Clarà"
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:11
+msgid ""
+"VGrive is a client (back-end and front-end) for Google Drive made in vala."
+msgstr ""
+"VGrive to klient (back-end e front-end) Google Drive stworzony w języku Vala."
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:13
+msgid ""
+"Start VGrive and sync your files with Google Drive through a clean and "
+"minimalist gui."
+msgstr ""
+"Uruchom VGrive i zacznij synchronizować pliki z Google Drive z wykorzystaniem"
+"przejżystego i minimalistycznego interfejsu."
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:14
+msgid "Automaticlly detects changes in local and remote files and sync them."
+msgstr ""
+"Automatynie wykrywa zmiany w lokalnych oraz zdalnych plikach i uruchamia ich synchronizację."
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:15
+msgid "Choose the local path where VGrive syncs your files."
+msgstr "Wybierz ścieżkę na urządzeniu lokalnym, gdzie VGrive zsynchronizuje pliki."
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:40
+msgid "VGrive initial release!"
+msgstr "Lanzamento inicial de VGrive!"
+
+#: src/controllers/AppController.vala:102
+msgid "Sync continues in background"
+msgstr "Synchronizacja w tle"
+
+#: src/controllers/AppController.vala:108
+msgid "Sync stopped"
+msgstr "Zatrzymano synchronizację"
+
+#: src/widgets/HeaderBar.vala:46 src/views/LogInView.vala:72
+msgid "Back"
+msgstr "Wróć"
+
+#: src/VGriveClient.vala:133
+#, c-format
+msgid "Main folder changed to %s"
+msgstr "Główny folder zmieniony na %s"
+
+#: src/VGriveClient.vala:153
+#, c-format
+msgid "Start syncing files on %s "
+msgstr "Uruchom synchronizację plików z %s "
+
+#: src/VGriveClient.vala:157
+#, c-format
+msgid "Directory created: %s "
+msgstr "Stworzono folder: %s "
+
+#: src/VGriveClient.vala:174
+msgid "Syncing stoped by user request"
+msgstr "Synchronizacja wstrzymana przez użytkownika"
+
+#: src/VGriveClient.vala:189 src/VGriveClient.vala:213
+msgid "Everything is up to date!"
+msgstr "Wszystkie pliki są aktualne!"
+
+#: src/VGriveClient.vala:208
+msgid "Change detected. Updating files..."
+msgstr "Wykryto zmiany. Aktualizuję pliki..."
+
+#: src/VGriveClient.vala:247
+#, c-format
+msgid "DELETE LOCAL FILE: %s"
+msgstr "USUŃ PLIK LOKALNY: %s"
+
+#: src/VGriveClient.vala:251
+#, c-format
+msgid "DELETE REMOTE FILE: %s"
+msgstr "USUŃ PLIK ZDALNY: %s"
+
+#: src/VGriveClient.vala:255
+#, c-format
+msgid "INFO: %s not deleted/moved"
+msgstr "INFO: %s nie usunięto/przeniesiono"
+
+#: src/VGriveClient.vala:289 src/VGriveClient.vala:317
+#: src/VGriveClient.vala:330
+#, c-format
+msgid "INFO: %s not changed"
+msgstr "INFO: %s nie zmieniono"
+
+#: src/VGriveClient.vala:313
+#, c-format
+msgid "NEW LOCAL DIRECTORY: %s uploading..."
+msgstr "NOWY FOLDER LOKALNY: %s wysyłam..."
+
+#: src/VGriveClient.vala:315
+#, c-format
+msgid "NEW LOCAL DIRECTORY: %s uploaded ✓"
+msgstr "NOWY FOLDER LOKALNY: %s wysłano ✓"
+
+#: src/VGriveClient.vala:1121
+#, c-format
+msgid "NEW REMOTE FILE: %s downloding..."
+msgstr "NOWY PLIK ZDALNY: %s pobieram..."
+
+#: src/VGriveClient.vala:1126
+#, c-format
+msgid "NEW REMOTE FILE: %s downloaded ✓"
+msgstr "NOWY PLIK ZDALNY: %s pobrano ✓"
+
+#: src/VGriveClient.vala:1130
+#, c-format
+msgid "CHANGE IN REMOTE FILE: %s downloding newest version..."
+msgstr "ZMIANY W PLIKU ZDALNYM: %s pobieram najnowszą wersję..."
+
+#: src/VGriveClient.vala:1135
+#, c-format
+msgid "CHANGE IN REMOTE FILE: %s downloaded ✓"
+msgstr "ZMIANY W PLIKU ZDALNYM: %s pobrano ✓"
+
+#: src/VGriveClient.vala:1140
+#, c-format
+msgid "CHANGE IN LOCAL FILE: %s uploading newest version..."
+msgstr "ZMIANY W PLIKU LOKALNYM: %s wysyłam najnowszą wersję..."
+
+#: src/VGriveClient.vala:1144
+#, c-format
+msgid "CHANGE IN LOCAL FILE: %s uploaded ✓"
+msgstr "ZMIANY W PLIKU LOKALNYM: %s wysłano ✓"
+
+#: src/VGriveClient.vala:1161
+#, c-format
+msgid "NEW LOCAL FILE: %s uploading..."
+msgstr "NOWY PLIK LOKALNY: %s wysyłam..."
+
+#: src/VGriveClient.vala:1173
+#, c-format
+msgid "NEW LOCAL FILE: %s uploaded ✓"
+msgstr "NOWY PLIK LOKALNY: %s wysłano ✓"
+
+#: src/views/InitialView.vala:13
+msgid "Welcome"
+msgstr "Witaj"
+
+#: src/views/InitialView.vala:13
+msgid "Start syncing your Google Drive files"
+msgstr "Zacznij synchronizację swoich plików Google Drive"
+
+#: src/views/InitialView.vala:17
+msgid "Log in"
+msgstr "Zaloguj"
+
+#: src/views/InitialView.vala:17
+msgid "Sync your files"
+msgstr "Synchronizuj pliki"
+
+#: src/views/LogInView.vala:27
+msgid "1. Click in the following link:"
+msgstr "1. Kliknij na link:"
+
+#: src/views/LogInView.vala:30
+msgid "Give access to VGrive"
+msgstr "Udziel dostępu VGrive"
+
+#: src/views/LogInView.vala:38
+msgid "2. Copy the code from the browser and paste it here:"
+msgstr "2. Skopiuj kod z przeglądarki i wklej go tutaj:"
+
+#: src/views/LogInView.vala:49
+msgid "3. Click \"Continue\" and you are done :)"
+msgstr "3. FKliknij \"Dalej\" i tyle :)"
+
+#: src/views/LogInView.vala:52
+msgid "Continue"
+msgstr "Dalej"
+
+#: src/views/LogInView.vala:71
+msgid ": Log In"
+msgstr ": Zaloguj"
+
+#: src/views/SyncView.vala:45
+msgid "Google Drive Sync"
+msgstr "SSynchronizacja Google Drive"
+
+#: src/views/SyncView.vala:53 src/views/SyncView.vala:81
+#: src/views/SyncView.vala:104
+msgid "Stop"
+msgstr "Stop"
+
+#: src/views/SyncView.vala:76 src/views/SyncView.vala:100
+msgid "Start"
+msgstr "Start"
+
+#: src/views/SyncView.vala:93
+msgid "Sync is stopped. Press start to begin."
+msgstr "Synchronizacja została zatrzymana. naciśnij start, aby ponowić."
+
+#: src/views/SyncView.vala:96
+msgid ": Syncing with Google Drive"
+msgstr ": Synchronizacja z Google Drive"
+
+#: src/views/ViewConf.vala:32
+msgid "Configuration"
+msgstr "konfiguracja"
+
+#: src/views/ViewConf.vala:47
+msgid "Actions"
+msgstr "Działania"
+
+#: src/views/ViewConf.vala:50
+msgid "Change Google Drive account:"
+msgstr "Zmień konto Google Drive:"
+
+#: src/views/ViewConf.vala:52
+msgid "Sign Out"
+msgstr "Wyloguj"
+
+#: src/views/ViewConf.vala:55
+msgid "Delete all files from \".trash\":"
+msgstr "Usuń wszystkie pliki z \".trash\":"
+
+#: src/views/ViewConf.vala:57 src/views/ViewConf.vala:237
+msgid "Empty the trash"
+msgstr "Opróźnij kosz"
+
+#: src/views/ViewConf.vala:60
+msgid ""
+"(note: vGrive doesn't delete any file, they are moved to the \".trash\" "
+"folder)"
+msgstr ""
+"(nota: vGrive nie usuwa trwale żadnych plików, wszystkie przenoszone są do \".trash\")"
+
+#: src/views/ViewConf.vala:63
+msgid "Preferences"
+msgstr "Preferencje"
+
+#: src/views/ViewConf.vala:66
+msgid "Begin sync when app is started:"
+msgstr "Rozpocznij synchronizację po uruchomieniu aplikacji:"
+
+#: src/views/ViewConf.vala:74
+msgid "vGrive folder:"
+msgstr "Folder VGrive:"
+
+#: src/views/ViewConf.vala:77
+msgid "Change folder"
+msgstr "Zmień folder"
+
+#: src/views/ViewConf.vala:113
+msgid "Save"
+msgstr "Zapisz"
+
+#: src/views/ViewConf.vala:115
+msgid ": Configuration"
+msgstr ": Konfiguracja"
+
+#: src/views/ViewConf.vala:161
+msgid "Select a folder"
+msgstr "Wybierz folder"
+
+#: src/views/ViewConf.vala:161 src/views/ViewConf.vala:211
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: src/views/ViewConf.vala:162
+msgid "Open"
+msgstr "Otwórz"
+
+#: src/views/ViewConf.vala:200
+msgid "Are you sure tou want to permanently erase the items in the Trash?"
+msgstr ""
+"Jesteś pewien, że chcesz na stałe usunąć całą zawartość Kosza?"
+
+#: src/views/ViewConf.vala:202
+#, c-format
+msgid "Trash localted in: %s"
+msgstr "Kosz znajduje się: %s"
+
+#: src/views/ViewConf.vala:218
+msgid "Show In File Browser"
+msgstr "Pokaż w Menedżeże Plików"

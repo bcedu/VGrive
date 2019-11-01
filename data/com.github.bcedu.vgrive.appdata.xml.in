@@ -37,6 +37,14 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.2.0" date="2019-11-01">
+        <description>
+          <ul>
+            <li>Welcome to the dark side: Dark mode support!</li>
+            <li>Spanish and Galician translations by @riesp</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.1.0" date="2019-10-29">
         <description>
           <ul>

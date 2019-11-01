@@ -87,6 +87,9 @@ Automatically detects changes in local and remote files and syncs them.</p>
   <url type="translate">https://github.com/bcedu/VGrive/tree/master/po#readme</url>
   <url type="help">https://github.com/bcedu/VGrive/issues</url>
   <update_contact>eduard.bc.95@gmail.com</update_contact>
+  <content_rating type="oars-1.0">
+    <content_attribute id="social-chat">mild</content_attribute>
+  </content_rating>
 </component>
 
 

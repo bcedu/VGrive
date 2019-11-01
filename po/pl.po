@@ -44,7 +44,7 @@ msgstr "Eduard Berloso Clarà"
 msgid ""
 "VGrive is a client (back-end and front-end) for Google Drive made in vala."
 msgstr ""
-"VGrive to klient (back-end e front-end) Google Drive stworzony w języku Vala."
+"VGrive to klient (back-end i front-end) Google Drive stworzony w języku Vala."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:13
 msgid ""

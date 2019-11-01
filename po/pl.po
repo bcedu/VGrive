@@ -183,7 +183,7 @@ msgstr "Witaj"
 
 #: src/views/InitialView.vala:13
 msgid "Start syncing your Google Drive files"
-msgstr "Zacznij synchronizację swoich plików Google Drive"
+msgstr "Rozpocznij synchronizację swoich plików Google Drive"
 
 #: src/views/InitialView.vala:17
 msgid "Log in"
@@ -219,7 +219,7 @@ msgstr ": Zaloguj"
 
 #: src/views/SyncView.vala:45
 msgid "Google Drive Sync"
-msgstr "SSynchronizacja Google Drive"
+msgstr "Synchronizacja Google Drive"
 
 #: src/views/SyncView.vala:53 src/views/SyncView.vala:81
 #: src/views/SyncView.vala:104

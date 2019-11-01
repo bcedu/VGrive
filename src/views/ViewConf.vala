@@ -199,7 +199,7 @@ namespace App.Views {
             editBox.margin = 10;
 
             // Labels with info
-            Gtk.Label lbl = this.create_heading (_("Are you sure tou want to permanently erase the items in the Trash?"), Gtk.Align.START);
+            Gtk.Label lbl = this.create_heading (_("Are you sure you want to permanently erase the items in the Trash?"), Gtk.Align.START);
             editBox.pack_start (lbl, false, false, 0);
             lbl = this.create_label (_("Trash localted in: %s").printf(controler.vgrive.trash_path), 0, Gtk.Align.START);
             editBox.pack_start (lbl, false, false, 0);

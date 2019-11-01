@@ -272,7 +272,7 @@ msgid "Begin sync when app is started:"
 msgstr ""
 
 #: src/views/ViewConf.vala:74
-msgid "vGrive folder:"
+msgid "vGrive folder:"fix
 msgstr ""
 
 #: src/views/ViewConf.vala:77

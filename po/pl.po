@@ -306,7 +306,7 @@ msgid "Open"
 msgstr "Otwórz"
 
 #: src/views/ViewConf.vala:200
-msgid "Are you sure tou want to permanently erase the items in the Trash?"
+msgid "Are you sure you want to permanently erase the items in the Trash?"
 msgstr ""
 "Jesteś pewien, że chcesz na stałe usunąć całą zawartość Kosza?"
 

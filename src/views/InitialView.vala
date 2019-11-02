@@ -14,7 +14,7 @@ namespace App.Views {
             this.pack_start (welcome, true, true, 0);
 
             welcome.margin_start = welcome.margin_end = 6;
-            open_index = welcome.append ("next", _("Log in"), _("Sync your files"));
+            open_index = welcome.append ("emblem-synchronizing-symbolic", _("Log in"), _("Sync your files"));
             this.show_all();
         }
 

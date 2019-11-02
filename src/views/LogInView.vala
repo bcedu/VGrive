@@ -27,11 +27,11 @@ namespace App.Views {
             stack.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
 
             stack.add_titled (step1_box, "step1_box", _("Give permissions to VGrive"));
-            stack.child_set_property (step1_box, "icon-name", "pager-checked-symbolic");
+            stack.child_set_property (step1_box, "icon-name", "media-record-symbolic");
             stack.add_titled (step2_box, "step2_box", _("Copy code"));
-            stack.child_set_property (step2_box, "icon-name", "pager-checked-symbolic");
+            stack.child_set_property (step2_box, "icon-name", "media-record-symbolic");
             stack.add_titled (step3_box, "step3_box", _("Finish"));
-            stack.child_set_property (step3_box, "icon-name", "pager-checked-symbolic");
+            stack.child_set_property (step3_box, "icon-name", "media-record-symbolic");
             stack.set_homogeneous (false);
 
             var stack_switcher = new Gtk.StackSwitcher ();

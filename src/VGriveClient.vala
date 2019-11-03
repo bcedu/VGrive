@@ -171,10 +171,10 @@ namespace App {
         public void stop_syncing() {
             this.syncing = false;
             int result = this.thread.join ();
-            this.log_message(_("Syncing stoped by user request"));
+            this.log_message(_("Syncing stopped by user request"));
             //this.save_library();
             //this.thread.exit(1);
-            //this.log_message(_("Syncing stoped by user request"));
+            //this.log_message(_("Syncing stopped by user request"));
         }
 
         public int sync_files() {

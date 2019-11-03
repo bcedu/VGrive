@@ -98,7 +98,7 @@ msgid "Directory created: %s "
 msgstr "Map aangemaakt: %s "
 
 #: src/VGriveClient.vala:174
-msgid "Syncing stoped by user request"
+msgid "Syncing stopped by user request"
 msgstr "Synchronisatie is afgebroken door de gebruiker"
 
 #: src/VGriveClient.vala:189 src/VGriveClient.vala:213

@@ -95,7 +95,7 @@ msgid "Directory created: %s "
 msgstr "Directori creat: %s "
 
 #: src/VGriveClient.vala:174
-msgid "Syncing stoped by user request"
+msgid "Syncing stopped by user request"
 msgstr "Sincronització parada per ordre de l'usuari"
 
 #: src/VGriveClient.vala:189 src/VGriveClient.vala:213

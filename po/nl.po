@@ -142,7 +142,7 @@ msgstr "NIEUWE LOKALE MAP: %s - uploaden voltooid ✓"
 
 #: src/VGriveClient.vala:1121
 #, c-format
-msgid "NEW REMOTE FILE: %s downloding..."
+msgid "NEW REMOTE FILE: %s downloading..."
 msgstr "NIEUW EXTERN BESTAND: %s - bezig met downloaden..."
 
 #: src/VGriveClient.vala:1126
@@ -152,7 +152,7 @@ msgstr "NIEUW EXTERN BESTAND: %s - downloaden voltooid ✓"
 
 #: src/VGriveClient.vala:1130
 #, c-format
-msgid "CHANGE IN REMOTE FILE: %s downloding newest version..."
+msgid "CHANGE IN REMOTE FILE: %s downloading newest version..."
 msgstr ""
 "EXTERN BESTAND AANGEPAST: %s - bezig met downloaden van nieuwste versie..."
 

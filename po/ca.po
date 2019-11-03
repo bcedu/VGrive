@@ -139,7 +139,7 @@ msgstr "NOU DIRECTORI LOCAL: %s pujat ✓"
 
 #: src/VGriveClient.vala:1121
 #, c-format
-msgid "NEW REMOTE FILE: %s downloding..."
+msgid "NEW REMOTE FILE: %s downloading..."
 msgstr "NOU FITXER REMOT: %s descarregant..."
 
 #: src/VGriveClient.vala:1126
@@ -149,7 +149,7 @@ msgstr "NOU FITXER REMOT: %s descarregat ✓"
 
 #: src/VGriveClient.vala:1130
 #, c-format
-msgid "CHANGE IN REMOTE FILE: %s downloding newest version..."
+msgid "CHANGE IN REMOTE FILE: %s downloading newest version..."
 msgstr "CANVIS EN FITXER REMOT: %s descarregant versió més recent..."
 
 #: src/VGriveClient.vala:1135

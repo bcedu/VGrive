@@ -1123,7 +1123,7 @@ namespace App {
         }
 
         public void download_new_remote_file(DriveFile f, string path) {
-            this.log_message(_("NEW REMOTE FILE: %s downloding...").printf(f.name));
+            this.log_message(_("NEW REMOTE FILE: %s downloading...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.create_local_file(f, path);
             DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
@@ -1132,7 +1132,7 @@ namespace App {
         }
 
         public void download_new_version_remote_file(DriveFile f, string path) {
-            this.log_message(_("CHANGE IN REMOTE FILE: %s downloding newest version...").printf(f.name));
+            this.log_message(_("CHANGE IN REMOTE FILE: %s downloading newest version...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.move_local_file_to_trash(path+"/"+f.name);
             this.create_local_file(f, path);

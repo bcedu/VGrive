@@ -361,8 +361,20 @@ msgstr ""
 msgid ": Configuration"
 msgstr ""
 
+#: src/views/ViewConf.vala:161
+msgid "Select a folder"
+msgstr ""
+
+#: src/views/ViewConf.vala:161 src/views/ViewConf.vala:211
+msgid "Cancel"
+msgstr ""
+
+#: src/views/ViewConf.vala:162
+msgid "Open"
+msgstr ""
+
 #: src/views/ViewConf.vala:202
-msgid "Are you sure tou want to permanently erase the items in the Trash?"
+msgid "Are you sure you want to permanently erase the items in the Trash?"
 msgstr ""
 
 #: src/views/ViewConf.vala:204

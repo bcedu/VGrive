@@ -95,7 +95,7 @@ msgid "Directory created: %s "
 msgstr "Directorio creado: %s "
 
 #: src/VGriveClient.vala:174
-msgid "Syncing stoped by user request"
+msgid "Syncing stopped by user request"
 msgstr "Sincronización detida por orde do usuario"
 
 #: src/VGriveClient.vala:189 src/VGriveClient.vala:213
@@ -139,7 +139,7 @@ msgstr "NOVO DIRECTORIO LOCAL: %s subido ✓"
 
 #: src/VGriveClient.vala:1121
 #, c-format
-msgid "NEW REMOTE FILE: %s downloding..."
+msgid "NEW REMOTE FILE: %s downloading..."
 msgstr "NOVO FICHEIRO REMOTO: %s descargando..."
 
 #: src/VGriveClient.vala:1126
@@ -149,7 +149,7 @@ msgstr "NOVO FICHEIRO REMOTO: %s descargado ✓"
 
 #: src/VGriveClient.vala:1130
 #, c-format
-msgid "CHANGE IN REMOTE FILE: %s downloding newest version..."
+msgid "CHANGE IN REMOTE FILE: %s downloading newest version..."
 msgstr "CAMBIO EN FICHEIRO REMOTO: %s descargando a versión máis recente..."
 
 #: src/VGriveClient.vala:1135

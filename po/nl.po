@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-29 19:11+0200\n"
+"POT-Creation-Date: 2019-11-04 19:59+0100\n"
 "PO-Revision-Date: 2019-10-28 18:07+0100\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: \n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.2.4\n"
-"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: nl\n"
 
 #: data/com.github.bcedu.vgrive.desktop.in:3
 #: data/com.github.bcedu.vgrive.appdata.xml.in:8 src/configs/Constants.vala:30
@@ -24,7 +24,6 @@ msgid "VGrive"
 msgstr "VGrive"
 
 #: data/com.github.bcedu.vgrive.desktop.in:4
-#: data/com.github.bcedu.vgrive.appdata.xml.in:9
 msgid "Google Drive client with automatic syncronization for linux."
 msgstr "Google Drive-client voor Linux met automatische synchronisatie."
 
@@ -40,47 +39,93 @@ msgstr "app;toepassing;programma;vala;delen;bestanden;drive;google;"
 msgid "Eduard Berloso Clarà"
 msgstr "Eduard Berloso Clarà"
 
+#: data/com.github.bcedu.vgrive.appdata.xml.in:9
+#, fuzzy
+msgid "Google Drive client with automatic synchronization for Linux"
+msgstr "Google Drive-client voor Linux met automatische synchronisatie."
+
 #: data/com.github.bcedu.vgrive.appdata.xml.in:11
+#, fuzzy
 msgid ""
-"VGrive is a client (back-end and front-end) for Google Drive made in vala."
+"VGrive is a client (back-end and front-end) for Google Drive made in Vala. "
+"Automatically detects changes in local and remote files and syncs them."
 msgstr ""
 "VGrive is een client (back-end en front-end) voor Google Drive, geschreven "
 "in vala."
 
-#: data/com.github.bcedu.vgrive.appdata.xml.in:13
+#: data/com.github.bcedu.vgrive.appdata.xml.in:43
+msgid "Welcome to the dark side: Dark mode support!"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:44
+msgid "Spanish and Galician translations by @riesp"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:51
+msgid "New Login view (designed by @Fatih20 )"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:53
+msgid "Login process separated in diferents views"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:54
+msgid "Allow select preferences from the login view"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:57
+msgid "New Sync view (designed by @Fatih20 )"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:59
+msgid "The default is cleaner and shows less information to the user"
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""
-"Start VGrive and sync your files with Google Drive through a clean and "
-"minimalist gui."
+"There is an option to switch between this new view and the old view (named "
+"\"Advanced view\")"
 msgstr ""
-"Start VGrive en synchroniseer je bestanden met Google Drive middels een "
-"overzichtelijk, minimalistisch venster."
 
-#: data/com.github.bcedu.vgrive.appdata.xml.in:14
-msgid "Automaticlly detects changes in local and remote files and sync them."
+#: data/com.github.bcedu.vgrive.appdata.xml.in:63
+msgid "Make unity support optional (by @dguglielmi)"
 msgstr ""
-"Detecteert automatisch aanpassingen aan lokale en externe bestanden en "
-"synchroniseert ze."
 
-#: data/com.github.bcedu.vgrive.appdata.xml.in:15
-msgid "Choose the local path where VGrive syncs your files."
+#: data/com.github.bcedu.vgrive.appdata.xml.in:70
+msgid "New logo by @Fatih20"
 msgstr ""
-"Kies het lokale pad waarnaar bestanden moeten worden gesynchroniseerd."
 
-#: data/com.github.bcedu.vgrive.appdata.xml.in:40
+#: data/com.github.bcedu.vgrive.appdata.xml.in:71
+msgid "Use buil-in red button."
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:72
+msgid "Fix detecting files with specials caracters though google drive api."
+msgstr ""
+
+#: data/com.github.bcedu.vgrive.appdata.xml.in:78
 msgid "VGrive initial release!"
 msgstr "Initiële uitgave!"
 
-#: src/controllers/AppController.vala:102
+#: src/controllers/AppController.vala:110
 msgid "Sync continues in background"
 msgstr "Het synchroniseren gaat door op de achtergrond"
 
-#: src/controllers/AppController.vala:108
+#: src/controllers/AppController.vala:118
 msgid "Sync stopped"
 msgstr "Synchronisatie gestopt"
 
-#: src/widgets/HeaderBar.vala:46 src/views/LogInView.vala:72
+#: src/widgets/HeaderBar.vala:48 src/views/LogInView.vala:152
 msgid "Back"
 msgstr "Terug"
+
+#: src/widgets/HeaderBar.vala:62
+msgid "Light background"
+msgstr ""
+
+#: src/widgets/HeaderBar.vala:63
+msgid "Dark background"
+msgstr ""
 
 #: src/VGriveClient.vala:133
 #, c-format
@@ -109,75 +154,75 @@ msgstr "Alles is bijgewerkt!"
 msgid "Change detected. Updating files..."
 msgstr "Aanpassing gedetecteerd; bezig met bijwerken..."
 
-#: src/VGriveClient.vala:247
+#: src/VGriveClient.vala:246
 #, c-format
 msgid "DELETE LOCAL FILE: %s"
 msgstr "LOKAAL BESTAND VERWIJDEREN: %s"
 
-#: src/VGriveClient.vala:251
+#: src/VGriveClient.vala:250
 #, c-format
 msgid "DELETE REMOTE FILE: %s"
 msgstr "EXTERN BESTAND VERWIJDEREN: %s"
 
-#: src/VGriveClient.vala:255
+#: src/VGriveClient.vala:254
 #, c-format
 msgid "INFO: %s not deleted/moved"
 msgstr "LET OP: %s is niet verwijderd/verplaatst"
 
-#: src/VGriveClient.vala:289 src/VGriveClient.vala:317
-#: src/VGriveClient.vala:330
+#: src/VGriveClient.vala:288 src/VGriveClient.vala:316
+#: src/VGriveClient.vala:329
 #, c-format
 msgid "INFO: %s not changed"
 msgstr "LET OP: %s is niet aangetast"
 
-#: src/VGriveClient.vala:313
+#: src/VGriveClient.vala:312
 #, c-format
 msgid "NEW LOCAL DIRECTORY: %s uploading..."
 msgstr "NIEUWE LOKALE MAP: %s - bezig met uploaden..."
 
-#: src/VGriveClient.vala:315
+#: src/VGriveClient.vala:314
 #, c-format
 msgid "NEW LOCAL DIRECTORY: %s uploaded ✓"
 msgstr "NIEUWE LOKALE MAP: %s - uploaden voltooid ✓"
 
-#: src/VGriveClient.vala:1121
+#: src/VGriveClient.vala:1126
 #, c-format
 msgid "NEW REMOTE FILE: %s downloading..."
 msgstr "NIEUW EXTERN BESTAND: %s - bezig met downloaden..."
 
-#: src/VGriveClient.vala:1126
+#: src/VGriveClient.vala:1131
 #, c-format
 msgid "NEW REMOTE FILE: %s downloaded ✓"
 msgstr "NIEUW EXTERN BESTAND: %s - downloaden voltooid ✓"
 
-#: src/VGriveClient.vala:1130
+#: src/VGriveClient.vala:1135
 #, c-format
 msgid "CHANGE IN REMOTE FILE: %s downloading newest version..."
 msgstr ""
 "EXTERN BESTAND AANGEPAST: %s - bezig met downloaden van nieuwste versie..."
 
-#: src/VGriveClient.vala:1135
+#: src/VGriveClient.vala:1140
 #, c-format
 msgid "CHANGE IN REMOTE FILE: %s downloaded ✓"
 msgstr "EXTERN BESTAND AANGEPAST: %s - downloaden voltooid ✓"
 
-#: src/VGriveClient.vala:1140
+#: src/VGriveClient.vala:1145
 #, c-format
 msgid "CHANGE IN LOCAL FILE: %s uploading newest version..."
 msgstr ""
 "LOKAAL BESTAND AANGEPAST: %s - bezig met uploaden van nieuwste versie..."
 
-#: src/VGriveClient.vala:1144
+#: src/VGriveClient.vala:1149
 #, c-format
 msgid "CHANGE IN LOCAL FILE: %s uploaded ✓"
 msgstr "LOKAAL BESTAND AANGEPAST: %s - uploaden voltooid ✓"
 
-#: src/VGriveClient.vala:1161
+#: src/VGriveClient.vala:1166
 #, c-format
 msgid "NEW LOCAL FILE: %s uploading..."
 msgstr "NIEUW LOKAAL BESTAND: %s - bezig met uploaden..."
 
-#: src/VGriveClient.vala:1173
+#: src/VGriveClient.vala:1178
 #, c-format
 msgid "NEW LOCAL FILE: %s uploaded ✓"
 msgstr "NIEUW LOKAAL BESTAND: %s - uploaden voltooid ✓"
@@ -198,76 +243,121 @@ msgstr "Inloggen"
 msgid "Sync your files"
 msgstr "Bestanden synchroniseren"
 
-#: src/views/LogInView.vala:27
-msgid "1. Click in the following link:"
-msgstr "1. Klik op de volgende link:"
-
-#: src/views/LogInView.vala:30
-msgid "Give access to VGrive"
+#: src/views/LogInView.vala:29
+#, fuzzy
+msgid "Give permissions to VGrive"
 msgstr "Geef VGrive toegang"
 
-#: src/views/LogInView.vala:38
-msgid "2. Copy the code from the browser and paste it here:"
+#: src/views/LogInView.vala:31
+msgid "Copy code"
+msgstr ""
+
+#: src/views/LogInView.vala:33
+msgid "Finish"
+msgstr ""
+
+#: src/views/LogInView.vala:60
+#, fuzzy
+msgid "Give permission to VGrive"
+msgstr "Geef VGrive toegang"
+
+#: src/views/LogInView.vala:69
+#, fuzzy
+msgid "Copy the code from the browser here:"
 msgstr "2. Kopieer de getoonde code en plak hem hier:"
 
-#: src/views/LogInView.vala:49
-msgid "3. Click \"Continue\" and you are done :)"
-msgstr "3. Klik op 'Doorgaan' - klaar is Kees! :)"
+#: src/views/LogInView.vala:84 src/views/ViewConf.vala:62
+msgid "Preferences"
+msgstr "Voorkeuren"
 
-#: src/views/LogInView.vala:52
+#: src/views/LogInView.vala:88 src/views/ViewConf.vala:65
+msgid "Begin sync when app is started:"
+msgstr "Direct synchroniseren na starten van toepassing:"
+
+#: src/views/LogInView.vala:98 src/views/ViewConf.vala:73
+msgid "vGrive folder:"
+msgstr "VGrive-map:"
+
+#: src/views/LogInView.vala:101 src/views/ViewConf.vala:76
+msgid "Change folder"
+msgstr "Map wijzigen"
+
+#: src/views/LogInView.vala:109
 msgid "Continue"
 msgstr "Doorgaan"
 
-#: src/views/LogInView.vala:71
+#: src/views/LogInView.vala:151
 msgid ": Log In"
 msgstr ": Inloggen"
 
-#: src/views/SyncView.vala:45
+#: src/views/LogInView.vala:195 src/views/ViewConf.vala:163
+msgid "Select a folder"
+msgstr "Kies een map"
+
+#: src/views/LogInView.vala:195 src/views/ViewConf.vala:163
+#: src/views/ViewConf.vala:213
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: src/views/LogInView.vala:196 src/views/ViewConf.vala:164
+msgid "Open"
+msgstr "Openen"
+
+#: src/views/SyncView.vala:56 src/views/SyncView.vala:117
+msgid "Not syncing"
+msgstr ""
+
+#: src/views/SyncView.vala:62 src/views/SyncView.vala:124
+#: src/views/SyncView.vala:142
+msgid "Syncing"
+msgstr ""
+
+#: src/views/SyncView.vala:77
 msgid "Google Drive Sync"
 msgstr "Google Drive-synchronisatie"
 
-#: src/views/SyncView.vala:53 src/views/SyncView.vala:81
-#: src/views/SyncView.vala:104
+#: src/views/SyncView.vala:85
+msgid "Advanced View"
+msgstr ""
+
+#: src/views/SyncView.vala:87 src/views/SyncView.vala:123
+#: src/views/SyncView.vala:141 src/views/SyncView.vala:156
 msgid "Stop"
 msgstr "Stoppen"
 
-#: src/views/SyncView.vala:76 src/views/SyncView.vala:100
+#: src/views/SyncView.vala:116 src/views/SyncView.vala:152
 msgid "Start"
 msgstr "Starten"
 
-#: src/views/SyncView.vala:93
+#: src/views/SyncView.vala:145
 msgid "Sync is stopped. Press start to begin."
 msgstr "De synchronisatie is gestopt. Klik op 'Starten' om te beginnen."
 
-#: src/views/SyncView.vala:96
-msgid ": Syncing with Google Drive"
-msgstr ": Synchroniseren met Google Drive"
-
-#: src/views/ViewConf.vala:32
+#: src/views/ViewConf.vala:31
 msgid "Configuration"
 msgstr "Instellingen"
 
-#: src/views/ViewConf.vala:47
+#: src/views/ViewConf.vala:46
 msgid "Actions"
 msgstr "Acties"
 
-#: src/views/ViewConf.vala:50
+#: src/views/ViewConf.vala:49
 msgid "Change Google Drive account:"
 msgstr "Ander Google Drive-account kiezen:"
 
-#: src/views/ViewConf.vala:52
+#: src/views/ViewConf.vala:51
 msgid "Sign Out"
 msgstr "Uitloggen"
 
-#: src/views/ViewConf.vala:55
+#: src/views/ViewConf.vala:54
 msgid "Delete all files from \".trash\":"
 msgstr "Alle bestanden verwijderen uit '.trash':"
 
-#: src/views/ViewConf.vala:57 src/views/ViewConf.vala:237
+#: src/views/ViewConf.vala:56 src/views/ViewConf.vala:239
 msgid "Empty the trash"
 msgstr "Prullenbak legen"
 
-#: src/views/ViewConf.vala:60
+#: src/views/ViewConf.vala:59
 msgid ""
 "(note: vGrive doesn't delete any file, they are moved to the \".trash\" "
 "folder)"
@@ -275,53 +365,51 @@ msgstr ""
 "(let op: VGrive verwijdert geen bestanden; bestanden worden verplaatst naar "
 "de map '.trash')"
 
-#: src/views/ViewConf.vala:63
-msgid "Preferences"
-msgstr "Voorkeuren"
-
-#: src/views/ViewConf.vala:66
-msgid "Begin sync when app is started:"
-msgstr "Direct synchroniseren na starten van toepassing:"
-
-#: src/views/ViewConf.vala:74
-msgid "vGrive folder:"
-msgstr "VGrive-map:"
-
-#: src/views/ViewConf.vala:77
-msgid "Change folder"
-msgstr "Map wijzigen"
-
-#: src/views/ViewConf.vala:113
+#: src/views/ViewConf.vala:112
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/views/ViewConf.vala:115
+#: src/views/ViewConf.vala:114
 msgid ": Configuration"
 msgstr ": Instellingen"
 
-#: src/views/ViewConf.vala:161
-msgid "Select a folder"
-msgstr "Kies een map"
-
-#: src/views/ViewConf.vala:161 src/views/ViewConf.vala:211
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: src/views/ViewConf.vala:162
-msgid "Open"
-msgstr "Openen"
-
-#: src/views/ViewConf.vala:200
+#: src/views/ViewConf.vala:202
 msgid "Are you sure you want to permanently erase the items in the Trash?"
 msgstr ""
 "Weet je zeker dat je alle bestanden in de prullenbak permanent wilt "
 "verwijderen?"
 
-#: src/views/ViewConf.vala:202
+#: src/views/ViewConf.vala:204
 #, c-format
 msgid "Trash localted in: %s"
 msgstr "De prullenbak vind je hier: %s"
 
-#: src/views/ViewConf.vala:218
+#: src/views/ViewConf.vala:220
 msgid "Show In File Browser"
 msgstr "Tonen in bestandsbeheerder"
+
+#~ msgid ""
+#~ "Start VGrive and sync your files with Google Drive through a clean and "
+#~ "minimalist gui."
+#~ msgstr ""
+#~ "Start VGrive en synchroniseer je bestanden met Google Drive middels een "
+#~ "overzichtelijk, minimalistisch venster."
+
+#~ msgid ""
+#~ "Automaticlly detects changes in local and remote files and sync them."
+#~ msgstr ""
+#~ "Detecteert automatisch aanpassingen aan lokale en externe bestanden en "
+#~ "synchroniseert ze."
+
+#~ msgid "Choose the local path where VGrive syncs your files."
+#~ msgstr ""
+#~ "Kies het lokale pad waarnaar bestanden moeten worden gesynchroniseerd."
+
+#~ msgid "1. Click in the following link:"
+#~ msgstr "1. Klik op de volgende link:"
+
+#~ msgid "3. Click \"Continue\" and you are done :)"
+#~ msgstr "3. Klik op 'Doorgaan' - klaar is Kees! :)"
+
+#~ msgid ": Syncing with Google Drive"
+#~ msgstr ": Synchroniseren met Google Drive"

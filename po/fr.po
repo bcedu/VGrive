@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-04 19:03+0100\n"
+"POT-Creation-Date: 2019-11-04 19:59+0100\n"
 "PO-Revision-Date: 2019-11-04 19:03+0100\n"
 "Last-Translator: Nathan Bonnemains\n"
 "Language-Team: none\n"
@@ -48,7 +48,8 @@ msgid ""
 "Automatically detects changes in local and remote files and syncs them."
 msgstr ""
 "VGrive est un client (back-end et front-end) pour Google Drive créé en vala. "
-"Il détecte automatiquement les modifications sur les fichiers locaux et distants et les synchronise."
+"Il détecte automatiquement les modifications sur les fichiers locaux et "
+"distants et les synchronise."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:43
 msgid "Welcome to the dark side: Dark mode support!"
@@ -76,15 +77,17 @@ msgstr "Nouvelle vue de synchronisation (conçue par @Fatih20)"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:59
 msgid "The default is cleaner and shows less information to the user"
-msgstr "La vue par défaut est plus épurée et affiche moins d'informations à l'utilisateur"
+msgstr ""
+"La vue par défaut est plus épurée et affiche moins d'informations à "
+"l'utilisateur"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""
 "There is an option to switch between this new view and the old view (named "
 "\"Advanced view\")"
 msgstr ""
-"Il y a une option pour basculer entre cette nouvelle vue et l'ancienne (nommée "
-"« Vue avancée »)"
+"Il y a une option pour basculer entre cette nouvelle vue et l'ancienne "
+"(nommée « Vue avancée »)"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:63
 msgid "Make unity support optional (by @dguglielmi)"
@@ -100,7 +103,9 @@ msgstr "Utilisation du bouton rouge intégré."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:72
 msgid "Fix detecting files with specials caracters though google drive api."
-msgstr "Correction de la détection des fichiers avec des caractères spéciaux à travers l'API de Google Drive."
+msgstr ""
+"Correction de la détection des fichiers avec des caractères spéciaux à "
+"travers l'API de Google Drive."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:78
 msgid "VGrive initial release!"
@@ -197,7 +202,9 @@ msgstr "NOUVEAU FICHIER DISTANT : %s téléchargé ✓"
 #: src/VGriveClient.vala:1135
 #, c-format
 msgid "CHANGE IN REMOTE FILE: %s downloading newest version..."
-msgstr "MODIFICATION DANS UN FICHIER DISTANT : Téléchargement de la dernière version de %s…"
+msgstr ""
+"MODIFICATION DANS UN FICHIER DISTANT : Téléchargement de la dernière version "
+"de %s…"
 
 #: src/VGriveClient.vala:1140
 #, c-format
@@ -207,7 +214,9 @@ msgstr "MODIFICATION DANS UN FICHIER DISTANT : %s téléchargé ✓"
 #: src/VGriveClient.vala:1145
 #, c-format
 msgid "CHANGE IN LOCAL FILE: %s uploading newest version..."
-msgstr "MODIFICATION DANS UN FICHIER LOCAL : Mise en ligne de la dernière version de %s…"
+msgstr ""
+"MODIFICATION DANS UN FICHIER LOCAL : Mise en ligne de la dernière version de "
+"%s…"
 
 #: src/VGriveClient.vala:1149
 #, c-format
@@ -325,7 +334,8 @@ msgstr "Démarrer"
 
 #: src/views/SyncView.vala:145
 msgid "Sync is stopped. Press start to begin."
-msgstr "La synchronisation est arrêtée. Appuyez sur « Démarrer » pour commencer."
+msgstr ""
+"La synchronisation est arrêtée. Appuyez sur « Démarrer » pour commencer."
 
 #: src/views/ViewConf.vala:31
 msgid "Configuration"
@@ -356,8 +366,8 @@ msgid ""
 "(note: vGrive doesn't delete any file, they are moved to the \".trash\" "
 "folder)"
 msgstr ""
-"(remarque : VGrive ne supprime aucun fichier, ils sont déplacés dans le dossier "
-"« .trash »)"
+"(remarque : VGrive ne supprime aucun fichier, ils sont déplacés dans le "
+"dossier « .trash »)"
 
 #: src/views/ViewConf.vala:112
 msgid "Save"
@@ -368,8 +378,11 @@ msgid ": Configuration"
 msgstr ": Configuration"
 
 #: src/views/ViewConf.vala:202
-msgid "Are you sure tou want to permanently erase the items in the Trash?"
-msgstr "Êtes-vous sûr de vouloir définitivement supprimer les éléments dans la corbeille ?"
+#, fuzzy
+msgid "Are you sure you want to permanently erase the items in the Trash?"
+msgstr ""
+"Êtes-vous sûr de vouloir définitivement supprimer les éléments dans la "
+"corbeille ?"
 
 #: src/views/ViewConf.vala:204
 #, c-format

@@ -210,7 +210,8 @@ namespace App {
                     this.check_deleted_files ();
                     this.check_remote_files (this.main_path);
                     this.check_local_files (this.main_path);
-                    if (!this.change_detected) this.log_message (_("Everything is up to date!"));
+                    this.change_detected = false;
+                    this.log_message (_("Everything is up to date!"));
                 }
                 return true;
             }else {

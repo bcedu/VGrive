@@ -248,8 +248,10 @@ namespace App {
                         this.move_local_file_to_trash(lpath);
                     }
                     if (exist_remote) {
-                        this.log_message (_("DELETE REMOTE FILE: %s").printf (filename));
-                        this.delete_file(remote_id);
+                        if (!this.is_google_doc (remote_id)) {
+                            this.log_message (_("DELETE REMOTE FILE: %s").printf (filename));
+                            this.delete_file(remote_id);
+                        }
                     }
                 }else {
                     this.log_message (_("INFO: %s not deleted/moved").printf (filename), 0);
@@ -276,7 +278,10 @@ namespace App {
                     // Get it's id to get its files and download them if necessary
                     if (!this.local_file_exists(current_path+"/"+f.name)) this.create_local_file(f, current_path);
                     this.check_remote_files(current_path+"/"+f.name, f.id);
-                }else {
+                } else if (f.mimeType.has_prefix ("application/")) {
+                    // It's a google document. We don't want to download them
+                    this.log_message(_("INFO: %s ignored").printf(f.name), 0);
+                } else {
                     // It's a file. Download it if it doesn't exist
                     if (!this.local_file_exists(current_path+"/"+f.name)) {
                         this.download_new_remote_file(f, current_path);
@@ -944,6 +949,11 @@ namespace App {
             RequestParam[] params = new RequestParam[1];
             params[0] = {"alt", "media"};
             return this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).bresponse;
+        }
+
+        public bool is_google_doc(string file_id) {
+            DriveFile f = this.get_file_info_extra (file_id, "mimeType");
+            return f.mimeType.has_prefix ("application/");
         }
 
         public DriveFile get_file_info(string name, string parent_id, int trashed) {

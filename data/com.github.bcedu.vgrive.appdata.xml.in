@@ -37,6 +37,18 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.2.4" date="2019-11-06">
+        <description>
+          <p>Bug Fix: Ignore Google Docs (and other Google files).</p>
+          <p>Translations:
+          <ul>
+            <li>Polish and French translations (by @roypen and @NathanBnm )</li>
+            <li>Catalan translations updated</li>
+            <li>Some typo fixes</li>
+          </ul>
+          </p>
+        </description>
+      </release>
       <release version="1.2.0" date="2019-11-01">
         <description>
           <ul>

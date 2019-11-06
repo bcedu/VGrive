@@ -1,5 +1,7 @@
 # VGrive
 
+> Flatpak repo: https://github.com/flathub/com.github.bcedu.vgrive
+
 VGrive is a client (back-end and front-end) for Google Drive made in vala.
 
 <ul>
@@ -32,9 +34,24 @@ Easy and fast.
   <a href="https://appcenter.elementary.io/com.github.bcedu.vgrive"><img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter" /></a>
 </p>
 
-### Debiand and Debian and Derivatives: Install from .deb file 
+### Debian and Derivatives: Install from .deb file 
 
-For debian based distributions (ubuntu, linux mint, elementary, ...) you can install VGrive directlly with the .deb file attached to the newest release of VGrive. 
+For debian based distributions (ubuntu, linux mint, elementary, ...) you can install VGrive directlly with the .deb file attached to the newest release of VGrive:
+
+- https://github.com/bcedu/VGrive/releases
+
+### Flatpak
+
+Install from flathub (aviable for any distro):
+
+- https://flathub.org/apps/details/com.github.bcedu.vgrive
+
+
+
+> Setup flatpak:  https://flatpak.org/setup/ 
+
+
+
 
 ### Manual Instalation
 
@@ -47,7 +64,7 @@ Install the 'build' pre-requisites ( eg on ubuntu, something like this ):
 - sudo apt install libgranite*
 - sudo apt install libjson-glib*
 - sudo apt install libsoup*
-- sudo apt install libunity-dev
+- sudo apt install libunity-dev (optional)
 
 Install your application with the following commands:
 - meson build --prefix=/usr

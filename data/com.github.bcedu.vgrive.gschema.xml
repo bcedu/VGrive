@@ -42,5 +42,10 @@
       <summary>Change to dark mode</summary>
       <description>Change to dark mode.</description>
     </key>
+    <key name="advanced-view" type="b">
+      <default>false</default>
+      <summary>State of advanced-view</summary>
+      <description>State of advanced-view.</description>
+    </key>
 	</schema>
 </schemalist>

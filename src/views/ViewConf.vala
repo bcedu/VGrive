@@ -13,6 +13,7 @@ namespace App.Views {
 
     public class ViewConf : AppView, VBox {
         private Gtk.Button conf_button;
+        private Gtk.Button cancel_button;
         private Gtk.Button sign_out;
         private Gtk.Button empty_trash;
         private Gtk.Button change_folder;
@@ -30,7 +31,13 @@ namespace App.Views {
             conf_button = new Gtk.Button.from_icon_name ("open-menu-symbolic", Gtk.IconSize.BUTTON);
             conf_button.tooltip_text = _("Configuration");
             controler.window.headerbar.pack_end(conf_button);
+            // Cancel button
+            cancel_button = new Gtk.Button.with_label (_("Cancel"));
+            cancel_button.get_style_context().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+            controler.window.headerbar.pack_start(cancel_button);
             this.show_all();
+            cancel_button.visible = false;
+            cancel_button.no_show_all = true;
         }
 
         private Gtk.Grid build_conf_box(AppController controler) {
@@ -99,6 +106,7 @@ namespace App.Views {
                 controler.vgrive.delete_local_credentials ();
                 controler.set_registered_view ("init");
                 conf_button.visible = true;
+                cancel_button.visible = false;
             });
             empty_trash.clicked.connect(() => {
                 this.build_trash_confirmation_dialog (controler);
@@ -106,11 +114,23 @@ namespace App.Views {
             change_folder.clicked.connect(() => {
                 this.build_select_sync_folder (controler);
             });
+            cancel_button.clicked.connect(() => {
+                controler.view_controller.get_current_view ();
+                controler.view_controller.get_previous_view (false);
+
+                controler.update_window_view ();
+
+                conf_button.visible = true;
+                cancel_button.visible = false;
+                this.folder_changed = false;
+
+            });
         }
 
         public void update_view(AppController controler) {
             controler.window.headerbar.back_button.set_label (_("Save"));
             conf_button.visible = false;
+            cancel_button.visible = true;
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Configuration"));
             var saved_state = AppSettings.get_default();
             auto_sync.active = (bool) saved_state.auto_sync;
@@ -119,6 +139,7 @@ namespace App.Views {
 
         public void update_view_on_hide(AppController controler) {
             conf_button.visible = true;
+            cancel_button.visible = false;
             var saved_state = AppSettings.get_default();
             if (auto_sync.get_active ()) saved_state.auto_sync = 1;
             else  saved_state.auto_sync = 0;

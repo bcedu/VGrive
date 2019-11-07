@@ -58,10 +58,12 @@ namespace App.Controllers {
             return aux;
         }
 
-        public AppView get_previous_view() {
+        public AppView get_previous_view(bool update_on_hide=true) {
             if (this.views_stack.size > 1) {
                 var aux = views_stack.poll_tail ();
-                aux.update_view_on_hide (app_controller);
+                if (update_on_hide) {
+                    aux.update_view_on_hide (app_controller);
+                }
                 return aux;
             } else {
                 return this.get_current_view ();

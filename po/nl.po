@@ -78,7 +78,7 @@ msgstr "Nieuwe synchronisatieweergave, met dank aan @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:59
 msgid "The default is cleaner and shows less information to the user"
-msgstr "Alles ziet er eenvoundiger uit met minder informatie"
+msgstr "Vereenvoudigde weergave met minder informatie"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-11-04 19:59+0100\n"
-"PO-Revision-Date: 2019-10-28 18:07+0100\n"
+"PO-Revision-Date: 2019-11-08 16:58+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -40,68 +40,69 @@ msgid "Eduard Berloso Clarà"
 msgstr "Eduard Berloso Clarà"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:9
-#, fuzzy
 msgid "Google Drive client with automatic synchronization for Linux"
-msgstr "Google Drive-client voor Linux met automatische synchronisatie."
+msgstr "Google Drive-client voor Linux met automatische synchronisatie"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:11
-#, fuzzy
 msgid ""
 "VGrive is a client (back-end and front-end) for Google Drive made in Vala. "
 "Automatically detects changes in local and remote files and syncs them."
 msgstr ""
 "VGrive is een client (back-end en front-end) voor Google Drive, geschreven "
-"in vala."
+"in vala. Wijzigingen worden automatisch gedetecteerd en gesynchroniseerd, "
+"zowel lokale als externe wijzigingen."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:43
 msgid "Welcome to the dark side: Dark mode support!"
-msgstr ""
+msgstr "Welkom aan de donkere kant: ondersteuning voor donkere thema's!"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:44
 msgid "Spanish and Galician translations by @riesp"
-msgstr ""
+msgstr "Spaanse en Gallische vertalingen, met dank aan @riesp"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:51
 msgid "New Login view (designed by @Fatih20 )"
-msgstr ""
+msgstr "Nieuwe inlogweergave, met dank aan @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:53
 msgid "Login process separated in diferents views"
-msgstr ""
+msgstr "Inlogproces verspreidt over meerdere weergaven"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:54
 msgid "Allow select preferences from the login view"
-msgstr ""
+msgstr "Stel voorkeuren in in de inlogweergave"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:57
 msgid "New Sync view (designed by @Fatih20 )"
-msgstr ""
+msgstr "Nieuwe synchronisatieweergave, met dank aan @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:59
 msgid "The default is cleaner and shows less information to the user"
-msgstr ""
+msgstr "Vereenvoudigde weergave met minder informatie"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""
 "There is an option to switch between this new view and the old view (named "
 "\"Advanced view\")"
 msgstr ""
+"Optie om te schakelen tussen de oude en nieuwe weergave (genaamd "
+"'Uitgebreide weergave')"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:63
 msgid "Make unity support optional (by @dguglielmi)"
-msgstr ""
+msgstr "Unity-ondersteuning is nu optioneel, met dank aan @dguglielmi"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:70
 msgid "New logo by @Fatih20"
-msgstr ""
+msgstr "Nieuw logo, met dank aan @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:71
 msgid "Use buil-in red button."
-msgstr ""
+msgstr "Gebruik de ingebouwde rode knop."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:72
 msgid "Fix detecting files with specials caracters though google drive api."
-msgstr ""
+msgstr "Opgelost: bestanden met speciale tekens worden nu gedetecteerd."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:78
 msgid "VGrive initial release!"
@@ -121,11 +122,11 @@ msgstr "Terug"
 
 #: src/widgets/HeaderBar.vala:62
 msgid "Light background"
-msgstr ""
+msgstr "Licht thema"
 
 #: src/widgets/HeaderBar.vala:63
 msgid "Dark background"
-msgstr ""
+msgstr "Donker thema"
 
 #: src/VGriveClient.vala:133
 #, c-format
@@ -244,27 +245,24 @@ msgid "Sync your files"
 msgstr "Bestanden synchroniseren"
 
 #: src/views/LogInView.vala:29
-#, fuzzy
 msgid "Give permissions to VGrive"
-msgstr "Geef VGrive toegang"
+msgstr "Machtig VGrive"
 
 #: src/views/LogInView.vala:31
 msgid "Copy code"
-msgstr ""
+msgstr "Code kopiëren"
 
 #: src/views/LogInView.vala:33
 msgid "Finish"
-msgstr ""
+msgstr "Afronden"
 
 #: src/views/LogInView.vala:60
-#, fuzzy
 msgid "Give permission to VGrive"
-msgstr "Geef VGrive toegang"
+msgstr "Machtig VGrive"
 
 #: src/views/LogInView.vala:69
-#, fuzzy
 msgid "Copy the code from the browser here:"
-msgstr "2. Kopieer de getoonde code en plak hem hier:"
+msgstr "Kopieer de in de browser getoonde code en plak hem hier:"
 
 #: src/views/LogInView.vala:84 src/views/ViewConf.vala:62
 msgid "Preferences"
@@ -276,7 +274,7 @@ msgstr "Direct synchroniseren na starten van toepassing:"
 
 #: src/views/LogInView.vala:98 src/views/ViewConf.vala:73
 msgid "vGrive folder:"
-msgstr "VGrive-map:"
+msgstr "vGrive-map:"
 
 #: src/views/LogInView.vala:101 src/views/ViewConf.vala:76
 msgid "Change folder"
@@ -305,12 +303,12 @@ msgstr "Openen"
 
 #: src/views/SyncView.vala:56 src/views/SyncView.vala:117
 msgid "Not syncing"
-msgstr ""
+msgstr "Niet aan het synchroniseren"
 
 #: src/views/SyncView.vala:62 src/views/SyncView.vala:124
 #: src/views/SyncView.vala:142
 msgid "Syncing"
-msgstr ""
+msgstr "Bezig met synchroniseren"
 
 #: src/views/SyncView.vala:77
 msgid "Google Drive Sync"
@@ -318,7 +316,7 @@ msgstr "Google Drive-synchronisatie"
 
 #: src/views/SyncView.vala:85
 msgid "Advanced View"
-msgstr ""
+msgstr "Uitgebreide weergave"
 
 #: src/views/SyncView.vala:87 src/views/SyncView.vala:123
 #: src/views/SyncView.vala:141 src/views/SyncView.vala:156

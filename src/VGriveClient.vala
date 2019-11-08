@@ -278,7 +278,7 @@ namespace App {
                     // Get it's id to get its files and download them if necessary
                     if (!this.local_file_exists(current_path+"/"+f.name)) this.create_local_file(f, current_path);
                     this.check_remote_files(current_path+"/"+f.name, f.id);
-                } else if (f.mimeType.has_prefix ("application/")) {
+                } else if (this.is_google_mime_type (f.mimeType)) {
                     // It's a google document. We don't want to download them
                     this.log_message(_("INFO: %s ignored").printf(f.name), 0);
                 } else {
@@ -953,7 +953,11 @@ namespace App {
 
         public bool is_google_doc(string file_id) {
             DriveFile f = this.get_file_info_extra (file_id, "mimeType");
-            return f.mimeType.has_prefix ("application/");
+            return this.is_google_mime_type(f.mimeType);
+        }
+
+        public bool is_google_mime_type(string mimeType) {
+            return mimeType.has_prefix ("application/") && mimeType.contains("google-apps") && mimeType != "application/vnd.google-apps.folder";
         }
 
         public DriveFile get_file_info(string name, string parent_id, int trashed) {

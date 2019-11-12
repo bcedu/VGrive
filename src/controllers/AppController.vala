@@ -34,10 +34,12 @@ namespace App.Controllers {
 #endif
         public App.VGriveClient vgrive;
         public bool closed;
+        public bool send_to_background;
         public signal void log_event (string msg);
 
         public AppController (App.Application application) {
             this.application = application;
+            this.send_to_background = false;
 
             var saved_state = AppSettings.get_default();
             if (saved_state.sync_folder == "null") saved_state.sync_folder = Environment.get_home_dir()+"/vGrive";
@@ -71,11 +73,33 @@ namespace App.Controllers {
             window.init ();
             // Set current view
             this.update_window_view ();
+
+            if (this.send_to_background) {
+                this.hide ();
+            }
         }
 
         public void quit () {
             // Close the window
             window.destroy ();
+        }
+
+        public void hide () {
+            this.send_to_background = false;
+            this.closed = true;
+            if (this.vgrive.is_syncing ()) {
+                this.notify (_("VGrive running in background"));
+                this.notify (_("Sync continues in background"));
+            } else {
+                this.notify (_("VGrive running in background"));
+                this.notify (_("Not syncing"));
+            }
+#if LIBUNITY
+            this.launcher.progress_visible = true;
+            this.launcher.progress = 0;
+#endif
+            // Close the window
+            window.hide ();
         }
 
         public void update_window_view() {

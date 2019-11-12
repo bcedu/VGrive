@@ -11,6 +11,7 @@ namespace App.Configs {
         public string sync_folder { get; set; }
         public bool dark_mode { get; set; }
         public bool advanced_view { get; set; }
+        public int start_minimized { get; set; }
 
         private static AppSettings _settings;
 

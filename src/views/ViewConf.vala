@@ -19,6 +19,7 @@ namespace App.Views {
         private Gtk.Button change_folder;
         private Gtk.Label selected_folder;
         private Gtk.Switch auto_sync;
+        private Gtk.Switch start_minimized;
         private bool folder_changed = false;
 
         public ViewConf (AppController controler) {
@@ -38,6 +39,9 @@ namespace App.Views {
             this.show_all();
             cancel_button.visible = false;
             cancel_button.no_show_all = true;
+            if (start_minimized.active) {
+                controler.send_to_background = true;
+            }
         }
 
         private Gtk.Grid build_conf_box(AppController controler) {
@@ -77,15 +81,22 @@ namespace App.Views {
             else auto_sync.set_active (false);
             general_grid.attach (auto_sync, 1, 5, 1, 1);
 
-            laux = this.create_label(_("vGrive folder:"));
+            laux = this.create_label(_("Start minimized:"));
             general_grid.attach (laux, 0, 6, 1, 1);
+            start_minimized = this.create_switch();
+            if (saved_state.start_minimized == 1) start_minimized.set_active (true);
+            else start_minimized.set_active (false);
+            general_grid.attach (start_minimized, 1, 6, 1, 1);
+
+            laux = this.create_label(_("vGrive folder:"));
+            general_grid.attach (laux, 0, 7, 1, 1);
             selected_folder = this.create_label(saved_state.sync_folder, 0, Gtk.Align.START);
             change_folder = this.create_button(_("Change folder"));
             Gtk.Box baux = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
             baux.halign = Gtk.Align.START;
             baux.pack_start(selected_folder, false, false, 0);
             baux.pack_start(change_folder, false, false, 0);
-            general_grid.attach (baux, 1, 6, 1, 1);
+            general_grid.attach (baux, 1, 7, 1, 1);
 
             return general_grid;
         }
@@ -134,6 +145,7 @@ namespace App.Views {
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Configuration"));
             var saved_state = AppSettings.get_default();
             auto_sync.active = (bool) saved_state.auto_sync;
+            start_minimized.active = (bool) saved_state.start_minimized;
             selected_folder.label = saved_state.sync_folder;
         }
 
@@ -143,6 +155,8 @@ namespace App.Views {
             var saved_state = AppSettings.get_default();
             if (auto_sync.get_active ()) saved_state.auto_sync = 1;
             else  saved_state.auto_sync = 0;
+            if (start_minimized.get_active ()) saved_state.start_minimized = 1;
+            else  saved_state.start_minimized = 0;
             if (this.folder_changed) {
                 folder_changed = false;
                 saved_state.sync_folder = this.selected_folder.get_label();

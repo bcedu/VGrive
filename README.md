@@ -40,6 +40,12 @@ For debian based distributions (ubuntu, linux mint, elementary, ...) you can ins
 
 - https://github.com/bcedu/VGrive/releases
 
+### Fedora: Install from official repo
+
+- https://apps.fedoraproject.org/packages/vgrive
+
+- `sudo dnf install vgrive`
+
 ### Flatpak
 
 Install from flathub (aviable for any distro):

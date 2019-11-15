@@ -73,6 +73,7 @@ namespace App {
 
         private AppController app_controller;
         public int log_level = 1;
+        private Soup.Session session = null;
         // API realted attributes
         public string access_token = "";
         public string refresh_token = "";
@@ -113,6 +114,8 @@ namespace App {
             if (!file.query_exists()) {
                 file.make_directory();
             }
+            // Init Soup Session
+            this.get_current_session ();
         }
 
         public string get_auth_uri() {
@@ -139,6 +142,13 @@ namespace App {
  *
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+        private Soup.Session get_current_session() {
+            if (this.session == null) {
+                this.session = new Soup.Session ();
+            }
+            return this.session;
+        }
 
         public bool is_syncing() {
             return this.syncing;
@@ -399,7 +409,7 @@ namespace App {
             // If success, returns code 1 and message=credentials.
             // Else returns code=-1 ans message=error_description
             string result = "";
-            var session = new Soup.Session ();
+            var session = this.get_current_session();
             string uri = "https://www.googleapis.com/oauth2/v4/token?grant_type=authorization_code&code=%s&client_id=%s&client_secret=%s&redirect_uri=%s".printf(drive_code, client_id, client_secret, redirect);
             var message = new Soup.Message ("POST", uri);
             message.set_request("", Soup.MemoryUse.COPY, "{}".data);
@@ -542,7 +552,7 @@ namespace App {
 
         public ResponseObject make_request(string method, string uri, RequestParam[]? params_list=null, RequestParam[]? request_headers=null, RequestContent? request_content=null, bool without_acces_token=false) {
             // Fa una petició HTTP a la API de Google Drive amb els paràmetres proporcionats
-            var session = new Soup.Session ();
+            var session = this.get_current_session();
             string uri_auth;
             if (without_acces_token) uri_auth = uri;
             else uri_auth = uri + "?access_token=%s".printf(this.access_token);

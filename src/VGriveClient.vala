@@ -547,7 +547,7 @@ namespace App {
             if (without_acces_token) uri_auth = uri;
             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
-            uri_auth = encode_uri_param(uri_auth);
+            uri_auth = encode_uri(uri_auth);
             //stdout.printf("Request: %s %s\n", method, uri_auth);
             var message = new Soup.Message (method, uri_auth);
             string res;
@@ -586,7 +586,7 @@ namespace App {
                             if (without_acces_token) uri_auth = uri;
                             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
                             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
-                            uri_auth = encode_uri_param(uri_auth);
+                            uri_auth = encode_uri(uri_auth);
                             stdout.printf("Retrying request: %s %s\n", method, uri_auth);
                             message = new Soup.Message (method, uri_auth);
                             if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
@@ -968,7 +968,7 @@ namespace App {
             else if (parent_id != "") q = q.concat("'%s' in parents".printf(parent_id));
             if (trashed < 0) q = q.concat(" and trashed = False");
             else if (trashed > 0) q = q.concat(" and trashed = True");
-            q = q.concat(" and name = \"%s\"".printf(name));
+            q = q.concat(" and name = \'%s\'".printf(this.encode_for_q(name)));
             params[0] = {"q", q};
 
             string res = this.make_request("GET", this.api_uri+"/files", params, null, null, false).response;
@@ -1042,9 +1042,7 @@ namespace App {
                 if (parent_id == "") parent_id = "root";
 
                 // Escapem caracters especials del nom del fitxer
-                current_file = current_file.replace("\\", "\\\\");  // contrabarra
-                current_file = current_file.replace("#", "\\#");  // hashtag
-                current_file = current_file.replace("'", "\\'");  // cometa simple
+                current_file = this.encode_for_q (current_file);
 
                 string q = "trashed = False and name = '%s' and '%s' in parents".printf(current_file, parent_id);
                 DriveFile[] res = this.search_files(q);
@@ -1235,13 +1233,24 @@ namespace App {
             }
         }
 
-        private string encode_uri_param(string param) {
+        private string encode_uri(string param) {
+            string aux = Soup.URI.encode(param, null);
+            return param;
+        }
+
+        private string encode_for_q(string param) {
             /*
                 Replaces:
-                 * ' -> %27
+                 * \ -> \\
+                 * ' -> \'
+                 * # -> \#
+                 * & -> %26
                  * spaces -> +
             */
-            string aux = param.replace("'", "%27");
+            string aux = param.replace("\\", "\\\\");
+            aux = aux.replace("'", "\\'");
+            aux = aux.replace("#", "\\#");
+            aux = aux.replace("&", "%26");
             aux = aux.replace(" ", "+");
             return aux;
         }

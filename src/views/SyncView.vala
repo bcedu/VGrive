@@ -6,6 +6,7 @@ namespace App.Views {
     public class SyncView : AppView, VBox {
 
         private Gtk.TextView log_text;
+        private Gtk.TextBuffer text_buffer;
         private Gtk.Button start_stop_btn;
         private bool initial_action = true;
         private Gtk.Box log_box;
@@ -14,6 +15,7 @@ namespace App.Views {
         private Gtk.Spinner spinner;
         private Gtk.CheckButton change_view;
         private Gtk.Label last_log;
+        private string pending_log = "";
 
         public SyncView (AppController controler) {
             Gtk.Grid mainbox = new Gtk.Grid ();
@@ -43,12 +45,15 @@ namespace App.Views {
             log_text.create_buffer ();
             log_text.set_editable (false);
             log_text.get_style_context().add_class ("log_text");
+            text_buffer = log_text.get_buffer ();
             var box = new Gtk.Box(Orientation.VERTICAL, 0);
             var scroll_w = new Gtk.ScrolledWindow (null, null);
             scroll_w.add (log_text);
             box.pack_start(scroll_w, true, true, 0);
             box.get_style_context().add_class ("log_box");
             box.expand = true;
+            // Start time func that adds messages to the text buffer each X seconds
+            GLib.Timeout.add_seconds (1, log_to_buffer);
             return box;
         }
 
@@ -103,12 +108,8 @@ namespace App.Views {
                 // Log to console
                 print("LOG: "+msg);
                 print("\n");
-                // Log to TextView
-                Gtk.TextBuffer buffer = log_text.get_buffer ();
-                Gtk.TextIter iter;
-                buffer.get_start_iter (out iter);
-                buffer.insert (ref iter, msg+"\n", -1);
-                this.last_log.set_text (msg);
+                // Save msg to pending log. Each X secons the pending log is consulted and added to the buffer.
+                this.pending_log = msg + "\n"+ this.pending_log;
             });
             this.start_stop_btn.clicked.connect (() => {
                 if (controler.vgrive.is_syncing ()) {
@@ -130,6 +131,18 @@ namespace App.Views {
             this.change_view.clicked.connect(() => {
                 this.switch_log_views (controler);
             });
+        }
+
+        private bool log_to_buffer () {
+            if (this.pending_log != "") {
+                // Log to TextView
+                Gtk.TextIter iter;
+                text_buffer.get_start_iter (out iter);
+                text_buffer.insert (ref iter, this.pending_log, -1);
+                this.last_log.set_text (this.pending_log.split("\n")[0]);
+                this.pending_log = "";
+            }
+            return true;
         }
 
         public void update_view(AppController controler) {

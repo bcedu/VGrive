@@ -66,7 +66,7 @@ namespace App.Views {
                 spinner.start ();
                 status_lb.set_label (_("Syncing"));
             }
-            this.last_log = new Gtk.Label ("");
+            this.last_log = new Gtk.Label (_("VGrive started"));
             var box = new Gtk.Box(Orientation.VERTICAL, 0);
             box.pack_start(status_lb, false, false, 20);
             box.pack_start(spinner, false, false, 10);

@@ -18,7 +18,23 @@
 
 
 
+using App.Configs;
+
 public class Main {
+
+    private static bool minimized = false;
+    private static bool windowed = false;
+    private static bool advanced_view = false;
+    private static bool auto_sync = false;
+
+    private const GLib.OptionEntry[] options = {
+        { "minimized", 'm', 0, OptionArg.NONE, ref minimized, "Start app minimized. If not informed it will start as saved in the configuration.", null },
+        { "windowed", 'w', 0, OptionArg.NONE, ref windowed, "Start app showing the window. It has more priority than the --minimized option. If not informed it will start as saved in the configuration.", null },
+        { "auto-sync", 's', 0, OptionArg.NONE, ref auto_sync, "Start sync process once app is started. If not informed it will start as saved in the configuration.", null },
+        { "advanced-view", 'a', 0, OptionArg.NONE, ref advanced_view, "Start app with advanced view screen. If not informed it will start as saved in the configuration.", null },
+        // list terminator
+        { null }
+	};
 
     /**
      * Main method. Responsible for starting the {@code Application} class.
@@ -28,6 +44,31 @@ public class Main {
      * @since 1.0.0
      */
     public static int main (string [] args) {
+        try {
+            var opt_context = new OptionContext ("VGrive" +" "+ "Options");
+            opt_context.set_help_enabled (true);
+            opt_context.add_main_entries (options, null);
+            opt_context.parse (ref args);
+        } catch (OptionError e) {
+            printerr ("error: %s\n", e.message);
+            printerr ("Run '%s --help' to see a full list of available command line options.\n", args[0]);
+            return 1;
+        }
+
+        var saved_state = AppSettings.get_default();
+        if (minimized) {
+            saved_state.start_minimized = (int)minimized;
+        }
+        if (windowed) {
+            saved_state.start_minimized = (int)(!windowed);
+        }
+        if (auto_sync) {
+            saved_state.auto_sync = (int)auto_sync;
+        }
+        if (advanced_view) {
+            saved_state.advanced_view = advanced_view;
+        }
+
         var app = new App.Application ();
         app.run (args);
         return 0;

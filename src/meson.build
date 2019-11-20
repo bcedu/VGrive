@@ -35,6 +35,14 @@ endif
 
 deps += libunity_dep
 
+libappindicator_dep = []
+if get_option('libappindicator')
+    add_project_arguments('-D', 'LIBAPPINDICATOR', language: 'vala')
+    libappindicator_dep = [dependency('appindicator3-0.1')]
+endif
+
+deps += libappindicator_dep
+
 executable(
     meson.project_name(),
     srcs,

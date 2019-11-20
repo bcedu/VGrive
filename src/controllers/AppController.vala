@@ -32,6 +32,10 @@ namespace App.Controllers {
 #if LIBUNITY
         public Unity.LauncherEntry launcher;
 #endif
+#if LIBAPPINDICATOR
+        public AppIndicator.Indicator indicator;
+#endif
+
         public App.VGriveClient vgrive;
         public bool closed;
         public bool send_to_background;
@@ -55,6 +59,8 @@ namespace App.Controllers {
 #if LIBUNITY
             this.launcher = Unity.LauncherEntry.get_for_desktop_id (Constants.LAUNCHER_ID);
 #endif
+            this.setup_indicator ();
+
             this.window.headerbar.add_dark_mode ();
 
             if (vgrive.has_local_credentials()) {
@@ -79,7 +85,38 @@ namespace App.Controllers {
             }
         }
 
+        private void setup_indicator () {
+            print ("INFO: Setting up Indicator\n");
+#if LIBAPPINDICATOR
+            print ("INFO: Indicator aviable\n");
+		    this.indicator = new AppIndicator.Indicator ("VGrive", "com.github.bcedu.vgrive", AppIndicator.IndicatorCategory.APPLICATION_STATUS);
+            this.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE);
+
+            var menu = new Gtk.Menu();
+
+		    var item = new Gtk.MenuItem.with_label(_("Show VGrive"));
+		    item.activate.connect(() => {
+			    this.application.activate ();
+		    });
+		    item.show();
+		    menu.append(item);
+
+		    item = new Gtk.MenuItem.with_label(_("Close VGrive"));
+		    item.show();
+		    item.activate.connect(() => {
+			    this.quit ();
+		    });
+		    menu.append(item);
+
+		    this.indicator.set_menu(menu);
+            print ("INFO: Indicator running\n");
+#endif
+        }
+
         public void quit () {
+            if (this.vgrive != null && this.vgrive.is_syncing ()) {
+                this.vgrive.stop_syncing ();
+            }
             // Close the window
             window.destroy ();
         }

@@ -1,8 +1,0 @@
-option('libunity',
-       type : 'boolean',
-       value : false,
-       description : 'build with unity support')
-option('libappindicator',
-       type : 'boolean',
-       value : false,
-       description : 'build with app indicators support')

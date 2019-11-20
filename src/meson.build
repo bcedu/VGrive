@@ -27,21 +27,18 @@ deps = [
     dependency('libsoup-2.4'),
 ]
 
-libunity_dep = []
-if get_option('libunity')
+libunity_dep = dependency('unity', required : false)
+if libunity_dep.found()
     add_project_arguments('-D', 'LIBUNITY', language: 'vala')
-    libunity_dep = [dependency('unity')]
+    deps += [libunity_dep]
 endif
 
-deps += libunity_dep
-
-libappindicator_dep = []
-if get_option('libappindicator')
+libappindicator_dep = dependency('appindicator3-0.1', required : false)
+if libappindicator_dep.found()
     add_project_arguments('-D', 'LIBAPPINDICATOR', language: 'vala')
-    libappindicator_dep = [dependency('appindicator3-0.1')]
+    deps += [libappindicator_dep]
 endif
 
-deps += libappindicator_dep
 
 executable(
     meson.project_name(),

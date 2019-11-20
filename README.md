@@ -71,6 +71,7 @@ Install the 'build' pre-requisites ( eg on ubuntu, something like this ):
 - sudo apt install libjson-glib*
 - sudo apt install libsoup*
 - sudo apt install libunity-dev (optional)
+- sudo apt install libappindicator3-dev (optional)
 
 Install your application with the following commands:
 - meson build --prefix=/usr

@@ -37,6 +37,25 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.4.0" date="2019-11-22">
+        <description>
+          <p>New option to start VGrive minimized.</p>
+          <p>Tray icon: Show vgrive icon in the notification area with options to close and show the app.</p>
+          <p>Added comand line options. Type "com.github.bcedu.vgrive --help" to see more information.</p>
+          <p>Bug fixes:
+            <ul>
+              <li>Fix api search with specials chars like "\", "@", ...</li>
+              <li>Use single Soup Session to avoid crash caused by to many opened sessions.</li>
+              <li>New way to update messages shown in the advanced view to avoid crash caused by the text buffer.</li>
+            </ul>
+          </p>
+          <p>Translations updates:
+            <ul>
+              <li>Updated Dutch translation.</li>
+            </ul>
+          </p>
+        </description>
+      </release>
       <release version="1.3.0" date="2019-11-07">
         <description>
           <p>Add 'cancel' button in the conf menu to exit configuration without saving.</p>

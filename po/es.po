@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-11-04 19:59+0100\n"
 "PO-Revision-Date: 2019-10-31 19:55+0100\n"
-"Last-Translator: Daniel R. <riesp@pm.me>\n"
+"Last-Translator: Mario Rodrigo\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +54,7 @@ msgstr ""
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:43
 msgid "Welcome to the dark side: Dark mode support!"
-msgstr ""
+msgstr "Bienvenido al lado oscuro: Modo oscuro soportado"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:44
 msgid "Spanish and Galician translations by @riesp"
@@ -62,29 +62,31 @@ msgstr ""
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:51
 msgid "New Login view (designed by @Fatih20 )"
-msgstr ""
+msgstr "Nueva vista de autenticación (diseñada por @Fatih20)"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:53
 msgid "Login process separated in diferents views"
-msgstr ""
+msgstr "Proceso de autenticación separado en distintas vistas"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:54
 msgid "Allow select preferences from the login view"
-msgstr ""
+msgstr "Permitir la selección de ajustes desde la vista de autenticación"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:57
 msgid "New Sync view (designed by @Fatih20 )"
-msgstr ""
+msgstr "Nueva vista de sincronización (diseñada por #Fatih20)"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:59
 msgid "The default is cleaner and shows less information to the user"
-msgstr ""
+msgstr "Por defecto es más limpio y muestra menos información al usuario"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""
 "There is an option to switch between this new view and the old view (named "
 "\"Advanced view\")"
 msgstr ""
+"Hay una opción para cambiar entre esta nueva vista y la anterior (llamada "
+"\"Vista Avanzada\")"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:63
 msgid "Make unity support optional (by @dguglielmi)"
@@ -92,15 +94,15 @@ msgstr ""
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:70
 msgid "New logo by @Fatih20"
-msgstr ""
+msgstr "Nuevo logo por @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:71
 msgid "Use buil-in red button."
-msgstr ""
+msgstr "Usa el botón rojo proporcionado por defecto"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:72
 msgid "Fix detecting files with specials caracters though google drive api."
-msgstr ""
+msgstr "Solventa la detección de ficheros con caracteres especiales mediante el api de Google Drive."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:78
 msgid "VGrive initial release!"
@@ -120,11 +122,11 @@ msgstr "Atrás"
 
 #: src/widgets/HeaderBar.vala:62
 msgid "Light background"
-msgstr ""
+msgstr "Fondo claro"
 
 #: src/widgets/HeaderBar.vala:63
 msgid "Dark background"
-msgstr ""
+msgstr "Fondo oscuro"
 
 #: src/VGriveClient.vala:133
 #, c-format
@@ -247,11 +249,11 @@ msgstr "Otorgue acceso a VGrive"
 
 #: src/views/LogInView.vala:31
 msgid "Copy code"
-msgstr ""
+msgstr "Copiar código"
 
 #: src/views/LogInView.vala:33
 msgid "Finish"
-msgstr ""
+msgstr "Finalizar"
 
 #: src/views/LogInView.vala:60
 #, fuzzy
@@ -302,12 +304,12 @@ msgstr "Abrir"
 
 #: src/views/SyncView.vala:56 src/views/SyncView.vala:117
 msgid "Not syncing"
-msgstr ""
+msgstr "Sincronización parada"
 
 #: src/views/SyncView.vala:62 src/views/SyncView.vala:124
 #: src/views/SyncView.vala:142
 msgid "Syncing"
-msgstr ""
+msgstr "Sincronizando"
 
 #: src/views/SyncView.vala:77
 msgid "Google Drive Sync"
@@ -315,7 +317,7 @@ msgstr "Sincronización con Google Drive"
 
 #: src/views/SyncView.vala:85
 msgid "Advanced View"
-msgstr ""
+msgstr "Vista Avanzada"
 
 #: src/views/SyncView.vala:87 src/views/SyncView.vala:123
 #: src/views/SyncView.vala:141 src/views/SyncView.vala:156

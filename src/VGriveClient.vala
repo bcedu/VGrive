@@ -119,16 +119,19 @@ namespace App {
         }
 
         public string get_auth_uri() {
+        // TODO: TEST
             return "https://accounts.google.com/o/oauth2/v2/auth?scope=%s&access_type=offline&redirect_uri=%s&response_type=code&client_id=%s".printf(scope, redirect, client_id);
         }
 
         public void log_message(string msg, int level=1) {
+        // TODO: TEST
             if (this.app_controller != null && level >= log_level) {
                 this.app_controller.log_message(msg);
             }
         }
 
         public void change_main_path(string new_path) {
+        // TODO: TEST
             this.stop_syncing ();
             this.main_path = new_path;
             this.trash_path = main_path+"/.trash";
@@ -144,6 +147,7 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
         private Soup.Session get_current_session() {
+        // TODO: TEST
             if (this.session == null) {
                 this.session = new Soup.Session ();
             }
@@ -151,10 +155,12 @@ namespace App {
         }
 
         public bool is_syncing() {
+        // TODO: TEST
             return this.syncing;
         }
 
         public void start_syncing() {
+        // TODO: TEST
             // Starts the process to sync files.
             // If the sync was already started (`syncing` is True), nothing is done.
             // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
@@ -179,6 +185,7 @@ namespace App {
         }
 
         public void stop_syncing() {
+        // TODO: TEST
             this.syncing = false;
             int result = this.thread.join ();
             this.log_message(_("Syncing stopped by user request"));
@@ -188,6 +195,7 @@ namespace App {
         }
 
         public int sync_files() {
+        // TODO: TEST
             // Check if we have changes in files and sync them
             if (this.is_syncing ()) {
                 this.log_level=0;
@@ -213,6 +221,7 @@ namespace App {
         }
 
         public bool process_changes() {
+        // TODO: TEST
             if (this.is_syncing ()) {
                 if (this.change_detected) {
                     this.log_message(_("Change detected. Updating files..."));
@@ -229,6 +238,7 @@ namespace App {
             }
         }
         private void check_deleted_files () {
+        // TODO: TEST
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             if (!this.is_syncing ()) return;
@@ -274,6 +284,7 @@ namespace App {
         }
 
         private void check_remote_files (string current_path, string root_id="") {
+        // TODO: TEST
             // Mira els fitxers que hi ha a la en remot
             // Si no existeixen en local el crea i l'afageix a la llibreria
             // Si existeix en local i la hora de modificació local NO és posterior al a la del remot, es baixa el remot i mou el local al .trash
@@ -309,6 +320,7 @@ namespace App {
         }
 
         private void check_local_files (string current_path, string root_id="") {
+        // TODO: TEST
             // Mira els fitxers que hi ha en local
             // Si no existeixen en remot el crea i l'afageix a la llibreria
             // Si existeix en remot i la hora de modificació remot NO és posterior al a la del local, es puja el local i mou el remot al .trash
@@ -356,6 +368,7 @@ namespace App {
         }
 
         private void watch_local_changes() {
+        // TODO: TEST
             try {
                 string[] dirs_to_watch = this.get_all_dirs(this.main_path);
 
@@ -376,6 +389,7 @@ namespace App {
         }
 
         private void watch_remote_changes () {
+        // TODO: TEST
             this.page_token = this.request_page_token();
             try {
                 new Thread<int>.try ("Watch remote thread", () => {
@@ -392,6 +406,7 @@ namespace App {
         }
 
         private bool check_remote_changes(string token) {
+        // TODO: TEST
             return this.has_remote_changes (token);
         }
 
@@ -405,6 +420,7 @@ namespace App {
 
 
         public DriveRequestResult request_credentials(string drive_code) {
+        // TODO: TEST
             // Request credentials to Drive API.
             // If success, returns code 1 and message=credentials.
             // Else returns code=-1 ans message=error_description
@@ -437,6 +453,7 @@ namespace App {
         }
 
         public DriveRequestResult request_and_set_credentials(string drive_code, bool store_credentials=true, owned string? credentials_file_path=null) {
+        // TODO: TEST
             // Request credentials to Drive API.
             // If success, returns code 1 and message=credentials and the attributes `access_token` and `refresh_token` are set. Also if `store_credentials` is True, the credentials are written in the `credentials_file_path`
             // Else returns code=-1 ans message=error_description
@@ -491,6 +508,7 @@ namespace App {
         }
 
         public bool has_local_credentials(owned string? path=null) {
+        // TODO: TEST
             // Check if the there are local credentials.
             // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
             if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
@@ -500,6 +518,7 @@ namespace App {
         }
 
         public int load_local_credentials(owned string? path=null) {
+        // TODO: TEST
             // Loads local credentials.
             // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
             // If they are loaded succesfully the attributes `access_token` and `refresh_token` are set and `1` is returned to indicate de success.
@@ -523,6 +542,7 @@ namespace App {
         }
 
         public void delete_local_credentials(owned string? path=null) {
+        // TODO: TEST
             if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
             if (this.has_local_credentials (path)) {
                 File file = File.new_for_path(path);
@@ -531,6 +551,7 @@ namespace App {
         }
 
         public void delete_credentials() {
+        // TODO: TEST
             this.access_token = "";
             this.refresh_token = "";
         }
@@ -558,7 +579,6 @@ namespace App {
             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
             uri_auth = encode_uri(uri_auth);
-            //stdout.printf("Request: %s %s\n", method, uri_auth);
             var message = new Soup.Message (method, uri_auth);
             string res;
             uint8[] bres;
@@ -583,8 +603,8 @@ namespace App {
                         // If it's auth error we will try to refresh the token
                         string refresh_uri = "https://www.googleapis.com/oauth2/v4/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=refresh_token".printf(this.refresh_token, this.client_id, this.client_secret);
                         message = new Soup.Message ("POST", refresh_uri);
-                        message.set_request("", Soup.MemoryUse.COPY, "{}".data);
-                        stdout.printf("Authentication error. Refreshing token. Request: POST %s\n", refresh_uri);
+                        message.set_request("text/plain", Soup.MemoryUse.COPY, "{}".data);
+                        //stdout.printf("Authentication error. Refreshing token. Request: POST %s\n", refresh_uri);
                         session.send_message (message);
                         string refresh_res = (string) message.response_body.data;
                         parser = new Json.Parser ();
@@ -597,7 +617,7 @@ namespace App {
                             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
                             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
                             uri_auth = encode_uri(uri_auth);
-                            stdout.printf("Retrying request: %s %s\n", method, uri_auth);
+                            //stdout.printf("Retrying request: %s %s\n", method, uri_auth);
                             message = new Soup.Message (method, uri_auth);
                             if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
                             if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
@@ -668,9 +688,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     parent_id, // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
                 nfiles += 1;
@@ -700,9 +720,9 @@ namespace App {
                         "".data, // content
                         obj.get_string_member("mimeType"), // mimeType
                         parent_id, // parent_id
-                        obj.get_string_member("modifiedTime"),
-                        obj.get_string_member("createdTime"),
-                        obj.get_boolean_member("trashed"),
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                         new string[0]
                     };
                     nfiles += 1;
@@ -717,6 +737,7 @@ namespace App {
         }
 
         public DriveFile upload_file(string filepath, string parent_id) {
+        // TODO: TEST
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
@@ -782,6 +803,7 @@ namespace App {
         }
 
         public DriveFile upload_file_update(string filepath, string file_id) {
+        // TODO: TEST
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
@@ -848,6 +870,7 @@ namespace App {
         }
 
         public DriveFile upload_dir(string path, string parent_id) {
+        // TODO: TEST
             string dirname = path.split("/")[path.split("/").length-1];
 
             RequestParam[] params = new RequestParam[1];
@@ -887,6 +910,7 @@ namespace App {
         }
 
         public DriveFile[] search_files(string q) {
+        // TODO: TEST
             RequestParam[] params = new RequestParam[1];
             params[0] = {"q", q};
 
@@ -911,9 +935,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     "", // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
                 nfiles += 1;
@@ -942,9 +966,9 @@ namespace App {
                         "".data, // content
                         obj.get_string_member("mimeType"), // mimeType
                         "", // parent_id
-                        obj.get_string_member("modifiedTime"),
-                        obj.get_string_member("createdTime"),
-                        obj.get_boolean_member("trashed"),
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                         new string[0]
                     };
                     nfiles += 1;
@@ -962,15 +986,18 @@ namespace App {
         }
 
         public bool is_google_doc(string file_id) {
+        // TODO: TEST
             DriveFile f = this.get_file_info_extra (file_id, "mimeType");
             return this.is_google_mime_type(f.mimeType);
         }
 
         public bool is_google_mime_type(string mimeType) {
+        // TODO: TEST
             return mimeType.has_prefix ("application/") && mimeType.contains("google-apps") && mimeType != "application/vnd.google-apps.folder";
         }
 
         public DriveFile get_file_info(string name, string parent_id, int trashed) {
+        // TODO: TEST
             RequestParam[] params = new RequestParam[1];
 
             string q = "";
@@ -1001,9 +1028,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     parent_id, // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             }
@@ -1011,6 +1038,7 @@ namespace App {
         }
 
         public DriveFile get_file_info_extra(string file_id, string fields) {
+        // TODO: TEST
             RequestParam[1] params = new RequestParam[1];
             params[0] = {"fields", fields};
             string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
@@ -1062,10 +1090,12 @@ namespace App {
         }
 
         public void delete_file(string file_id) {
+        // TODO: TEST
             this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
         }
 
         public string request_page_token() {
+        // TODO: TEST
             string res = this.make_request("GET", this.api_uri+"/changes/startPageToken", null, null, null, false).response;
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
@@ -1074,6 +1104,7 @@ namespace App {
         }
 
         public bool has_remote_changes(string pageToken) {
+        // TODO: TEST
             RequestParam[] params = new RequestParam[1];
             params[0] = {"pageToken", pageToken};
             string res = this.make_request("GET", this.api_uri+"/changes", params, null, null, false).response;
@@ -1120,6 +1151,7 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
         public Gee.HashMap<string,string>? load_library() {
+        // TODO: TEST
             File f = File.new_for_path(this.main_path+"/.vgrive_library");
             if (!f.query_exists()) {
                 f.create(FileCreateFlags.NONE);
@@ -1135,6 +1167,7 @@ namespace App {
         }
 
         public void save_library() {
+        // TODO: TEST
             File f = File.new_for_path(this.main_path+"/.vgrive_library");
             if (f.query_exists()) f.delete();
             f.create(FileCreateFlags.NONE);
@@ -1146,6 +1179,7 @@ namespace App {
         }
 
         public void download_new_remote_file(DriveFile f, string path) {
+        // TODO: TEST
             this.log_message(_("NEW REMOTE FILE: %s downloading...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.create_local_file(f, path);
@@ -1155,6 +1189,7 @@ namespace App {
         }
 
         public void download_new_version_remote_file(DriveFile f, string path) {
+        // TODO: TEST
             this.log_message(_("CHANGE IN REMOTE FILE: %s downloading newest version...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.move_local_file_to_trash(path+"/"+f.name);
@@ -1164,6 +1199,7 @@ namespace App {
         }
 
         public void upload_local_file_update(string path, owned string? file_id) {
+        // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("CHANGE IN LOCAL FILE: %s uploading newest version...").printf(filename));
             if (file_id == null) file_id = this.get_file_id(path);
@@ -1173,6 +1209,7 @@ namespace App {
         }
 
         public DriveFile upload_new_local_dir(string path, string? parent_id) {
+        // TODO: TEST
             string parent = parent_id;
             if (parent_id == null || parent_id == "") {
                 string current_file = path.split("/")[path.split("/").length-1];
@@ -1185,6 +1222,7 @@ namespace App {
         }
 
         public DriveFile upload_new_local_file(string path, string? parent_id) {
+        // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("NEW LOCAL FILE: %s uploading...").printf(filename));
             string parent = parent_id;
@@ -1204,6 +1242,7 @@ namespace App {
         }
 
         public void create_local_file(DriveFile dfile, string path) {
+        // TODO: TEST
             File file = File.new_for_path(path+"/"+dfile.name);
             if (dfile.mimeType == "application/vnd.google-apps.folder") {
                 if (!file.query_exists()) file.make_directory();
@@ -1218,6 +1257,7 @@ namespace App {
         }
 
         public bool is_regular_file(string fname) {
+        // TODO: TEST
             return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library";
         }
 ////////////////////////////////////////////////////////////////////////////////
@@ -1229,6 +1269,7 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
         public void empty_trash(string? current_path=null) {
+        // TODO: TEST
             if (current_path == null) current_path = this.trash_path;
             FileInfo info;
             File f = File.new_for_path(current_path);
@@ -1244,11 +1285,12 @@ namespace App {
         }
 
         private string encode_uri(string param) {
+        // TODO: TEST
             string aux = Soup.URI.encode(param, null);
             return param;
         }
 
-        private string encode_for_q(string param) {
+        public string encode_for_q(string param) {
             /*
                 Replaces:
                  * \ -> \\
@@ -1266,11 +1308,13 @@ namespace App {
         }
 
         public bool local_file_exists(string path) {
+        // TODO: TEST
             File file = File.new_for_path(path);
             return file.query_exists();
         }
 
         public void update_local_write_date(string? date, string filepath) {
+        // TODO: TEST
             string? aux = date;
             if (aux == null) {
                 //this.log_message("WARNING: No date for %s. Asking to api...".printf(filepath));
@@ -1291,6 +1335,7 @@ namespace App {
         }
 
         public void move_local_file_to_trash(string filepath) {
+        // TODO: TEST
             File f = File.new_for_path(filepath);
             DateTime dt = new DateTime.now_utc();
             File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
@@ -1298,6 +1343,7 @@ namespace App {
         }
 
         public int compare_files_write_time(string dfile_write_date, string filepath) {
+        // TODO: TEST
             /*
                 Compare the write date of dfile with the write date of filepath,
                 drivefile is newest -> -1
@@ -1332,6 +1378,7 @@ namespace App {
         }
 
         public string[] get_all_dirs(string path) {
+        // TODO: TEST
             File file =  File.new_for_path(path);
             var enumerator = file.enumerate_children (FileAttribute.STANDARD_NAME, 0);
             string[] dirs = new string[5];

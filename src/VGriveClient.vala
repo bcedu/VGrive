@@ -89,7 +89,7 @@ namespace App {
         public string trash_path;
         public bool syncing = false;
         public bool change_detected = false;
-        public int changes_check_period = 10;
+        public int changes_check_period = 1;
         private Gee.HashMap<string,string>? library;
 
         Thread<int> thread;
@@ -191,21 +191,22 @@ namespace App {
             // Check if we have changes in files and sync them
             if (this.is_syncing ()) {
                 this.log_level=0;
-                this.check_deleted_files ();
                 this.check_remote_files (this.main_path);
                 this.check_local_files (this.main_path);
+                this.check_deleted_files ();
                 this.log_level=1;
-                if (this.is_syncing ()) {
-                    this.log_message (_("Everything is up to date!"));
-                    // trigger per revisar canvis quan canvia algo local
-                    this.watch_local_changes ();
-                    // trigger per revisar canvis quan canvia algo remot
-                    this.watch_remote_changes ();
-                    while (this.is_syncing ()) {
-                        Thread.usleep (this.changes_check_period*1000000);
-                        this.process_changes ();
-                    }
+                
+                this.log_message (_("Everything is up to date!"));
+                // trigger per revisar canvis quan canvia algo local
+                this.watch_local_changes ();
+                // trigger per revisar canvis quan canvia algo remot
+                this.watch_remote_changes ();
+                
+                while (this.is_syncing ()) {
+                    Thread.usleep (this.changes_check_period*1000000);
+                    this.process_changes ();
                 }
+                
                 return 1;
             }else {
                 return -1;
@@ -216,7 +217,6 @@ namespace App {
             if (this.is_syncing ()) {
                 if (this.change_detected) {
                     this.log_message(_("Change detected. Updating files..."));
-                    this.change_detected = false;
                     this.check_deleted_files ();
                     this.check_remote_files (this.main_path);
                     this.check_local_files (this.main_path);
@@ -228,17 +228,19 @@ namespace App {
                 return false;
             }
         }
-        private void check_deleted_files () {
+        
+         private void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             if (!this.is_syncing ()) return;
+            
             var it = this.library.map_iterator ();
             bool exist_local, exist_remote, must_delete = false;
-            DriveFile remote_file;
+            DriveFile[] remote_files;
             string remote_id, filename, aux, lpath;
             Array<string> to_delete = new Array<string> ();
+            
             for (var has_next = it.next (); has_next; has_next = it.next ()) {
-                if (!this.is_syncing ()) return;
                 // Check local exists
                 lpath = it.get_value();
                 aux = it.get_key();
@@ -246,8 +248,21 @@ namespace App {
                 exist_local = this.local_file_exists(lpath);
 
                 // Check remote exists
-                remote_id = this.get_file_id(lpath);
-                exist_remote = remote_id != null && remote_id != "";
+                /*
+                EXPERIMENTAL REMOTE CHECKING
+                Note: could be incremented checking if the remote file is trased or not. If trashed, exist_remote should be false, otherwise should be true
+                */
+                remote_files = this.list_files(-1, lpath, -1);
+                
+                foreach(DriveFile f in remote_files){
+                    if(f.name == filename){
+                        exist_remote = true;
+                    }
+                }
+                //END OF EXPERIMENTAL
+                
+                //remote_id = this.get_file_id(lpath);
+                //exist_remote = remote_id != null && remote_id != "";
 
                 // Si fa falta, l'eliminem de on sigui (fa falta si en un dels dos llocs s'ha de eliminar
                 must_delete = !exist_local || !exist_remote;
@@ -380,7 +395,7 @@ namespace App {
             try {
                 new Thread<int>.try ("Watch remote thread", () => {
                     while (this.is_syncing ()) {
-                        Thread.usleep (this.changes_check_period*1000000);
+                        //Thread.usleep (this.changes_check_period*1000000);
                         this.change_detected = this.check_remote_changes (this.page_token);
                     }
                     new MainLoop ().run ();

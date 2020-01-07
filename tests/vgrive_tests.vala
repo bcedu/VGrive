@@ -14,9 +14,13 @@ class TestVGrive : Gee.TestCase {
         base("TestVGrive");
         // add test methods
         add_test(" * Test has credentials (test_has_credentials)", test_has_credentials);
+        add_test(" * Test get auth uri (test_get_auth_uri)", test_get_auth_uri);
+        add_test(" * Test if is in syncing process (test_is_syncing)", test_is_syncing);
+        add_test(" * Test change the main path of vgrive (test_change_main_path)", test_change_main_path);
         add_test(" * Test list files (test_list_files)", test_list_files);
         add_test(" * Test search files and encode for q (test_search_files_and_encode_for_q)", test_search_files_and_encode_for_q);
         add_test(" * Test get file ID and then get its content (test_get_file_id_and_test_get_file_content)", test_get_file_id_and_test_get_file_content);
+        add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
     }
 
     public override void set_up () {
@@ -63,6 +67,50 @@ class TestVGrive : Gee.TestCase {
         assert (this.client.access_token != "");
         assert (this.client.refresh_token != "");
         assert (this.client.has_credentials () == true);
+    }
+
+    public void test_get_auth_uri () {
+        string res = this.client.get_auth_uri ();
+        assert (res == "https://accounts.google.com/o/oauth2/v2/auth?scope=%s&access_type=offline&redirect_uri=%s&response_type=code&client_id=%s".printf (this.client.scope, this.client.redirect, this.client.client_id));
+    }
+
+    public void test_is_syncing () {
+        // When it's started is not syncing
+        bool is_syncing = this.client.is_syncing ();
+        assert (is_syncing == false);
+        // Start sync process
+        this.client.syncing = true;
+        is_syncing = this.client.is_syncing ();
+        assert (is_syncing == true);
+        // Stop sync process
+        this.client.syncing = false;
+        is_syncing = this.client.is_syncing ();
+        assert (is_syncing == false);
+    }
+
+    public void test_change_main_path () {
+        /*
+         * Test que canvia el directori principal de vgrive a "VGriveTEST_ALT". Al canviar el directori principal es fan les següents accions:
+         * - Es posa l'atribut 'syncing' a false
+         * - Es canvia l'atribut 'main_path'
+         * - Es canvia l'atribut 'trash_path'
+         * - Es posa l'atribut 'library' a null
+         *
+         * Un cop canviat el torna a canviar al original (VGriveTEST)
+         * */
+        // Primer posem el syncing a true per comprovar realment que el metode el posa a false
+        this.client.syncing = true;
+        // Ara canviem el directori principal
+        this.client.change_main_path (mainpath+"_ALT");
+        assert(this.client.syncing == false);
+        assert(this.client.main_path == mainpath+"_ALT");
+        assert(this.client.trash_path == mainpath+"_ALT/.trash");
+        assert(this.client.get_library () == null);
+        this.client.change_main_path (mainpath);
+        assert(this.client.syncing == false);
+        assert(this.client.main_path == mainpath);
+        assert(this.client.trash_path == mainpath+"/.trash");
+        assert(this.client.get_library () == null);
     }
 
     public void test_list_files () {
@@ -175,6 +223,52 @@ class TestVGrive : Gee.TestCase {
         assert (file_id != "");
         content = this.client.get_file_content (file_id);
         assert_strings (content, get_fixture_content ("muse.txt", false));
+    }
+
+    public void test_start_and_stop_syncing () {
+        /*
+         * Test que inicia el proces de sincronitzacio. Al iniciarse es fa el següent:
+         * - Es posa a true la variable 'syncing'
+         * - Crea el directori main_path si no existeix
+         * - Crea el directori trash_path si no existeix
+         * - Inicialitza la llibreria (atribut 'library')
+         * - Inicia un nou thread que executa el métode 'sync_files'. Aquest thread es guarda al atribut 'thread'.
+         *
+         *
+         * Després es comprova que no hi hagi hagut cap canvi, ja que nongu ha tocat res es suposa.
+         *
+         * Finalment atura el procés amb 'stop_syncing'. Al fer-ho es fan les següents accions:
+         * - Es posa a false la variable 'syncing'
+         * - Es fa el join amb el thread del atribut 'thread'
+         *
+         * */
+        // Primer eliminem els directoris main_path i trash_path perque es tornin a crear despres.
+        // Ja existien perque al crear el VGriveClient es crean.
+        File mainDir = File.new_for_path (mainpath);
+        File trashDir = File.new_for_path (mainpath+"/.trash");
+        assert (mainDir.query_exists () == true);
+        assert (trashDir.query_exists () == true);
+        try {
+            trashDir.delete ();
+            mainDir.delete ();
+        } catch (Error e) {
+            print ("Error: %s\n", e.message);
+        }
+        assert (mainDir.query_exists () == false);
+        assert (trashDir.query_exists () == false);
+        // Iniciem la sincronitzacio. Comprovarem que fa les 5 accions que esperem
+        this.client.start_syncing ();
+        assert (this.client.syncing == true);
+        assert (mainDir.query_exists () == true);
+        assert (trashDir.query_exists () == true);
+        assert (this.client.get_library () != null);
+        assert (this.client.thread != null);
+        // Comprovem que no hi hagi hagut cap canvi detectat
+        assert (this.client.change_detected == false);
+        // Parem de sincronitzar i comprovem que ha fet les dos accions que ha de realitzar
+        this.client.stop_syncing ();
+        assert (this.client.syncing == false);
+        assert (this.client.thread == null);
     }
 
 }

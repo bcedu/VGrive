@@ -92,7 +92,7 @@ namespace App {
         public int changes_check_period = 10;
         private Gee.HashMap<string,string>? library;
 
-        Thread<int> thread;
+        public Thread<int> thread;
 
         public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null) {
             this.app_controller = controler;
@@ -119,19 +119,16 @@ namespace App {
         }
 
         public string get_auth_uri() {
-        // TODO: TEST
             return "https://accounts.google.com/o/oauth2/v2/auth?scope=%s&access_type=offline&redirect_uri=%s&response_type=code&client_id=%s".printf(scope, redirect, client_id);
         }
 
         public void log_message(string msg, int level=1) {
-        // TODO: TEST
             if (this.app_controller != null && level >= log_level) {
                 this.app_controller.log_message(msg);
             }
         }
 
         public void change_main_path(string new_path) {
-        // TODO: TEST
             this.stop_syncing ();
             this.main_path = new_path;
             this.trash_path = main_path+"/.trash";
@@ -147,7 +144,6 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
         private Soup.Session get_current_session() {
-        // TODO: TEST
             if (this.session == null) {
                 this.session = new Soup.Session ();
             }
@@ -155,12 +151,10 @@ namespace App {
         }
 
         public bool is_syncing() {
-        // TODO: TEST
             return this.syncing;
         }
 
         public void start_syncing() {
-        // TODO: TEST
             // Starts the process to sync files.
             // If the sync was already started (`syncing` is True), nothing is done.
             // The attributes `access_token` and `refresh_token` must be set with `request_credentials` or `load_local_credentials`
@@ -185,9 +179,11 @@ namespace App {
         }
 
         public void stop_syncing() {
-        // TODO: TEST
             this.syncing = false;
-            int result = this.thread.join ();
+            if (this.thread != null) {
+                this.thread.join ();
+                this.thread = null;
+            }
             this.log_message(_("Syncing stopped by user request"));
             //this.save_library();
             //this.thread.exit(1);
@@ -369,6 +365,7 @@ namespace App {
 
         private void watch_local_changes() {
         // TODO: TEST
+        // TODO: utilitzar ThreadPool?
             try {
                 string[] dirs_to_watch = this.get_all_dirs(this.main_path);
 
@@ -488,11 +485,11 @@ namespace App {
                         file = File.new_for_path(credentials_file_path);
                         if (file.query_exists()) {
                             stdout.printf("Warning: file %s already exists and it will be deleted.", credentials_file_path);
-                        try {
-                            file.delete ();
-                        } catch (Error e) {
-                            print ("Error: %s\n", e.message);
-                        }
+                            try {
+                                file.delete ();
+                            } catch (Error e) {
+                                print ("Error: %s\n", e.message);
+                            }
                         }
                         file.create(FileCreateFlags.NONE);
                         FileIOStream io = file.open_readwrite();
@@ -1149,6 +1146,10 @@ namespace App {
  *
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+        public Gee.HashMap<string,string>? get_library () {
+            return this.library;
+        }
 
         public Gee.HashMap<string,string>? load_library() {
         // TODO: TEST

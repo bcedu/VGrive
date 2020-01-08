@@ -587,6 +587,7 @@ namespace App {
                 session.send_message (message);
                 bres = message.response_body.data;
                 res = (string) message.response_body.data;
+                if (res == "") res = "{}";
                 res_header = message.response_headers;
                 // Parse response
                 var parser = new Json.Parser ();
@@ -734,7 +735,6 @@ namespace App {
         }
 
         public DriveFile upload_file(string filepath, string parent_id) {
-        // TODO: TEST
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
@@ -768,7 +768,7 @@ namespace App {
                     }
                 }catch (Error e) {}
 
-                RequestContent file_content = {"", content[0:bytes_readed]};
+                RequestContent file_content = {"multipart/form-data", content[0:bytes_readed]};
 
                 headers = new RequestParam[1];
                 headers[0] = {"Content-Length", bytes_readed.to_string()};
@@ -782,15 +782,15 @@ namespace App {
                     return {};
                 }
                 return {
-                    json_response.get_string_member("kind"), // kind
-                    json_response.get_string_member("id"), // id
-                    json_response.get_string_member("name"), // name
+                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                     "".data, // content
-                    json_response.get_string_member("mimeType"), // mimeType
+                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                     parent_id, // parent_id
-                    json_response.get_string_member("modifiedTime"),
-                    json_response.get_string_member("createdTime"),
-                    json_response.get_boolean_member("trashed"),
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             } catch (Error e) {
@@ -849,15 +849,15 @@ namespace App {
                     return {};
                 }
                 return {
-                    json_response.get_string_member("kind"), // kind
-                    json_response.get_string_member("id"), // id
-                    json_response.get_string_member("name"), // name
+                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                     "".data, // content
-                    json_response.get_string_member("mimeType"), // mimeType
+                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                     "", // parent_id
-                    json_response.get_string_member("modifiedTime"),
-                    json_response.get_string_member("createdTime"),
-                    json_response.get_boolean_member("trashed"),
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             } catch (Error e) {
@@ -893,15 +893,15 @@ namespace App {
                 return {};
             }
             return {
-                json_response.get_string_member("kind"), // kind
-                json_response.get_string_member("id"), // id
-                json_response.get_string_member("name"), // name
+                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                 "".data, // content
-                json_response.get_string_member("mimeType"), // mimeType
+                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                 parent_id, // parent_id
-                json_response.get_string_member("modifiedTime"),
-                json_response.get_string_member("createdTime"),
-                json_response.get_boolean_member("trashed"),
+                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                 new string[0]
             };
         }
@@ -1055,15 +1055,15 @@ namespace App {
                 if (parents.length >= nparents) parents.resize(parents.length*2);
             }
             return {
-                json_response.get_string_member("kind"), // kind
-                json_response.get_string_member("id"), // id
-                json_response.get_string_member("name"), // name
+                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                 "".data, // content
-                json_response.get_string_member("mimeType"), // mimeType
+                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                 "", // parent_id
-                json_response.get_string_member("modifiedTime"),
-                json_response.get_string_member("createdTime"),
-                json_response.get_boolean_member("trashed"),
+                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                 parents[0:nparents]
             };
         }
@@ -1087,7 +1087,6 @@ namespace App {
         }
 
         public void delete_file(string file_id) {
-        // TODO: TEST
             this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
         }
 

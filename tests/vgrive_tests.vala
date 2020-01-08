@@ -20,6 +20,9 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test list files (test_list_files)", test_list_files);
         add_test(" * Test search files and encode for q (test_search_files_and_encode_for_q)", test_search_files_and_encode_for_q);
         add_test(" * Test get file ID and then get its content (test_get_file_id_and_test_get_file_content)", test_get_file_id_and_test_get_file_content);
+        add_test(" * Test get file ID of main path and returns root (test_get_file_id_of_main_path)", test_get_file_id_of_main_path);
+        add_test(" * Test upload a new file to google drive (main path) and then delete it (test_upload_file_and_delete_file_main_path)", test_upload_file_and_delete_file_main_path);
+        add_test(" * Test upload a new file to google drive (subpath) and then delete it (test_upload_file_and_delete_file_other_path)", test_upload_file_and_delete_file_other_path);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
     }
 
@@ -223,6 +226,65 @@ class TestVGrive : Gee.TestCase {
         assert (file_id != "");
         content = this.client.get_file_content (file_id);
         assert_strings (content, get_fixture_content ("muse.txt", false));
+    }
+
+    public void test_get_file_id_of_main_path () {
+        /*
+         * Test que obte el ID del directori arrel principal. Hauria de retornar 'root'.
+         *
+         * */
+        // Fitxer a una subcarpeta
+        string file_id = this.client.get_file_id (this.mainpath);
+        assert (file_id == "root");
+    }
+
+    public void test_upload_file_and_delete_file_main_path () {
+        /*
+         * Test que puja el fitxer muse_new_to_upload.txt al Drive. El puja al directori arrel.
+         *
+         * Després elimina el fitxer pujat.
+         *
+         * */
+        // Pujem el fitxer a root
+        var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
+        assert (res.name == "muse_new_to_upload.txt");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == "root");
+        // Fem unes cerques per asegurarnos que si que esta al drive
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
+        assert (found_files[0].id == res.id);
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
+        // Comprovar que s'ha eliminat
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 0);
+    }
+
+    public void test_upload_file_and_delete_file_other_path () {
+        /*
+         * Test que puja el fitxer muse_new_to_upload.txt al Drive. El puja al directori "Muse/Millors".
+         *
+         * Després elimina el fitxer pujat.
+         *
+         * */
+        // Pujem el fitxer a root
+        string muse_parent = this.client.get_file_id (this.mainpath+"/Muse/Millors");
+        var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", muse_parent);
+        assert (res.name == "muse_new_to_upload.txt");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == muse_parent);
+        // Fem unes cerques per asegurarnos que si que esta al drive
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and '%s' in parents".printf (res.name, muse_parent));
+        assert (found_files.length == 1);
+        assert (found_files[0].id == res.id);
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
+        // Comprovar que s'ha eliminat
+        found_files = this.client.search_files ("trashed = False and name = '%s' and '%s' in parents".printf (res.name, muse_parent));
+        assert (found_files.length == 0);
     }
 
     public void test_start_and_stop_syncing () {

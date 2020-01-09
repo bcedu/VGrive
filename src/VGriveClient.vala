@@ -197,7 +197,7 @@ namespace App {
                 this.check_local_files (this.main_path);
                 this.log_level=1;
                 
-                if(this.in_syncing ()){
+                if(this.is_syncing ()){
                     this.log_message (_("Everything is up to date!"));
                     // trigger per revisar canvis quan canvia algo local
                     this.watch_local_changes ();
@@ -245,7 +245,7 @@ namespace App {
             Array<string> to_delete = new Array<string> ();
             
             for (var has_next = it.next (); has_next; has_next = it.next ()) {
-                if(this.in_syncing ()){
+                if(this.is_syncing ()){
                     // Check local exists
                     lpath = it.get_value();
                     aux = it.get_key();
@@ -312,7 +312,7 @@ namespace App {
         */
 
             var it = this.library.map_iterator ();
-            string to_delete;
+            Array<string> to_delete = new Array<string> ();
             
             if(!this.is_syncing ()) return;
             

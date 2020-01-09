@@ -377,7 +377,6 @@ namespace App {
                         }
                     }
                 } else if (this.local_file_exists(current_path+"/"+f.name)) {
-                    this.library.set(f.id, current_path+"/"+f.name);
                     // Detect if the remote version is newer than the local one.
                     // If it's the case, move the local versio to .trash and download remote
                     DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
@@ -433,7 +432,6 @@ namespace App {
                             }
                         }
                     } else if (remote_file.id != null) {
-                        this.library.set(remote_file.id, current_path+"/"+info.get_name());
                         // Detect if the local version is newer than the remote one.
                         // If it's the case, upload local one
                         DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");

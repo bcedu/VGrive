@@ -252,7 +252,7 @@ namespace App {
                     filename = lpath.split("/")[lpath.split("/").length-1];
                     exist_local = this.local_file_exists(lpath);
 
-                    // Check remote exists
+                    // Check remote existszz
                     remote_id = this.get_file_id(lpath);
                     exist_remote = remote_id != null && remote_id != "";
 
@@ -299,6 +299,7 @@ namespace App {
 
             var it = this.library.map_iterator ();
             Array<string> to_delete = new Array<string> ();
+            string aux;
             
             if(!this.is_syncing ()) return;
             
@@ -312,8 +313,9 @@ namespace App {
                     it.next();
                 }
                 
-                to_delete.append_val(it.get_key());
-                this.library.unset(to_delete.index(0));
+                aux = it.get_key();
+                //to_delete.append_val(aux);
+                this.library.unset(aux);
                 this.save_library ();
             } else if (type == "REMOTE"){
                 // Deleting file in remote
@@ -325,8 +327,9 @@ namespace App {
                     it.next();
                 }
                 
-                to_delete.append_val(it.get_key());
-                this.library.unset(to_delete.index(0));
+                aux = it.get_key();
+                //to_delete.append_val(aux);
+                this.library.unset(aux);
                 this.save_library ();
             }
         }

@@ -800,16 +800,12 @@ namespace App {
         }
 
         public DriveFile upload_file_update(string filepath, string file_id) {
-        // TODO: TEST
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
                       with the {sync_dir} as root. It must exist locally.
                 File exists in remote with id {file_id}
             */
-
-            string filename = filepath.split("/")[filepath.split("/").length-1];
-
             RequestParam[] params = new RequestParam[1];
             params[0] = {"uploadType", "resumable"};
             RequestParam[] headers = new RequestParam[2];
@@ -835,7 +831,7 @@ namespace App {
                     }
                 }catch (Error e) {}
 
-                RequestContent file_content = {"", content[0:bytes_readed]};
+                RequestContent file_content = {"multipart/form-data", content[0:bytes_readed]};
 
                 headers = new RequestParam[1];
                 headers[0] = {"Content-Length", bytes_readed.to_string()};
@@ -867,7 +863,6 @@ namespace App {
         }
 
         public DriveFile upload_dir(string path, string parent_id) {
-        // TODO: TEST
             string dirname = path.split("/")[path.split("/").length-1];
 
             RequestParam[] params = new RequestParam[1];
@@ -879,7 +874,7 @@ namespace App {
             ResponseObject res = this.make_request("POST", this.upload_uri+"/files", params, headers, body, false);
 
             string location = res.headers.get_one("Location");
-            RequestContent file_content = {"", new uint8[0]};
+            RequestContent file_content = {"multipart/form-data", new uint8[0]};
 
             headers = new RequestParam[1];
             headers[0] = {"Content-Length", "0"};
@@ -907,7 +902,6 @@ namespace App {
         }
 
         public DriveFile[] search_files(string q) {
-        // TODO: TEST
             RequestParam[] params = new RequestParam[1];
             params[0] = {"q", q};
 

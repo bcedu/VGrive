@@ -23,6 +23,9 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test get file ID of main path and returns root (test_get_file_id_of_main_path)", test_get_file_id_of_main_path);
         add_test(" * Test upload a new file to google drive (main path) and then delete it (test_upload_file_and_delete_file_main_path)", test_upload_file_and_delete_file_main_path);
         add_test(" * Test upload a new file to google drive (subpath) and then delete it (test_upload_file_and_delete_file_other_path)", test_upload_file_and_delete_file_other_path);
+        add_test(" * Test upload new version of a file that already exists (test_upload_file_update)", test_upload_file_update);
+        add_test(" * Test upload a new directory to google drive (main path) and delete it (test_upload_dir_main_path)", test_upload_dir_main_path);
+        add_test(" * Test upload a new directory to google drive (subpath) and delete it (test_upload_dir_other_path)", test_upload_dir_other_path);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
     }
 
@@ -273,6 +276,80 @@ class TestVGrive : Gee.TestCase {
         string muse_parent = this.client.get_file_id (this.mainpath+"/Muse/Millors");
         var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", muse_parent);
         assert (res.name == "muse_new_to_upload.txt");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == muse_parent);
+        // Fem unes cerques per asegurarnos que si que esta al drive
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and '%s' in parents".printf (res.name, muse_parent));
+        assert (found_files.length == 1);
+        assert (found_files[0].id == res.id);
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
+        // Comprovar que s'ha eliminat
+        found_files = this.client.search_files ("trashed = False and name = '%s' and '%s' in parents".printf (res.name, muse_parent));
+        assert (found_files.length == 0);
+    }
+
+    public void test_upload_file_update () {
+        /*
+         * Test que puja el fitxer muse_new_to_upload.txt al Drive, després puja el fitxer muse_new_to_upload.v2.txt com a actualitzacio del fitxer muse_new_to_upload.txt.
+         *
+         * Després elimina el fitxer pujat.
+         *
+         * */
+        // Pujem el fitxer a root
+        var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
+        assert (res.name == "muse_new_to_upload.txt");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == "root");
+        // Obtenim el contingut per asegurarnos que la versio es l'antiga
+        uint8[] content = this.client.get_file_content (res.id);
+        assert_strings (content, get_fixture_content ("muse_new_to_upload.txt", false));
+        // Pujem la nova versio
+        this.client.upload_file_update (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", res.id);
+        // Obtenim el contingut per asegurarnos que la versio es la nova
+        content = this.client.get_file_content (res.id);
+        assert_strings (content, get_fixture_content ("muse_new_to_upload.v2.txt", false));
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
+    }
+
+    public void test_upload_dir_main_path () {
+        /*
+         * Test que puja el directori NewDir al Drive. El puja al directori arrel.
+         *
+         * Després l'elimina.
+         *
+         * */
+        // Pujem el fitxer a root
+        var res = this.client.upload_dir ("NewDir", "root");
+        assert (res.name == "NewDir");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == "root");
+        // Fem unes cerques per asegurarnos que si que esta al drive
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
+        assert (found_files[0].id == res.id);
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
+        // Comprovar que s'ha eliminat
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 0);
+    }
+
+    public void test_upload_dir_other_path () {
+        /*
+         * Test que puja el directori NewDir al Drive. El puja al directori "Muse/Millors".
+         *
+         * Després l'elimina.
+         *
+         * */
+        // Pujem el fitxer a root
+        string muse_parent = this.client.get_file_id (this.mainpath+"/Muse/Millors");
+        var res = this.client.upload_dir ("NewDir", muse_parent);
+        assert (res.name == "NewDir");
         assert (res.id != null);
         assert (res.trashed == false);
         assert (res.parent_id == muse_parent);

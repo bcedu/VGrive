@@ -253,22 +253,8 @@ namespace App {
                     exist_local = this.local_file_exists(lpath);
 
                     // Check remote exists
-                    
-                    /*
-                    EXPERIMENTAL REMOTE CHECKING
-                    Note: could be incremented checking if the remote file is trased or not. If trashed, exist_remote should be false, otherwise should be true
-                    */
-                    remote_files = this.list_files(-1, lpath, -1);
-                
-                    foreach(DriveFile f in remote_files){
-                        if(f.name == filename){
-                            exist_remote = true;
-                        }
-                    }
-                    //END OF EXPERIMENTAL
-                
-                    //remote_id = this.get_file_id(lpath);
-                    //exist_remote = remote_id != null && remote_id != "";
+                    remote_id = this.get_file_id(lpath);
+                    exist_remote = remote_id != null && remote_id != "";
 
                     // Si fa falta, l'eliminem de on sigui (fa falta si en un dels dos llocs s'ha de eliminar
                     must_delete = !exist_local || !exist_remote;

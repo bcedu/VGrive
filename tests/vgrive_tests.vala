@@ -27,6 +27,9 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test upload a new directory to google drive (main path) and delete it (test_upload_dir_main_path)", test_upload_dir_main_path);
         add_test(" * Test upload a new directory to google drive (subpath) and delete it (test_upload_dir_other_path)", test_upload_dir_other_path);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
+        add_test(" * Test if some files are google documents or not (test_is_google_doc_and_is_google_mime_type)", test_is_google_doc_and_is_google_mime_type);
+        add_test(" * Test get google drive information of file (test_get_file_info)", test_get_file_info);
+        add_test(" * Test get google drive extra information of file (test_get_file_info_extra)", test_get_file_info_extra);
     }
 
     public override void set_up () {
@@ -124,9 +127,9 @@ class TestVGrive : Gee.TestCase {
          * Test que comprova que quan demanem un llistst de fitxers a la API ens retorna lo esperat, que es:
          *
          * GoogleApps/
-         *   |- doctest.docx
-         *   |- exceltest.xlsx
-         *   |- presentaciotest.pptx
+         *   |- doctest
+         *   |- exceltest
+         *   |- presentaciotest
          *
          * Muse/
          *   |- Millors/
@@ -147,9 +150,9 @@ class TestVGrive : Gee.TestCase {
         string muse_id = "";
         Gee.HashMap<string, bool> files_to_check = new Gee.HashMap<string, bool>();
         files_to_check.set("GoogleApps", false);
-        files_to_check.set("doctest.docx", false);
-        files_to_check.set("exceltest.xlsx", false);
-        files_to_check.set("presentaciotest.pptx", false);
+        files_to_check.set("doctest", false);
+        files_to_check.set("exceltest", false);
+        files_to_check.set("presentaciotest", false);
         files_to_check.set("Muse", false);
         files_to_check.set("Millors", false);
         files_to_check.set("Muse - Can't Take My Eyes Off You.mp3", false);
@@ -408,6 +411,170 @@ class TestVGrive : Gee.TestCase {
         this.client.stop_syncing ();
         assert (this.client.syncing == false);
         assert (this.client.thread == null);
+    }
+
+    public void test_is_google_doc_and_is_google_mime_type () {
+        string file_id;
+        // Fitxers que no ho son
+        // .txt
+        file_id = this.client.get_file_id (this.mainpath+"/muse.txt");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .pdf
+        file_id = this.client.get_file_id (this.mainpath+"/test 1 .pdf");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .png
+        file_id = this.client.get_file_id (this.mainpath+"/test é 6 è.png");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .jpg
+        file_id = this.client.get_file_id (this.mainpath+"/test_ 2_.jpg");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .ods
+        file_id = this.client.get_file_id (this.mainpath+"/test' 4'.ods");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .deb
+        file_id = this.client.get_file_id (this.mainpath+"/test@ 3@.deb");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .torrent
+        file_id = this.client.get_file_id (this.mainpath+"/test& 5&.txt.torrent");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // .mp3
+        file_id = this.client.get_file_id (this.mainpath+"/Muse/Muse - Can't Take My Eyes Off You.mp3");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // Un directori tampoc ho es
+        file_id = this.client.get_file_id (this.mainpath+"/Muse");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == false);
+        // Fitxer que si que ho son
+        // .docx
+        file_id = this.client.get_file_id (this.mainpath+"/GoogleApps/doctest");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == true);
+        // .xlsx
+        file_id = this.client.get_file_id (this.mainpath+"/GoogleApps/exceltest");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == true);
+        // .pptx
+        file_id = this.client.get_file_id (this.mainpath+"/GoogleApps/presentaciotest");
+        assert (file_id != null);
+        assert (file_id != "");
+        assert (this.client.is_google_doc (file_id) == true);
+    }
+
+    public void test_get_file_info() {
+        /*
+         * Test que obte la informacio del drive de un fitxer. Donat un nom i un paremt_id retorna un DriveFile amb la infor del fitxer.
+         *
+         * Primer s'obte la info de un fitxer a l'arrel, després de un fitxer a Muse/, després de un dorectori i finalment de un google doc.
+         *
+         * */
+        DriveFile f;
+        // Fitxer a root
+        f = this.client.get_file_info ("test& 5&.txt.torrent");
+        assert (f.kind == "drive#file");
+        assert (f.id != null);
+        assert (f.name == "test& 5&.txt.torrent");
+        assert (f.mimeType == "application/x-bittorrent");
+        assert (f.parent_id != null);
+        assert (f.modifiedTime != null);
+        assert (f.createdTime != null);
+        assert (f.trashed == false);
+        // Fitxer a subdirectori
+        string parent_id = this.client.get_file_id (this.mainpath+"/Muse");
+        f = this.client.get_file_info ("Muse - Can't Take My Eyes Off You.mp3", parent_id);
+        assert (f.kind == "drive#file");
+        assert (f.id != null);
+        assert (f.name == "Muse - Can't Take My Eyes Off You.mp3");
+        assert (f.mimeType == "audio/mp3");
+        assert (f.parent_id != null);
+        assert (f.modifiedTime != null);
+        assert (f.createdTime != null);
+        assert (f.trashed == false);
+        // Carpeta
+        f = this.client.get_file_info ("Muse");
+        assert (f.kind == "drive#file");
+        assert (f.id != null);
+        assert (f.name == "Muse");
+        assert (f.mimeType == "application/vnd.google-apps.folder");
+        assert (f.parent_id != null);
+        assert (f.modifiedTime != null);
+        assert (f.createdTime != null);
+        assert (f.trashed == false);
+        // Google doc
+        parent_id = this.client.get_file_id (this.mainpath+"/GoogleApps");
+        f = this.client.get_file_info ("doctest", parent_id);
+        assert (f.kind == "drive#file");
+        assert (f.id != null);
+        assert (f.name == "doctest");
+        assert (f.mimeType == "application/vnd.google-apps.document");
+        assert (f.parent_id != null);
+        assert (f.modifiedTime != null);
+        assert (f.createdTime != null);
+        assert (f.trashed == false);
+    }
+
+    public void test_get_file_info_extra() {
+        /*
+         * Test que obte informacio extra de un fitxer.
+         * Pregunta els atributs "modifiedTime" i "mimeType" junts i per separat de un fitxer i un directori.
+         *
+         * */
+        DriveFile f;
+        string file_id;
+        // Fitxer a root
+        file_id = this.client.get_file_id (this.mainpath+"/test& 5&.txt.torrent");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime");
+        assert (f.modifiedTime != null);
+        f = this.client.get_file_info_extra (file_id, "mimeType");
+        assert (f.mimeType == "application/x-bittorrent");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime,mimeType");
+        assert (f.modifiedTime != null);
+        assert (f.mimeType == "application/x-bittorrent");
+        // Fitxer a subdirectori
+        file_id = this.client.get_file_id (this.mainpath+"/Muse/Muse - Can't Take My Eyes Off You.mp3");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime");
+        assert (f.modifiedTime != null);
+        f = this.client.get_file_info_extra (file_id, "mimeType");
+        assert (f.mimeType == "audio/mp3");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime,mimeType");
+        assert (f.modifiedTime != null);
+        assert (f.mimeType == "audio/mp3");
+        // Carpeta
+        file_id = this.client.get_file_id (this.mainpath+"/Muse");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime");
+        assert (f.modifiedTime != null);
+        f = this.client.get_file_info_extra (file_id, "mimeType");
+        assert (f.mimeType == "application/vnd.google-apps.folder");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime,mimeType");
+        assert (f.modifiedTime != null);
+        assert (f.mimeType == "application/vnd.google-apps.folder");
+        // Google doc
+        file_id = this.client.get_file_id (this.mainpath+"/GoogleApps/doctest");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime");
+        assert (f.modifiedTime != null);
+        f = this.client.get_file_info_extra (file_id, "mimeType");
+        assert (f.mimeType == "application/vnd.google-apps.document");
+        f = this.client.get_file_info_extra (file_id, "modifiedTime,mimeType");
+        assert (f.modifiedTime != null);
+        assert (f.mimeType == "application/vnd.google-apps.document");
     }
 
 }

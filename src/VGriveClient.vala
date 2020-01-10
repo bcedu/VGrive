@@ -977,18 +977,16 @@ namespace App {
         }
 
         public bool is_google_doc(string file_id) {
-        // TODO: TEST
             DriveFile f = this.get_file_info_extra (file_id, "mimeType");
-            return this.is_google_mime_type(f.mimeType);
+            if (f.mimeType == null) return false;
+            else return this.is_google_mime_type(f.mimeType);
         }
 
         public bool is_google_mime_type(string mimeType) {
-        // TODO: TEST
             return mimeType.has_prefix ("application/") && mimeType.contains("google-apps") && mimeType != "application/vnd.google-apps.folder";
         }
 
-        public DriveFile get_file_info(string name, string parent_id, int trashed) {
-        // TODO: TEST
+        public DriveFile get_file_info(string name, string parent_id="", int trashed=-1) {
             RequestParam[] params = new RequestParam[1];
 
             string q = "";
@@ -1029,7 +1027,6 @@ namespace App {
         }
 
         public DriveFile get_file_info_extra(string file_id, string fields) {
-        // TODO: TEST
             RequestParam[1] params = new RequestParam[1];
             params[0] = {"fields", fields};
             string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
@@ -1037,16 +1034,36 @@ namespace App {
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
             if (json_response.get_member("error") != null) {
-                stdout.printf("%s\n", res);
+                // Si tenim només un error, l'error es de tipus 400 i el problema està en el camp "fields", retornarem un DriveFile amb els camps buits i ja està
+                if (json_response.get_object_member ("error").has_member ("errors") && json_response.get_object_member ("error").has_member ("code") && json_response.get_object_member ("error").get_int_member ("code") == 400) {
+                    Json.Array errors = json_response.get_object_member ("error").get_array_member ("errors");
+                    if (errors.get_length () == 1 && errors.get_object_element (0).has_member ("location") && errors.get_object_element (0).get_string_member ("location") == "fields") {
+                        return {
+                            null, // kind
+                            null, // id
+                            null, // name
+                            null, // content
+                            null, // mimeType
+                            null, // parent_id
+                            null,
+                            null,
+                            false,
+                            null
+                        };
+                    }
+                }
+                stdout.printf("Get Attrs Error:%s\n", res);
                 return {};
             }
             string[] parents = new string[2];
             uint nparents = 0;
-            Json.Array json_parents = json_response.get_member("parents").get_array ();
-            foreach (unowned Json.Node item in json_parents.get_elements ()) {
-                parents[nparents] = json_parents.get_string_element(nparents);
-                nparents += 1;
-                if (parents.length >= nparents) parents.resize(parents.length*2);
+            if (json_response.has_member("parents")) {
+                Json.Array json_parents = json_response.get_member("parents").get_array ();
+                foreach (unowned Json.Node item in json_parents.get_elements ()) {
+                    parents[nparents] = json_parents.get_string_element(nparents);
+                    nparents += 1;
+                    if (parents.length >= nparents) parents.resize(parents.length*2);
+                }
             }
             return {
                 (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind

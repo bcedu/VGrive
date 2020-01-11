@@ -221,8 +221,8 @@ namespace App {
                 if (this.change_detected) {
                     this.log_message(_("Change detected. Updating files..."));
                     //this.check_deleted_files ();
-                    this.check_remote_files (this.main_path);
                     this.check_local_files (this.main_path);
+                    this.check_remote_files (this.main_path);
                     this.change_detected = false;
                     this.log_message (_("Everything is up to date!"));
                 }
@@ -252,7 +252,7 @@ namespace App {
                     filename = lpath.split("/")[lpath.split("/").length-1];
                     exist_local = this.local_file_exists(lpath);
 
-                    // Check remote existszz
+                    // Check remote exists
                     remote_id = this.get_file_id(lpath);
                     exist_remote = remote_id != null && remote_id != "";
 
@@ -298,39 +298,42 @@ namespace App {
         */
 
             var it = this.library.map_iterator ();
-            Array<string> to_delete = new Array<string> ();
-            string aux;
-            
+            string aux, filename = "";
+            string to_delete = "";
+
             if(!this.is_syncing ()) return;
             
             if(type == "LOCAL"){
+                // Updating library
+                for (var has_next = it.next (); has_next; has_next = it.next ()) {
+                    aux = it.get_value();
+                    if(aux == current_path+"/"+file_id){
+                        to_delete = it.get_key();
+                    }
+                }
+
+                this.library.unset(to_delete);
+                this.save_library ();
+                
                 // Deleting file in local
                 this.log_message (_("DELETE LOCAL FILE: %s").printf (file_id));
                 this.move_local_file_to_trash(current_path+"/"+file_id);
-                
-                // Updating library
-                while(it.get_value() != current_path+"/"+file_id){
-                    it.next();
-                }
-                
-                aux = it.get_key();
-                //to_delete.append_val(aux);
-                this.library.unset(aux);
-                this.save_library ();
             } else if (type == "REMOTE"){
-                // Deleting file in remote
-                this.log_message (_("DELETE REMOTE FILE: %s").printf (file_id));
-                this.delete_file(file_id);
-                
                 // Updating library
-                while(it.get_value() != file_id){
-                    it.next();
+                for (var has_next = it.next (); has_next; has_next = it.next ()) {
+                    aux = it.get_key();
+                    if(aux == file_id){
+                        to_delete = aux;
+                        filename = it.get_value();
+                    }
                 }
-                
-                aux = it.get_key();
-                //to_delete.append_val(aux);
-                this.library.unset(aux);
+
+                this.library.unset(to_delete);
                 this.save_library ();
+                
+                // Deleting file in remote
+                this.log_message (_("DELETE REMOTE FILE: %s").printf (filename));
+                this.delete_file(file_id);
             }
         }
 
@@ -349,13 +352,19 @@ namespace App {
                 if (!this.is_syncing ()) return;
                 
                 // If file is not listed in the library, should be a new file, so sync it. Otherwise should be a deleted file, so delete it.
-                if(!this.library.has_key(f.id)){
-                    // Set the file in the library with this notation: file.id;file.local.path/filename
-                    this.library.set(f.id, current_path+"/"+f.name);
-                    
+                if(!this.library.has_key(f.id)){                    
                     if (f.mimeType == "application/vnd.google-apps.folder") {
                         // Check if this file is a folder, then create if doesn't exist
-                        if (!this.local_file_exists(current_path+"/"+f.name)) this.create_local_file(f, current_path);
+                        if (!this.local_file_exists(current_path+"/"+f.name)) {
+                            this.log_message(_("NEW REMOTE DIRECTORY: %s downloading...").printf(f.name), 0);
+                            this.create_local_file(f, current_path);
+                            this.log_message(_("NEW REMOTE DIRECTORY: %s downloaded ✓").printf(f.name), 0);
+                            
+                            // Set the folder in the library with this notation: folder.id;folder.local.path/filename
+                            this.library.set(f.id, current_path+"/"+f.name);
+                        }
+                        // Check files inside the folder
+                        this.check_remote_files(current_path+"/"+f.name, f.id);
                     } else if(this.is_google_mime_type (f.mimeType)){
                         // It's a google document. We don't want to download them
                         this.log_message(_("INFO: %s ignored").printf(f.name), 0);
@@ -363,14 +372,19 @@ namespace App {
                         // It's a file. Download it if it doesn't exist
                         if (!this.local_file_exists(current_path+"/"+f.name)) {
                             this.download_new_remote_file(f, current_path);
+                            
+                            // Set the file in the library with this notation: file.id;file.local.path/filename
+                            this.library.set(f.id, current_path+"/"+f.name);
                         }
                     }
-                } else if (this.local_file_exists(current_path+"/"+f.name)) {
+                } else if (this.library.has_key(f.id) && this.local_file_exists(current_path+"/"+f.name)) {
                     // Detect if the remote version is newer than the local one.
                     // If it's the case, move the local versio to .trash and download remote
                     DriveFile extra_info_file = this.get_file_info_extra(f.id, "modifiedTime");
                     if (this.compare_files_write_time(extra_info_file.modifiedTime, current_path+"/"+f.name) == -1) {
+                        this.log_message(_("FILE MODIFIED REMOTELY: %s updating...").printf(f.name), 0);
                         this.download_new_version_remote_file(f, current_path);
+                        this.log_message(_("FILE MODIFIED REMOTELY: %s updated ✓").printf(f.name), 0);
                     } else this.log_message(_("INFO: %s not changed").printf(f.name), 0);
                 } else {
                     delete_files("REMOTE", f.id, current_path);
@@ -389,30 +403,43 @@ namespace App {
             if (!this.is_syncing ()) return;
             try {
             var directory = File.new_for_path (current_path);
+            bool has_in_lib = false;
             var enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME, 0);
             FileInfo info;
-            DriveFile remote_file;
+            DriveFile remote_file, new_remote_file;
             
             while ((info = enumerator.next_file ()) != null) {
                 if (!this.is_syncing ()) return;
+                var it = this.library.map_iterator ();
                 
                 if (this.is_regular_file(info.get_name())) {
                     remote_file = this.get_file_info(info.get_name(), root_id, -1);
-                    
+
+                    if(remote_file.id == null){
+                        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+                            if(it.get_value() == current_path+"/"+info.get_name()){
+                                has_in_lib = true;
+                                break;
+                            }
+                        }
+                    }
+
                     // If file is not listed in the library, should be a new file, so sync it. Otherwise should be a deleted file, so delete it.
-                    if(!this.library.has_key(remote_file.id)){
-                        // Set the file in the library with this notation: file.id;file.local.path/filename
-                        this.library.set(remote_file.id, current_path+"/"+info.get_name());
-                        
+                    if(!has_in_lib){
                         if (info.get_file_type () == FileType.DIRECTORY) {
                             if (remote_file.id == null) {
                                 // Create DIR
                                 this.log_message(_("NEW LOCAL DIRECTORY: %s uploading...").printf(info.get_name()));
                                 remote_file = this.upload_new_local_dir(current_path+"/"+info.get_name(), root_id);
                                 this.log_message(_("NEW LOCAL DIRECTORY: %s uploaded ✓").printf(remote_file.name));
-                            }else {
+                            } else {
                                 this.log_message(_("INFO: %s not changed").printf(remote_file.name), 0);
                             }
+
+                            // Set the file in the library with this notation: file.id;file.local.path/filename
+                            new_remote_file = this.get_file_info(info.get_name(), root_id, -1);
+                            this.library.set(new_remote_file.id, current_path+"/"+info.get_name());
+
                             this.check_local_files(current_path+"/"+info.get_name(), remote_file.id);
                         } else {
                             if (remote_file.id == null) {
@@ -420,7 +447,7 @@ namespace App {
                                 remote_file = this.upload_new_local_file(current_path+"/"+info.get_name(), root_id);
                             }
                         }
-                    } else if (remote_file.id != null) {
+                    } else if (has_in_lib && remote_file.id != null) {
                         // Detect if the local version is newer than the remote one.
                         // If it's the case, upload local one
                         DriveFile extra_info_file = this.get_file_info_extra(remote_file.id, "modifiedTime");
@@ -1442,4 +1469,3 @@ namespace App {
     }
 
 }
-

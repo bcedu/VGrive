@@ -26,10 +26,12 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test upload new version of a file that already exists (test_upload_file_update)", test_upload_file_update);
         add_test(" * Test upload a new directory to google drive (main path) and delete it (test_upload_dir_main_path)", test_upload_dir_main_path);
         add_test(" * Test upload a new directory to google drive (subpath) and delete it (test_upload_dir_other_path)", test_upload_dir_other_path);
-        add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
         add_test(" * Test if some files are google documents or not (test_is_google_doc_and_is_google_mime_type)", test_is_google_doc_and_is_google_mime_type);
         add_test(" * Test get google drive information of file (test_get_file_info)", test_get_file_info);
         add_test(" * Test get google drive extra information of file (test_get_file_info_extra)", test_get_file_info_extra);
+        add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
+        add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
+
     }
 
     public override void set_up () {
@@ -367,52 +369,6 @@ class TestVGrive : Gee.TestCase {
         assert (found_files.length == 0);
     }
 
-    public void test_start_and_stop_syncing () {
-        /*
-         * Test que inicia el proces de sincronitzacio. Al iniciarse es fa el següent:
-         * - Es posa a true la variable 'syncing'
-         * - Crea el directori main_path si no existeix
-         * - Crea el directori trash_path si no existeix
-         * - Inicialitza la llibreria (atribut 'library')
-         * - Inicia un nou thread que executa el métode 'sync_files'. Aquest thread es guarda al atribut 'thread'.
-         *
-         *
-         * Després es comprova que no hi hagi hagut cap canvi, ja que nongu ha tocat res es suposa.
-         *
-         * Finalment atura el procés amb 'stop_syncing'. Al fer-ho es fan les següents accions:
-         * - Es posa a false la variable 'syncing'
-         * - Es fa el join amb el thread del atribut 'thread'
-         *
-         * */
-        // Primer eliminem els directoris main_path i trash_path perque es tornin a crear despres.
-        // Ja existien perque al crear el VGriveClient es crean.
-        File mainDir = File.new_for_path (mainpath);
-        File trashDir = File.new_for_path (mainpath+"/.trash");
-        assert (mainDir.query_exists () == true);
-        assert (trashDir.query_exists () == true);
-        try {
-            trashDir.delete ();
-            mainDir.delete ();
-        } catch (Error e) {
-            print ("Error: %s\n", e.message);
-        }
-        assert (mainDir.query_exists () == false);
-        assert (trashDir.query_exists () == false);
-        // Iniciem la sincronitzacio. Comprovarem que fa les 5 accions que esperem
-        this.client.start_syncing ();
-        assert (this.client.syncing == true);
-        assert (mainDir.query_exists () == true);
-        assert (trashDir.query_exists () == true);
-        assert (this.client.get_library () != null);
-        assert (this.client.thread != null);
-        // Comprovem que no hi hagi hagut cap canvi detectat
-        assert (this.client.change_detected == false);
-        // Parem de sincronitzar i comprovem que ha fet les dos accions que ha de realitzar
-        this.client.stop_syncing ();
-        assert (this.client.syncing == false);
-        assert (this.client.thread == null);
-    }
-
     public void test_is_google_doc_and_is_google_mime_type () {
         string file_id;
         // Fitxers que no ho son
@@ -575,6 +531,94 @@ class TestVGrive : Gee.TestCase {
         f = this.client.get_file_info_extra (file_id, "modifiedTime,mimeType");
         assert (f.modifiedTime != null);
         assert (f.mimeType == "application/vnd.google-apps.document");
+    }
+
+    public void test_has_remote_changes_and_request_page_token() {
+        /*
+         * Test comprova si hi ha canvis al google drive:
+         * - Es demana un pageToken inicial amb el qual es comprova si hi ha canvis.
+         * - No n'hi hauria d'haver ja que acavem de obtenir el pageToken per tant apunta a la versio més recent.
+         * - Es puja un nou fitxer. Ho ha de detectar com a canvis
+         * - Es torna a preguntar i ha de dir que no hi ha més canvis.
+         * - Es puja una nova versio del fitxer i es torna a preguntar si hi ha canvis. N'hi hauria de haver.
+         * - Tornem a preguntar si hi ha canvis i ja no n'hi hauria de haver.
+         * - Eliminem el fitxer, ho ha de detectar com a canvis.
+         * - Tornem a preguntar i ja no hauria de haver canvis
+         *
+         * */
+        string pageToken = this.client.request_page_token ();
+        assert (pageToken != null);
+        this.client.page_token = pageToken;
+        // Com que en els tests es fan canvis es possible que el primer cop que demanem ens digui que hi ha canvis pendents desde l'ultim cop que vam preguntar
+        this.client.has_remote_changes (this.client.page_token);
+        // Quan preguntem per primer cop no hi ha canvis
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+        // Pujem un canvi i tornem a preguntar, ho hauria de detectar
+        var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
+        assert (this.client.has_remote_changes (this.client.page_token) == true);
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+        // Pujem una nova versio del fitxer, ha de haverhi canvis
+        this.client.upload_file_update (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", res.id);
+        assert (this.client.has_remote_changes (this.client.page_token) == true);
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+        // Eliminem el fitxer pujat, ho ha de detectar com a canvis (a mes aixi deixem net el google drive)
+        this.client.delete_file (res.id);
+        assert (this.client.has_remote_changes (this.client.page_token) == true);
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+        // Fem varis canvis alhora i ho ha de detectar el primer cop nomes
+        res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
+        this.client.upload_file_update (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", res.id);
+        assert (this.client.has_remote_changes (this.client.page_token) == true);
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+        this.client.delete_file (res.id);
+        assert (this.client.has_remote_changes (this.client.page_token) == true);
+        assert (this.client.has_remote_changes (this.client.page_token) == false);
+    }
+
+    public void test_start_and_stop_syncing () {
+        /*
+         * Test que inicia el proces de sincronitzacio. Al iniciarse es fa el següent:
+         * - Es posa a true la variable 'syncing'
+         * - Crea el directori main_path si no existeix
+         * - Crea el directori trash_path si no existeix
+         * - Inicialitza la llibreria (atribut 'library')
+         * - Inicia un nou thread que executa el métode 'sync_files'. Aquest thread es guarda al atribut 'thread'.
+         *
+         *
+         * Després es comprova que no hi hagi hagut cap canvi, ja que nongu ha tocat res es suposa.
+         *
+         * Finalment atura el procés amb 'stop_syncing'. Al fer-ho es fan les següents accions:
+         * - Es posa a false la variable 'syncing'
+         * - Es fa el join amb el thread del atribut 'thread'
+         *
+         * */
+        // Primer eliminem els directoris main_path i trash_path perque es tornin a crear despres.
+        // Ja existien perque al crear el VGriveClient es crean.
+        File mainDir = File.new_for_path (mainpath);
+        File trashDir = File.new_for_path (mainpath+"/.trash");
+        assert (mainDir.query_exists () == true);
+        assert (trashDir.query_exists () == true);
+        try {
+            trashDir.delete ();
+            mainDir.delete ();
+        } catch (Error e) {
+            print ("Error: %s\n", e.message);
+        }
+        assert (mainDir.query_exists () == false);
+        assert (trashDir.query_exists () == false);
+        // Iniciem la sincronitzacio. Comprovarem que fa les 5 accions que esperem
+        this.client.start_syncing ();
+        assert (this.client.syncing == true);
+        assert (mainDir.query_exists () == true);
+        assert (trashDir.query_exists () == true);
+        assert (this.client.get_library () != null);
+        assert (this.client.thread != null);
+        // Comprovem que no hi hagi hagut cap canvi detectat
+        assert (this.client.change_detected == false);
+        // Parem de sincronitzar i comprovem que ha fet les dos accions que ha de realitzar
+        this.client.stop_syncing ();
+        assert (this.client.syncing == false);
+        assert (this.client.thread == null);
     }
 
 }

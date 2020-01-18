@@ -83,7 +83,7 @@ namespace App {
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
         public string redirect = "urn:ietf:wg:oauth:2.0:oob";
-        string page_token = "";
+        public string page_token = "";
         // SYNC related sttributes
         public string main_path;
         public string trash_path;
@@ -1102,7 +1102,6 @@ namespace App {
         }
 
         public string request_page_token() {
-        // TODO: TEST
             string res = this.make_request("GET", this.api_uri+"/changes/startPageToken", null, null, null, false).response;
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
@@ -1111,11 +1110,10 @@ namespace App {
         }
 
         public bool has_remote_changes(string pageToken) {
-        // TODO: TEST
+            string original_pageToken = pageToken;
             RequestParam[] params = new RequestParam[1];
             params[0] = {"pageToken", pageToken};
             string res = this.make_request("GET", this.api_uri+"/changes", params, null, null, false).response;
-
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
@@ -1144,8 +1142,9 @@ namespace App {
                 if (json_response.get_member("newStartPageToken") != null) nextToken = json_response.get_string_member("newStartPageToken");
                 changes_left = json_response.get_member("nextPageToken") != null;
             }
+            this.page_token = this.request_page_token ();
 
-            if (nextToken != "" && nextToken != null) this.page_token = nextToken;
+            if (this.page_token != original_pageToken) this.has_remote_changes (this.page_token);
             return final_res;
         }
 

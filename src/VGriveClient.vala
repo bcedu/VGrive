@@ -90,7 +90,7 @@ namespace App {
         public bool syncing = false;
         public bool change_detected = false;
         public int changes_check_period = 10;
-        private Gee.HashMap<string,string>? library;
+        public Gee.HashMap<string,string>? library;
 
         public Thread<int> thread;
 
@@ -233,21 +233,18 @@ namespace App {
                 return false;
             }
         }
-        private void check_deleted_files () {
-        // TODO: TEST
+
+        public void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             if (!this.is_syncing ()) return;
-            var it = this.library.map_iterator ();
             bool exist_local, exist_remote, must_delete = false;
-            DriveFile remote_file;
-            string remote_id, filename, aux, lpath;
+            string remote_id, filename, lpath;
             Array<string> to_delete = new Array<string> ();
-            for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            foreach (var entry in this.library.entries) {
                 if (!this.is_syncing ()) return;
                 // Check local exists
-                lpath = it.get_value();
-                aux = it.get_key();
+                lpath = entry.value;
                 filename = lpath.split("/")[lpath.split("/").length-1];
                 exist_local = this.local_file_exists(lpath);
 
@@ -258,7 +255,7 @@ namespace App {
                 // Si fa falta, l'eliminem de on sigui (fa falta si en un dels dos llocs s'ha de eliminar
                 must_delete = !exist_local || !exist_remote;
                 if (must_delete) {
-                    to_delete.append_val(aux);
+                    to_delete.append_val(entry.key);
                     if (exist_local) {
                         this.log_message (_("DELETE LOCAL FILE: %s").printf (filename));
                         this.move_local_file_to_trash(lpath);
@@ -274,8 +271,8 @@ namespace App {
                 }
             }
             for (int i = 0; i < to_delete.length ; i++) {
-		        this.library.unset(to_delete.index (i));
-	        }
+                if (this.library.has_key (to_delete.index (i))) this.library.unset (to_delete.index (i));
+            }
             this.save_library ();
         }
 
@@ -1347,9 +1344,11 @@ namespace App {
         public void move_local_file_to_trash(string filepath) {
         // TODO: TEST
             File f = File.new_for_path(filepath);
-            DateTime dt = new DateTime.now_utc();
-            File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
-            f.move(dest, FileCopyFlags.NONE);
+            if (f.query_exists ()) {
+                DateTime dt = new DateTime.now_utc();
+                File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
+                f.move(dest, FileCopyFlags.NONE);
+            }
         }
 
         public int compare_files_write_time(string dfile_write_date, string filepath) {

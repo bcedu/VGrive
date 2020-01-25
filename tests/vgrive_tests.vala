@@ -31,7 +31,7 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test get google drive extra information of file (test_get_file_info_extra)", test_get_file_info_extra);
         add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
-
+        add_test(" * Test starting the sync process to check deleted files (test_check_deleted_files)", test_check_deleted_files);
     }
 
     public override void set_up () {
@@ -42,6 +42,17 @@ class TestVGrive : Gee.TestCase {
 
     public override void tear_down () {
         if (this.client.is_syncing ()) this.client.stop_syncing ();
+    }
+
+    private DriveFile add_file_to_drive (string fixture_path, string drive_path="", string drive_id="root") {
+        DriveFile res = this.client.upload_file (fixture_path, drive_id);
+        string full_path = this.mainpath+"/"+drive_path+fixture_path.split("/")[fixture_path.split("/").length-1];
+        File f = File.new_for_path (fixture_path);
+        File f2 = File.new_for_path(full_path);
+        f.copy (f2, 0, null, null);
+        if (this.client.library == null)  this.client.library = this.client.load_library ();
+        this.client.library.set(res.id, full_path);
+        return res;
     }
 
     private uint8[]  get_fixture_content(string path, bool delete_final_byte) {
@@ -621,5 +632,69 @@ class TestVGrive : Gee.TestCase {
         assert (this.client.thread == null);
     }
 
+    public void test_check_deleted_files () {
+        /*
+         * Test que comprova que es sincornitzin correctament els fitxers eliminats:
+         * Es puja 3 fitxers nous:
+         *    - muse_new_to_upload.txt
+         *    - muse_new_to_upload.v2.txt
+         *    - muse_new_to_upload.v3.txt
+         *
+         * S'elimina el fitxer local muse_new_to_upload.v3.txt
+         * S'elimina el fitxer remot muse_new_to_upload.v2.txt
+         *
+         * S'executa el check_deleted_files
+         * - El métode ha de eliminar el fitxer remot muse_new_to_upload.v3.txt
+         * - El métode ha de eliminar el fitxer local muse_new_to_upload.v2.txt
+         * - El fitxer muse_new_to_upload.txt ha de continuar existint als dos llocs
+         *
+         * Després s'elimina el muse_new_to_upload.txt per deixar-ho net
+         *
+         * */
+        // Ho preparem tot
+        DriveFile res = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "", "root");
+        DriveFile res2 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", "", "root");
+        DriveFile res3 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v3.txt", "", "root");
+        this.client.move_local_file_to_trash(this.mainpath+"/muse_new_to_upload.v3.txt");
+        this.client.delete_file(res2.id);
+
+        File f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
+        assert(f.query_exists() == true);
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
+
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
+        assert(f.query_exists() == true);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
+        assert (found_files.length == 0);
+
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
+        assert (found_files.length == 1);
+
+        // Executem el metode
+        this.client.syncing = true;
+        this.client.check_deleted_files ();
+
+        // Comprovem que hagi passat el que esperavem
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
+        assert(f.query_exists() == true);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
+
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
+        assert (found_files.length == 0);
+
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
+        assert (found_files.length == 0);
+
+        // Netegem fitxers
+        this.client.delete_file (res.id);
+    }
 }
 

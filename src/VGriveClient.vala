@@ -1265,7 +1265,7 @@ namespace App {
 
         public bool is_regular_file(string fname) {
         // TODO: TEST
-            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library";
+            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library" && !fname.has_prefix(".");
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -1315,7 +1315,6 @@ namespace App {
         }
 
         public bool local_file_exists(string path) {
-        // TODO: TEST
             File file = File.new_for_path(path);
             return file.query_exists();
         }

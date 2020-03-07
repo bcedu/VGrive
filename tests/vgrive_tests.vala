@@ -6,13 +6,15 @@ class TestVGrive : Gee.TestCase {
 
     private VGriveClient client;
     private string mainpath = GLib.Environment.get_current_dir()+"/.testbuild/VGriveTEST";
-    private string access_token = "ya29.Il-1B3LBSkPsLym3fwBYl5yB0oDJ8VMNiP1Rr3CLRPxPtxiVYWBEpRIVhxMVWcx7FAOZVVRR5tNC6lXk-0OmZ6hHjEJH3qrd7cIn0DLruxiHRe8VbpVmHvu5RImxOpSAsg";
-    private string refresh_token = "1//03FuFl61Tq1JyCgYIARAAGAMSNwF-L9IrZksc48dnu3Bfid3-2h2XtW-zl-s1DaPSvVNoL3bq_IjRUhiqsixywVSq22VoO8_zDUg";
+    private string access_token = "ya29.Il_BB3zFXkNQ22kLVBhaPUQlSNBK0PEH2B6BYW9v1kW_PzfD7r9wDw_QGDgsEXeCxwo2keeXWFgQQk-04NN9yvUstc4K-Lr0QwEGpdR4BsB5J0KHkGQGAXQAF14ToPjTOw";
+    private string refresh_token = "1//03IU2IIEPTdKeCgYIARAAGAMSNwF-L9IrnsAzIRFCLUjFKG7JQGknE2jswVrNfSMkI4GX53J8GS0eJcVrfC68zRFGKIrmWb9_OLk";
 
     public TestVGrive() {
         // assign a name for this class
         base("TestVGrive");
         // add test methods
+        add_test(" * Test is regular file to be synced (test_is_regular_file)", test_is_regular_file);
+        add_test(" * Test a file exists in local file system (test_local_file_exists)", test_local_file_exists);
         add_test(" * Test has credentials (test_has_credentials)", test_has_credentials);
         add_test(" * Test get auth uri (test_get_auth_uri)", test_get_auth_uri);
         add_test(" * Test if is in syncing process (test_is_syncing)", test_is_syncing);
@@ -82,7 +84,22 @@ class TestVGrive : Gee.TestCase {
         if (s2 == null) s2 = " ";
         s1 = s1.strip();
         s2 = s2.strip();
+        print("|"+s1+"|"+s2+"|\n");
         assert (s1 == s2);
+    }
+
+    public void test_local_file_exists() {
+        assert (this.client.local_file_exists(GLib.Environment.get_current_dir()+"/tests/fixtures/.muse.txt") == true);
+        assert (this.client.local_file_exists(GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt") == true);
+        assert (this.client.local_file_exists(GLib.Environment.get_current_dir()+"/tests/fixtures/muse_no_existeix.txt") == false);
+    }
+
+    public void test_is_regular_file() {
+        assert (this.client.is_regular_file(".trash") == false);
+        assert (this.client.is_regular_file(".vgrive_library") == false);
+        assert (this.client.is_regular_file(".page_token") == false);
+        assert (this.client.is_regular_file(".muse.txt") == false);
+        assert (this.client.is_regular_file("muse.txt") == true);
     }
 
     public void test_has_credentials () {
@@ -157,6 +174,7 @@ class TestVGrive : Gee.TestCase {
          * test' 4'.ods
          * test@ 3@.deb
          * test& 5&.txt.torrent
+         * muse.txt
          *
          * */
         string google_apps_id = "";

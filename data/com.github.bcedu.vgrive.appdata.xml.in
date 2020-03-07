@@ -40,7 +40,7 @@ Automatically detects changes in local and remote files and syncs them.</p>
       <release version="1.4.0" date="2019-11-22">
         <description>
           <p>New option to start VGrive minimized.</p>
-          <p>Tray icon: Show vgrive icon in the notification area with options to close and show the app.</p>
+          <p>For users who have enabled tray icons: Show vgrive icon in the notification area with options to close and show the app.</p>
           <p>Added comand line options. Type "com.github.bcedu.vgrive --help" to see more information.</p>
           <p>Bug fixes:
             <ul>

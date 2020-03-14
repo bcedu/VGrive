@@ -82,17 +82,18 @@ namespace App {
         public string scope = "https://www.googleapis.com/auth/drive";
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
+        public string metadata_uri = "https://www.googleapis.com/drive/v3/files";
         public string redirect = "urn:ietf:wg:oauth:2.0:oob";
-        string page_token = "";
+        public string page_token = "";
         // SYNC related sttributes
         public string main_path;
         public string trash_path;
         public bool syncing = false;
         public bool change_detected = false;
         public int changes_check_period = 10;
-        private Gee.HashMap<string,string>? library;
+        public Gee.HashMap<string,string>? library;
 
-        Thread<int> thread;
+        public Thread<int> thread;
 
         public VGriveClient (AppController? controler=null, owned string? main_path=null, owned string? trash_path=null) {
             this.app_controller = controler;
@@ -180,7 +181,10 @@ namespace App {
 
         public void stop_syncing() {
             this.syncing = false;
-            int result = this.thread.join ();
+            if (this.thread != null) {
+                this.thread.join ();
+                this.thread = null;
+            }
             this.log_message(_("Syncing stopped by user request"));
             //this.save_library();
             //this.thread.exit(1);
@@ -188,6 +192,7 @@ namespace App {
         }
 
         public int sync_files() {
+        // TODO: TEST
             // Check if we have changes in files and sync them
             if (this.is_syncing ()) {
                 this.log_level=0;
@@ -213,6 +218,7 @@ namespace App {
         }
 
         public bool process_changes() {
+        // TODO: TEST
             if (this.is_syncing ()) {
                 if (this.change_detected) {
                     this.log_message(_("Change detected. Updating files..."));
@@ -228,20 +234,18 @@ namespace App {
                 return false;
             }
         }
-        private void check_deleted_files () {
+
+        public void check_deleted_files () {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             if (!this.is_syncing ()) return;
-            var it = this.library.map_iterator ();
             bool exist_local, exist_remote, must_delete = false;
-            DriveFile remote_file;
-            string remote_id, filename, aux, lpath;
+            string remote_id, filename, lpath;
             Array<string> to_delete = new Array<string> ();
-            for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            foreach (var entry in this.library.entries) {
                 if (!this.is_syncing ()) return;
                 // Check local exists
-                lpath = it.get_value();
-                aux = it.get_key();
+                lpath = entry.value;
                 filename = lpath.split("/")[lpath.split("/").length-1];
                 exist_local = this.local_file_exists(lpath);
 
@@ -252,7 +256,7 @@ namespace App {
                 // Si fa falta, l'eliminem de on sigui (fa falta si en un dels dos llocs s'ha de eliminar
                 must_delete = !exist_local || !exist_remote;
                 if (must_delete) {
-                    to_delete.append_val(aux);
+                    to_delete.append_val(entry.key);
                     if (exist_local) {
                         this.log_message (_("DELETE LOCAL FILE: %s").printf (filename));
                         this.move_local_file_to_trash(lpath);
@@ -268,12 +272,13 @@ namespace App {
                 }
             }
             for (int i = 0; i < to_delete.length ; i++) {
-		        this.library.unset(to_delete.index (i));
-	        }
+                if (this.library.has_key (to_delete.index (i))) this.library.unset (to_delete.index (i));
+            }
             this.save_library ();
         }
 
         private void check_remote_files (string current_path, string root_id="") {
+        // TODO: TEST
             // Mira els fitxers que hi ha a la en remot
             // Si no existeixen en local el crea i l'afageix a la llibreria
             // Si existeix en local i la hora de modificació local NO és posterior al a la del remot, es baixa el remot i mou el local al .trash
@@ -309,6 +314,7 @@ namespace App {
         }
 
         private void check_local_files (string current_path, string root_id="") {
+        // TODO: TEST
             // Mira els fitxers que hi ha en local
             // Si no existeixen en remot el crea i l'afageix a la llibreria
             // Si existeix en remot i la hora de modificació remot NO és posterior al a la del local, es puja el local i mou el remot al .trash
@@ -356,6 +362,8 @@ namespace App {
         }
 
         private void watch_local_changes() {
+        // TODO: TEST
+        // TODO: utilitzar ThreadPool?
             try {
                 string[] dirs_to_watch = this.get_all_dirs(this.main_path);
 
@@ -376,6 +384,7 @@ namespace App {
         }
 
         private void watch_remote_changes () {
+        // TODO: TEST
             this.page_token = this.request_page_token();
             try {
                 new Thread<int>.try ("Watch remote thread", () => {
@@ -392,6 +401,7 @@ namespace App {
         }
 
         private bool check_remote_changes(string token) {
+        // TODO: TEST
             return this.has_remote_changes (token);
         }
 
@@ -405,6 +415,7 @@ namespace App {
 
 
         public DriveRequestResult request_credentials(string drive_code) {
+        // TODO: TEST
             // Request credentials to Drive API.
             // If success, returns code 1 and message=credentials.
             // Else returns code=-1 ans message=error_description
@@ -437,6 +448,7 @@ namespace App {
         }
 
         public DriveRequestResult request_and_set_credentials(string drive_code, bool store_credentials=true, owned string? credentials_file_path=null) {
+        // TODO: TEST
             // Request credentials to Drive API.
             // If success, returns code 1 and message=credentials and the attributes `access_token` and `refresh_token` are set. Also if `store_credentials` is True, the credentials are written in the `credentials_file_path`
             // Else returns code=-1 ans message=error_description
@@ -471,11 +483,11 @@ namespace App {
                         file = File.new_for_path(credentials_file_path);
                         if (file.query_exists()) {
                             stdout.printf("Warning: file %s already exists and it will be deleted.", credentials_file_path);
-                        try {
-                            file.delete ();
-                        } catch (Error e) {
-                            print ("Error: %s\n", e.message);
-                        }
+                            try {
+                                file.delete ();
+                            } catch (Error e) {
+                                print ("Error: %s\n", e.message);
+                            }
                         }
                         file.create(FileCreateFlags.NONE);
                         FileIOStream io = file.open_readwrite();
@@ -491,6 +503,7 @@ namespace App {
         }
 
         public bool has_local_credentials(owned string? path=null) {
+        // TODO: TEST
             // Check if the there are local credentials.
             // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
             if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
@@ -500,6 +513,7 @@ namespace App {
         }
 
         public int load_local_credentials(owned string? path=null) {
+        // TODO: TEST
             // Loads local credentials.
             // They are search in the path definded in `path`, by default "~/.vgrive/credentials.json"
             // If they are loaded succesfully the attributes `access_token` and `refresh_token` are set and `1` is returned to indicate de success.
@@ -523,6 +537,7 @@ namespace App {
         }
 
         public void delete_local_credentials(owned string? path=null) {
+        // TODO: TEST
             if (path == null) path = Environment.get_home_dir()+"/.vgrive/credentials.json";
             if (this.has_local_credentials (path)) {
                 File file = File.new_for_path(path);
@@ -531,6 +546,7 @@ namespace App {
         }
 
         public void delete_credentials() {
+        // TODO: TEST
             this.access_token = "";
             this.refresh_token = "";
         }
@@ -558,7 +574,6 @@ namespace App {
             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
             uri_auth = encode_uri(uri_auth);
-            //stdout.printf("Request: %s %s\n", method, uri_auth);
             var message = new Soup.Message (method, uri_auth);
             string res;
             uint8[] bres;
@@ -570,6 +585,7 @@ namespace App {
                 session.send_message (message);
                 bres = message.response_body.data;
                 res = (string) message.response_body.data;
+                if (res == "") res = "{}";
                 res_header = message.response_headers;
                 // Parse response
                 var parser = new Json.Parser ();
@@ -583,8 +599,8 @@ namespace App {
                         // If it's auth error we will try to refresh the token
                         string refresh_uri = "https://www.googleapis.com/oauth2/v4/token?refresh_token=%s&client_id=%s&client_secret=%s&grant_type=refresh_token".printf(this.refresh_token, this.client_id, this.client_secret);
                         message = new Soup.Message ("POST", refresh_uri);
-                        message.set_request("", Soup.MemoryUse.COPY, "{}".data);
-                        stdout.printf("Authentication error. Refreshing token. Request: POST %s\n", refresh_uri);
+                        message.set_request("text/plain", Soup.MemoryUse.COPY, "{}".data);
+                        //stdout.printf("Authentication error. Refreshing token. Request: POST %s\n", refresh_uri);
                         session.send_message (message);
                         string refresh_res = (string) message.response_body.data;
                         parser = new Json.Parser ();
@@ -597,7 +613,7 @@ namespace App {
                             else uri_auth = uri + "?access_token=%s".printf(this.access_token);
                             if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
                             uri_auth = encode_uri(uri_auth);
-                            stdout.printf("Retrying request: %s %s\n", method, uri_auth);
+                            //stdout.printf("Retrying request: %s %s\n", method, uri_auth);
                             message = new Soup.Message (method, uri_auth);
                             if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
                             if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
@@ -668,9 +684,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     parent_id, // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
                 nfiles += 1;
@@ -700,9 +716,9 @@ namespace App {
                         "".data, // content
                         obj.get_string_member("mimeType"), // mimeType
                         parent_id, // parent_id
-                        obj.get_string_member("modifiedTime"),
-                        obj.get_string_member("createdTime"),
-                        obj.get_boolean_member("trashed"),
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                         new string[0]
                     };
                     nfiles += 1;
@@ -721,7 +737,6 @@ namespace App {
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
                       with the {sync_dir} as root. It must exist locally.
-                File doesn't exist in remote
             */
             string filename = filepath.split("/")[filepath.split("/").length-1];
             RequestParam[] params = new RequestParam[1];
@@ -750,7 +765,7 @@ namespace App {
                     }
                 }catch (Error e) {}
 
-                RequestContent file_content = {"", content[0:bytes_readed]};
+                RequestContent file_content = {"multipart/form-data", content[0:bytes_readed]};
 
                 headers = new RequestParam[1];
                 headers[0] = {"Content-Length", bytes_readed.to_string()};
@@ -764,15 +779,15 @@ namespace App {
                     return {};
                 }
                 return {
-                    json_response.get_string_member("kind"), // kind
-                    json_response.get_string_member("id"), // id
-                    json_response.get_string_member("name"), // name
+                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                     "".data, // content
-                    json_response.get_string_member("mimeType"), // mimeType
+                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                     parent_id, // parent_id
-                    json_response.get_string_member("modifiedTime"),
-                    json_response.get_string_member("createdTime"),
-                    json_response.get_boolean_member("trashed"),
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             } catch (Error e) {
@@ -788,9 +803,6 @@ namespace App {
                       with the {sync_dir} as root. It must exist locally.
                 File exists in remote with id {file_id}
             */
-
-            string filename = filepath.split("/")[filepath.split("/").length-1];
-
             RequestParam[] params = new RequestParam[1];
             params[0] = {"uploadType", "resumable"};
             RequestParam[] headers = new RequestParam[2];
@@ -816,7 +828,7 @@ namespace App {
                     }
                 }catch (Error e) {}
 
-                RequestContent file_content = {"", content[0:bytes_readed]};
+                RequestContent file_content = {"multipart/form-data", content[0:bytes_readed]};
 
                 headers = new RequestParam[1];
                 headers[0] = {"Content-Length", bytes_readed.to_string()};
@@ -830,15 +842,15 @@ namespace App {
                     return {};
                 }
                 return {
-                    json_response.get_string_member("kind"), // kind
-                    json_response.get_string_member("id"), // id
-                    json_response.get_string_member("name"), // name
+                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                     "".data, // content
-                    json_response.get_string_member("mimeType"), // mimeType
+                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                     "", // parent_id
-                    json_response.get_string_member("modifiedTime"),
-                    json_response.get_string_member("createdTime"),
-                    json_response.get_boolean_member("trashed"),
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             } catch (Error e) {
@@ -859,7 +871,7 @@ namespace App {
             ResponseObject res = this.make_request("POST", this.upload_uri+"/files", params, headers, body, false);
 
             string location = res.headers.get_one("Location");
-            RequestContent file_content = {"", new uint8[0]};
+            RequestContent file_content = {"multipart/form-data", new uint8[0]};
 
             headers = new RequestParam[1];
             headers[0] = {"Content-Length", "0"};
@@ -873,15 +885,15 @@ namespace App {
                 return {};
             }
             return {
-                json_response.get_string_member("kind"), // kind
-                json_response.get_string_member("id"), // id
-                json_response.get_string_member("name"), // name
+                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                 "".data, // content
-                json_response.get_string_member("mimeType"), // mimeType
+                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                 parent_id, // parent_id
-                json_response.get_string_member("modifiedTime"),
-                json_response.get_string_member("createdTime"),
-                json_response.get_boolean_member("trashed"),
+                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                 new string[0]
             };
         }
@@ -911,9 +923,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     "", // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
                 nfiles += 1;
@@ -942,9 +954,9 @@ namespace App {
                         "".data, // content
                         obj.get_string_member("mimeType"), // mimeType
                         "", // parent_id
-                        obj.get_string_member("modifiedTime"),
-                        obj.get_string_member("createdTime"),
-                        obj.get_boolean_member("trashed"),
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                         new string[0]
                     };
                     nfiles += 1;
@@ -963,14 +975,15 @@ namespace App {
 
         public bool is_google_doc(string file_id) {
             DriveFile f = this.get_file_info_extra (file_id, "mimeType");
-            return this.is_google_mime_type(f.mimeType);
+            if (f.mimeType == null) return false;
+            else return this.is_google_mime_type(f.mimeType);
         }
 
         public bool is_google_mime_type(string mimeType) {
             return mimeType.has_prefix ("application/") && mimeType.contains("google-apps") && mimeType != "application/vnd.google-apps.folder";
         }
 
-        public DriveFile get_file_info(string name, string parent_id, int trashed) {
+        public DriveFile get_file_info(string name, string parent_id="", int trashed=-1) {
             RequestParam[] params = new RequestParam[1];
 
             string q = "";
@@ -1001,9 +1014,9 @@ namespace App {
                     "".data, // content
                     obj.get_string_member("mimeType"), // mimeType
                     parent_id, // parent_id
-                    obj.get_string_member("modifiedTime"),
-                    obj.get_string_member("createdTime"),
-                    obj.get_boolean_member("trashed"),
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
                     new string[0]
                 };
             }
@@ -1018,27 +1031,47 @@ namespace App {
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
             if (json_response.get_member("error") != null) {
-                stdout.printf("%s\n", res);
+                // Si tenim només un error, l'error es de tipus 400 i el problema està en el camp "fields", retornarem un DriveFile amb els camps buits i ja està
+                if (json_response.get_object_member ("error").has_member ("errors") && json_response.get_object_member ("error").has_member ("code") && json_response.get_object_member ("error").get_int_member ("code") == 400) {
+                    Json.Array errors = json_response.get_object_member ("error").get_array_member ("errors");
+                    if (errors.get_length () == 1 && errors.get_object_element (0).has_member ("location") && errors.get_object_element (0).get_string_member ("location") == "fields") {
+                        return {
+                            null, // kind
+                            null, // id
+                            null, // name
+                            null, // content
+                            null, // mimeType
+                            null, // parent_id
+                            null,
+                            null,
+                            false,
+                            null
+                        };
+                    }
+                }
+                stdout.printf("Get Attrs Error:%s\n", res);
                 return {};
             }
             string[] parents = new string[2];
             uint nparents = 0;
-            Json.Array json_parents = json_response.get_member("parents").get_array ();
-            foreach (unowned Json.Node item in json_parents.get_elements ()) {
-                parents[nparents] = json_parents.get_string_element(nparents);
-                nparents += 1;
-                if (parents.length >= nparents) parents.resize(parents.length*2);
+            if (json_response.has_member("parents")) {
+                Json.Array json_parents = json_response.get_member("parents").get_array ();
+                foreach (unowned Json.Node item in json_parents.get_elements ()) {
+                    parents[nparents] = json_parents.get_string_element(nparents);
+                    nparents += 1;
+                    if (parents.length >= nparents) parents.resize(parents.length*2);
+                }
             }
             return {
-                json_response.get_string_member("kind"), // kind
-                json_response.get_string_member("id"), // id
-                json_response.get_string_member("name"), // name
+                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
+                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
+                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
                 "".data, // content
-                json_response.get_string_member("mimeType"), // mimeType
+                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
                 "", // parent_id
-                json_response.get_string_member("modifiedTime"),
-                json_response.get_string_member("createdTime"),
-                json_response.get_boolean_member("trashed"),
+                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
+                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
+                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
                 parents[0:nparents]
             };
         }
@@ -1061,8 +1094,18 @@ namespace App {
             }
         }
 
-        public void delete_file(string file_id) {
-            this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
+        public void delete_file(string file_id, bool move_to_trash = true) {
+            if (move_to_trash) {
+                RequestParam[] params = new RequestParam[1];
+                params[0] = {"uploadType", "multipart"};
+                RequestParam[] headers = new RequestParam[2];
+                headers[0] = {"Content-Type", "application/json; charset=UTF-8"};
+                headers[1] = {"Content-Length", "0"};
+                RequestContent body = {"application/json; charset=UTF-8", ("{\"trashed\": \"true\"}").data};
+                this.make_request("PATCH", this.metadata_uri+"/"+file_id, params, headers, body, false);
+            } else {
+                this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
+            }
         }
 
         public string request_page_token() {
@@ -1074,10 +1117,10 @@ namespace App {
         }
 
         public bool has_remote_changes(string pageToken) {
+            string original_pageToken = pageToken;
             RequestParam[] params = new RequestParam[1];
             params[0] = {"pageToken", pageToken};
             string res = this.make_request("GET", this.api_uri+"/changes", params, null, null, false).response;
-
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
             Json.Object json_response = parser.get_root().get_object();
@@ -1106,8 +1149,9 @@ namespace App {
                 if (json_response.get_member("newStartPageToken") != null) nextToken = json_response.get_string_member("newStartPageToken");
                 changes_left = json_response.get_member("nextPageToken") != null;
             }
+            this.page_token = this.request_page_token ();
 
-            if (nextToken != "" && nextToken != null) this.page_token = nextToken;
+            if (this.page_token != original_pageToken) this.has_remote_changes (this.page_token);
             return final_res;
         }
 
@@ -1119,7 +1163,12 @@ namespace App {
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+        public Gee.HashMap<string,string>? get_library () {
+            return this.library;
+        }
+
         public Gee.HashMap<string,string>? load_library() {
+        // TODO: TEST
             File f = File.new_for_path(this.main_path+"/.vgrive_library");
             if (!f.query_exists()) {
                 f.create(FileCreateFlags.NONE);
@@ -1135,6 +1184,7 @@ namespace App {
         }
 
         public void save_library() {
+        // TODO: TEST
             File f = File.new_for_path(this.main_path+"/.vgrive_library");
             if (f.query_exists()) f.delete();
             f.create(FileCreateFlags.NONE);
@@ -1146,6 +1196,7 @@ namespace App {
         }
 
         public void download_new_remote_file(DriveFile f, string path) {
+        // TODO: TEST
             this.log_message(_("NEW REMOTE FILE: %s downloading...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.create_local_file(f, path);
@@ -1155,6 +1206,7 @@ namespace App {
         }
 
         public void download_new_version_remote_file(DriveFile f, string path) {
+        // TODO: TEST
             this.log_message(_("CHANGE IN REMOTE FILE: %s downloading newest version...").printf(f.name));
             f.content = this.get_file_content(f.id);
             this.move_local_file_to_trash(path+"/"+f.name);
@@ -1164,6 +1216,7 @@ namespace App {
         }
 
         public void upload_local_file_update(string path, owned string? file_id) {
+        // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("CHANGE IN LOCAL FILE: %s uploading newest version...").printf(filename));
             if (file_id == null) file_id = this.get_file_id(path);
@@ -1173,6 +1226,7 @@ namespace App {
         }
 
         public DriveFile upload_new_local_dir(string path, string? parent_id) {
+        // TODO: TEST
             string parent = parent_id;
             if (parent_id == null || parent_id == "") {
                 string current_file = path.split("/")[path.split("/").length-1];
@@ -1185,6 +1239,7 @@ namespace App {
         }
 
         public DriveFile upload_new_local_file(string path, string? parent_id) {
+        // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("NEW LOCAL FILE: %s uploading...").printf(filename));
             string parent = parent_id;
@@ -1204,6 +1259,7 @@ namespace App {
         }
 
         public void create_local_file(DriveFile dfile, string path) {
+        // TODO: TEST
             File file = File.new_for_path(path+"/"+dfile.name);
             if (dfile.mimeType == "application/vnd.google-apps.folder") {
                 if (!file.query_exists()) file.make_directory();
@@ -1218,7 +1274,8 @@ namespace App {
         }
 
         public bool is_regular_file(string fname) {
-            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library";
+        // TODO: TEST
+            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library" && !fname.has_prefix(".");
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -1229,6 +1286,7 @@ namespace App {
 ////////////////////////////////////////////////////////////////////////////////
 
         public void empty_trash(string? current_path=null) {
+        // TODO: TEST
             if (current_path == null) current_path = this.trash_path;
             FileInfo info;
             File f = File.new_for_path(current_path);
@@ -1244,11 +1302,12 @@ namespace App {
         }
 
         private string encode_uri(string param) {
+        // TODO: TEST
             string aux = Soup.URI.encode(param, null);
             return param;
         }
 
-        private string encode_for_q(string param) {
+        public string encode_for_q(string param) {
             /*
                 Replaces:
                  * \ -> \\
@@ -1271,6 +1330,7 @@ namespace App {
         }
 
         public void update_local_write_date(string? date, string filepath) {
+        // TODO: TEST
             string? aux = date;
             if (aux == null) {
                 //this.log_message("WARNING: No date for %s. Asking to api...".printf(filepath));
@@ -1291,13 +1351,17 @@ namespace App {
         }
 
         public void move_local_file_to_trash(string filepath) {
+        // TODO: TEST
             File f = File.new_for_path(filepath);
-            DateTime dt = new DateTime.now_utc();
-            File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
-            f.move(dest, FileCopyFlags.NONE);
+            if (f.query_exists ()) {
+                DateTime dt = new DateTime.now_utc();
+                File dest = File.new_for_path(this.trash_path+"/"+dt.to_string()+"_"+filepath.split("/")[filepath.split("/").length-1]);
+                f.move(dest, FileCopyFlags.NONE);
+            }
         }
 
         public int compare_files_write_time(string dfile_write_date, string filepath) {
+        // TODO: TEST
             /*
                 Compare the write date of dfile with the write date of filepath,
                 drivefile is newest -> -1
@@ -1332,6 +1396,7 @@ namespace App {
         }
 
         public string[] get_all_dirs(string path) {
+        // TODO: TEST
             File file =  File.new_for_path(path);
             var enumerator = file.enumerate_children (FileAttribute.STANDARD_NAME, 0);
             string[] dirs = new string[5];

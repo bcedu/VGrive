@@ -82,6 +82,7 @@ namespace App {
         public string scope = "https://www.googleapis.com/auth/drive";
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
+        public string metadata_uri = "https://www.googleapis.com/drive/v3/files";
         public string redirect = "urn:ietf:wg:oauth:2.0:oob";
         public string page_token = "";
         // SYNC related sttributes
@@ -736,7 +737,6 @@ namespace App {
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
                       with the {sync_dir} as root. It must exist locally.
-                File doesn't exist in remote
             */
             string filename = filepath.split("/")[filepath.split("/").length-1];
             RequestParam[] params = new RequestParam[1];
@@ -1094,8 +1094,18 @@ namespace App {
             }
         }
 
-        public void delete_file(string file_id) {
-            this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
+        public void delete_file(string file_id, bool move_to_trash = true) {
+            if (move_to_trash) {
+                RequestParam[] params = new RequestParam[1];
+                params[0] = {"uploadType", "multipart"};
+                RequestParam[] headers = new RequestParam[2];
+                headers[0] = {"Content-Type", "application/json; charset=UTF-8"};
+                headers[1] = {"Content-Length", "0"};
+                RequestContent body = {"application/json; charset=UTF-8", ("{\"trashed\": \"true\"}").data};
+                this.make_request("PATCH", this.metadata_uri+"/"+file_id, params, headers, body, false);
+            } else {
+                this.make_request("DELETE", this.api_uri+"/files/%s".printf(file_id), null, null, null);
+            }
         }
 
         public string request_page_token() {

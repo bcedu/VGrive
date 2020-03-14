@@ -13,17 +13,17 @@ class TestVGrive : Gee.TestCase {
         // assign a name for this class
         base("TestVGrive");
         // add test methods
+        add_test(" * Test upload a new file to google drive (main path) and then delete it (test_upload_file_and_delete_file_main_path)", test_upload_file_and_delete_file_main_path);
+        add_test(" * Test list files (test_list_files)", test_list_files);
         add_test(" * Test is regular file to be synced (test_is_regular_file)", test_is_regular_file);
         add_test(" * Test a file exists in local file system (test_local_file_exists)", test_local_file_exists);
         add_test(" * Test has credentials (test_has_credentials)", test_has_credentials);
         add_test(" * Test get auth uri (test_get_auth_uri)", test_get_auth_uri);
         add_test(" * Test if is in syncing process (test_is_syncing)", test_is_syncing);
         add_test(" * Test change the main path of vgrive (test_change_main_path)", test_change_main_path);
-        add_test(" * Test list files (test_list_files)", test_list_files);
         add_test(" * Test search files and encode for q (test_search_files_and_encode_for_q)", test_search_files_and_encode_for_q);
         add_test(" * Test get file ID and then get its content (test_get_file_id_and_test_get_file_content)", test_get_file_id_and_test_get_file_content);
         add_test(" * Test get file ID of main path and returns root (test_get_file_id_of_main_path)", test_get_file_id_of_main_path);
-        add_test(" * Test upload a new file to google drive (main path) and then delete it (test_upload_file_and_delete_file_main_path)", test_upload_file_and_delete_file_main_path);
         add_test(" * Test upload a new file to google drive (subpath) and then delete it (test_upload_file_and_delete_file_other_path)", test_upload_file_and_delete_file_other_path);
         add_test(" * Test upload new version of a file that already exists (test_upload_file_update)", test_upload_file_update);
         add_test(" * Test upload a new directory to google drive (main path) and delete it (test_upload_dir_main_path)", test_upload_dir_main_path);
@@ -176,6 +176,7 @@ class TestVGrive : Gee.TestCase {
          * test& 5&.txt.torrent
          * muse.txt
          *
+         * Trashed: muse_trashed.txt
          * */
         string google_apps_id = "";
         string muse_id = "";
@@ -194,6 +195,7 @@ class TestVGrive : Gee.TestCase {
         files_to_check.set("test@ 3@.deb", false);
         files_to_check.set("test& 5&.txt.torrent", false);
         files_to_check.set("muse.txt", false);
+        files_to_check.set("muse_trashed.txt", false);
         // List all files in root
         DriveFile[] all_files = this.client.list_files(-1, "", -1);
         foreach (DriveFile f in all_files) {
@@ -214,7 +216,21 @@ class TestVGrive : Gee.TestCase {
             assert (files_to_check.has_key (f.name));
             files_to_check[f.name] = true;
         }
+
+        // Check found keys are OK
         var it = files_to_check.map_iterator ();
+        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            if (it.get_key () == "muse_trashed.txt") assert(!it.get_value());
+            else assert(it.get_value());
+        }
+
+        // List trashed files
+        all_files = this.client.list_files(-1, "", 1);
+        foreach (DriveFile f in all_files) {
+            if (files_to_check.has_key (f.name)) files_to_check[f.name] = true;
+        }
+        // Check found keys are OK
+        it = files_to_check.map_iterator ();
         for (var has_next = it.next (); has_next; has_next = it.next ()) {
             assert(it.get_value());
         }
@@ -293,10 +309,11 @@ class TestVGrive : Gee.TestCase {
         assert (found_files.length == 1);
         assert (found_files[0].id == res.id);
         // Eliminem el fitxer
+        // Primer comprovem quants n'hi havien a la paparera per poder ocmparar si ha pujat
+        int ndeleted = this.client.search_files ("trashed = True and name = '%s'".printf (res.name)).length;
         this.client.delete_file (res.id);
-        // Comprovar que s'ha eliminat
-        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
-        assert (found_files.length == 0);
+        int new_ndeleted = this.client.search_files ("trashed = True and name = '%s'".printf (res.name)).length;
+        assert (ndeleted+1 == new_ndeleted);
     }
 
     public void test_upload_file_and_delete_file_other_path () {

@@ -22,6 +22,10 @@ using App.Controllers;
 
 namespace App {
 
+    public errordomain ErrorGoogleDriveAPI {
+        IP_Banned
+    }
+
     public struct DriveRequestResult {
         public int code;
         public string message;
@@ -79,6 +83,8 @@ namespace App {
         public string refresh_token = "";
         public string client_id = "8532198801-7heceng058ouc4mj495a321s8s96b0e5.apps.googleusercontent.com";
         public string client_secret = "WPZsVURl5HcFD_7DP_jIP24z";
+        //public string client_id = "688223708334-jvuessq5h88qj18fq91a9sd4vq4qtatn.apps.googleusercontent.com";
+        //public string client_secret = "82w-DP_yYoQ1_3ntnI4UGdFz";
         public string scope = "https://www.googleapis.com/auth/drive";
         public string api_uri = "https://www.googleapis.com/drive/v3";
         public string upload_uri = "https://www.googleapis.com/upload/drive/v3";
@@ -92,6 +98,7 @@ namespace App {
         public bool change_detected = false;
         public int changes_check_period = 10;
         public Gee.HashMap<string,string>? library;
+        public string google_error_msg = """<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><title>Sorry...</title><style> body { font-family: verdana, arial, sans-serif; background-color: #fff; color: #000; }</style></head><body><div><table><tr><td><b><font face=sans-serif size=10><font color=#4285f4>G</font><font color=#ea4335>o</font><font color=#fbbc05>o</font><font color=#4285f4>g</font><font color=#34a853>l</font><font color=#ea4335>e</font></font></b></td><td style="text-align: left; vertical-align: bottom; padding-bottom: 15px; width: 50%"><div style="border-bottom: 1px solid #dfdfdf;">Sorry...</div></td></tr></table></div><div style="margin-left: 4em;"><h1>We're sorry...</h1><p>... but your computer or network may be sending automated queries. To protect our users, we can't process your request right now.</p></div><div style="margin-left: 4em;">See <a href="https://support.google.com/websearch/answer/86640">Google Help</a> for more information.<br/><br/></div><div style="text-align: center; border-top: 1px solid #dfdfdf;"><a href="https://www.google.com">Google Home</a></div></body></html>""";
 
         public Thread<int> thread;
 
@@ -195,21 +202,27 @@ namespace App {
         // TODO: TEST
             // Check if we have changes in files and sync them
             if (this.is_syncing ()) {
-                this.log_level=0;
-                this.check_deleted_files ();
-                this.check_remote_files (this.main_path);
-                this.check_local_files (this.main_path);
-                this.log_level=1;
-                if (this.is_syncing ()) {
-                    this.log_message (_("Everything is up to date!"));
-                    // trigger per revisar canvis quan canvia algo local
-                    this.watch_local_changes ();
-                    // trigger per revisar canvis quan canvia algo remot
-                    this.watch_remote_changes ();
-                    while (this.is_syncing ()) {
-                        Thread.usleep (this.changes_check_period*1000000);
-                        this.process_changes ();
+                try {
+                    this.log_level=0;
+                    this.check_deleted_files ();
+                    this.check_remote_files (this.main_path);
+                    this.check_local_files (this.main_path);
+                    this.log_level=1;
+                    if (this.is_syncing ()) {
+                        this.log_message (_("Everything is up to date!"));
+                        // trigger per revisar canvis quan canvia algo local
+                        this.watch_local_changes ();
+                        // trigger per revisar canvis quan canvia algo remot
+                        this.watch_remote_changes ();
+                        while (this.is_syncing ()) {
+                            Thread.usleep (this.changes_check_period*1000000);
+                            this.process_changes ();
+                        }
                     }
+                } catch (Error e) {
+                    this.syncing = false;
+                    this.library = null;
+                    this.log_message (_("Error found, process stoped. Error message: ") + e.message);
                 }
                 return 1;
             }else {
@@ -221,13 +234,20 @@ namespace App {
         // TODO: TEST
             if (this.is_syncing ()) {
                 if (this.change_detected) {
-                    this.log_message(_("Change detected. Updating files..."));
-                    this.change_detected = false;
-                    this.check_deleted_files ();
-                    this.check_remote_files (this.main_path);
-                    this.check_local_files (this.main_path);
-                    this.change_detected = false;
-                    this.log_message (_("Everything is up to date!"));
+                    try {
+                        this.log_message(_("Change detected. Updating files..."));
+                        this.change_detected = false;
+                        this.check_deleted_files ();
+                        this.check_remote_files (this.main_path);
+                        this.check_local_files (this.main_path);
+                        this.change_detected = false;
+                        this.log_message (_("Everything is up to date!"));
+                    } catch (Error e) {
+                        this.change_detected = false;
+                        this.syncing = false;
+                        this.library = null;
+                        this.log_message (_("Error found, process stoped. Error message: ") + e.message);
+                    }
                 }
                 return true;
             }else {
@@ -235,7 +255,7 @@ namespace App {
             }
         }
 
-        public void check_deleted_files () {
+        public void check_deleted_files () throws ErrorGoogleDriveAPI {
             // Mira els fitxers que hi ha a la llibreria
             // Si no existeixen en local o en remot, el treu de la llibreria i l'elimina de on encara hi sigui
             if (!this.is_syncing ()) return;
@@ -277,7 +297,7 @@ namespace App {
             this.save_library ();
         }
 
-        private void check_remote_files (string current_path, string root_id="") {
+        private void check_remote_files (string current_path, string root_id="") throws ErrorGoogleDriveAPI {
         // TODO: TEST
             // Mira els fitxers que hi ha a la en remot
             // Si no existeixen en local el crea i l'afageix a la llibreria
@@ -313,7 +333,7 @@ namespace App {
             this.save_library ();
         }
 
-        private void check_local_files (string current_path, string root_id="") {
+        private void check_local_files (string current_path, string root_id="") throws ErrorGoogleDriveAPI {
         // TODO: TEST
             // Mira els fitxers que hi ha en local
             // Si no existeixen en remot el crea i l'afageix a la llibreria
@@ -326,7 +346,7 @@ namespace App {
                 DriveFile remote_file;
                 while ((info = enumerator.next_file ()) != null) {
                     if (!this.is_syncing ()) return;
-                    if (this.is_regular_file(info.get_name())) {
+                    if (this.is_regular_file(info)) {
                         remote_file = this.get_file_info(info.get_name(), root_id, -1);
                         if (info.get_file_type () == FileType.DIRECTORY) {
                             if (remote_file.id == null) {
@@ -372,7 +392,7 @@ namespace App {
                         File dir_to_watch_file = File.new_for_path (dir_to_watch);
                         FileMonitor monitor = dir_to_watch_file.monitor (FileMonitorFlags.WATCH_MOVES, null);
                         monitor.changed.connect ((changed_file, other_file, event_type) => {
-                            if (this.is_regular_file (changed_file.get_basename ())) this.change_detected = true;
+                            if (this.is_regular_file (changed_file.query_info ("*", FileQueryInfoFlags.NONE))) this.change_detected = true;
                         });
                         new MainLoop ().run ();
                         return 1;
@@ -383,14 +403,18 @@ namespace App {
             }
         }
 
-        private void watch_remote_changes () {
+        private void watch_remote_changes () throws ErrorGoogleDriveAPI {
         // TODO: TEST
             this.page_token = this.request_page_token();
             try {
                 new Thread<int>.try ("Watch remote thread", () => {
                     while (this.is_syncing ()) {
                         Thread.usleep (this.changes_check_period*1000000);
-                        this.change_detected = this.check_remote_changes (this.page_token);
+                        try {
+                            this.change_detected = this.check_remote_changes (this.page_token);
+                        } catch (Error e) {
+                            this.change_detected = false;
+                        }
                     }
                     new MainLoop ().run ();
                     return 1;
@@ -400,7 +424,7 @@ namespace App {
             }
         }
 
-        private bool check_remote_changes(string token) {
+        private bool check_remote_changes(string token) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             return this.has_remote_changes (token);
         }
@@ -566,7 +590,7 @@ namespace App {
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-        public ResponseObject make_request(string method, string uri, RequestParam[]? params_list=null, RequestParam[]? request_headers=null, RequestContent? request_content=null, bool without_acces_token=false) {
+        public ResponseObject make_request(string method, string uri, RequestParam[]? params_list=null, RequestParam[]? request_headers=null, RequestContent? request_content=null, bool without_acces_token=false) throws ErrorGoogleDriveAPI {
             // Fa una petició HTTP a la API de Google Drive amb els paràmetres proporcionats
             var session = this.get_current_session();
             string uri_auth;
@@ -577,7 +601,7 @@ namespace App {
             var message = new Soup.Message (method, uri_auth);
             string res;
             uint8[] bres;
-            Soup.MessageHeaders res_header;
+            Soup.MessageHeaders res_header = null;
             try {
                 // send the HTTP request and wait for response
                 if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
@@ -586,6 +610,9 @@ namespace App {
                 bres = message.response_body.data;
                 res = (string) message.response_body.data;
                 if (res == "") res = "{}";
+                else if (res == this.google_error_msg) {
+                    throw new ErrorGoogleDriveAPI.IP_Banned(_("Google Drive Connection Error: google drive has blocked your IP, VGrive can't sync files while google drive continue blocking the IP..."));
+                }
                 res_header = message.response_headers;
                 // Parse response
                 var parser = new Json.Parser ();
@@ -632,13 +659,16 @@ namespace App {
                         return {res_header, res, bres};
                     }
                 }
+            }
+            catch (ErrorGoogleDriveAPI e) {
+                throw e;
             } catch (Error e) {
                 if (res == null || res == "") res = e.message;
             }
             return {res_header, res, bres};
         }
 
-        public DriveFile[] list_files(int number, string parent_id, int trashed) {
+        public DriveFile[] list_files(int number, string parent_id, int trashed) throws ErrorGoogleDriveAPI {
         /*
             * number: number of files to list. If it's set to -1, list all files
             * parent_id: id of directory where listed files are. If it's set to "", list files from root directory
@@ -732,7 +762,7 @@ namespace App {
             return results[0:nfiles];
         }
 
-        public DriveFile upload_file(string filepath, string parent_id) {
+        public DriveFile upload_file(string filepath, string parent_id)  throws ErrorGoogleDriveAPI {
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
@@ -796,7 +826,7 @@ namespace App {
             }
         }
 
-        public DriveFile upload_file_update(string filepath, string file_id) {
+        public DriveFile upload_file_update(string filepath, string file_id) throws ErrorGoogleDriveAPI {
             /*
                 Update the file identified by {filepath}
                     * {filepath} is the complet path of the file to be uploaded
@@ -859,7 +889,7 @@ namespace App {
             }
         }
 
-        public DriveFile upload_dir(string path, string parent_id) {
+        public DriveFile upload_dir(string path, string parent_id) throws ErrorGoogleDriveAPI {
             string dirname = path.split("/")[path.split("/").length-1];
 
             RequestParam[] params = new RequestParam[1];
@@ -898,7 +928,7 @@ namespace App {
             };
         }
 
-        public DriveFile[] search_files(string q) {
+        public DriveFile[] search_files(string q) throws ErrorGoogleDriveAPI {
             RequestParam[] params = new RequestParam[1];
             params[0] = {"q", q};
 
@@ -967,13 +997,13 @@ namespace App {
             return results[0:nfiles];
         }
 
-        public uint8[] get_file_content(string file_id) {
+        public uint8[] get_file_content(string file_id) throws ErrorGoogleDriveAPI {
             RequestParam[] params = new RequestParam[1];
             params[0] = {"alt", "media"};
             return this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).bresponse;
         }
 
-        public bool is_google_doc(string file_id) {
+        public bool is_google_doc(string file_id) throws ErrorGoogleDriveAPI {
             DriveFile f = this.get_file_info_extra (file_id, "mimeType");
             if (f.mimeType == null) return false;
             else return this.is_google_mime_type(f.mimeType);
@@ -983,7 +1013,7 @@ namespace App {
             return mimeType.has_prefix ("application/") && mimeType.contains("google-apps") && mimeType != "application/vnd.google-apps.folder";
         }
 
-        public DriveFile get_file_info(string name, string parent_id="", int trashed=-1) {
+        public DriveFile get_file_info(string name, string parent_id="", int trashed=-1) throws ErrorGoogleDriveAPI {
             RequestParam[] params = new RequestParam[1];
 
             string q = "";
@@ -1023,7 +1053,7 @@ namespace App {
             return result;
         }
 
-        public DriveFile get_file_info_extra(string file_id, string fields) {
+        public DriveFile get_file_info_extra(string file_id, string fields) throws ErrorGoogleDriveAPI {
             RequestParam[1] params = new RequestParam[1];
             params[0] = {"fields", fields};
             string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
@@ -1076,7 +1106,7 @@ namespace App {
             };
         }
 
-        public string get_file_id(string path) {
+        public string get_file_id(string path) throws ErrorGoogleDriveAPI {
             if (path == this.main_path) return "root";
             else {
                 string current_file = path.split("/")[path.split("/").length-1];
@@ -1094,7 +1124,7 @@ namespace App {
             }
         }
 
-        public void delete_file(string file_id, bool move_to_trash = true) {
+        public void delete_file(string file_id, bool move_to_trash = true) throws ErrorGoogleDriveAPI {  // TODO
             if (move_to_trash) {
                 RequestParam[] params = new RequestParam[1];
                 params[0] = {"uploadType", "multipart"};
@@ -1108,7 +1138,7 @@ namespace App {
             }
         }
 
-        public string request_page_token() {
+        public string request_page_token() throws ErrorGoogleDriveAPI {  // TODO
             string res = this.make_request("GET", this.api_uri+"/changes/startPageToken", null, null, null, false).response;
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
@@ -1116,7 +1146,7 @@ namespace App {
             return json_response.get_string_member("startPageToken");
         }
 
-        public bool has_remote_changes(string pageToken) {
+        public bool has_remote_changes(string pageToken) throws ErrorGoogleDriveAPI {  // TODO
             string original_pageToken = pageToken;
             RequestParam[] params = new RequestParam[1];
             params[0] = {"pageToken", pageToken};
@@ -1195,7 +1225,7 @@ namespace App {
             }
         }
 
-        public void download_new_remote_file(DriveFile f, string path) {
+        public void download_new_remote_file(DriveFile f, string path) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             this.log_message(_("NEW REMOTE FILE: %s downloading...").printf(f.name));
             f.content = this.get_file_content(f.id);
@@ -1205,7 +1235,7 @@ namespace App {
             this.log_message(_("NEW REMOTE FILE: %s downloaded ✓").printf(f.name));
         }
 
-        public void download_new_version_remote_file(DriveFile f, string path) {
+        public void download_new_version_remote_file(DriveFile f, string path) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             this.log_message(_("CHANGE IN REMOTE FILE: %s downloading newest version...").printf(f.name));
             f.content = this.get_file_content(f.id);
@@ -1215,7 +1245,7 @@ namespace App {
             this.log_message(_("CHANGE IN REMOTE FILE: %s downloaded ✓").printf(f.name));
         }
 
-        public void upload_local_file_update(string path, owned string? file_id) {
+        public void upload_local_file_update(string path, owned string? file_id) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("CHANGE IN LOCAL FILE: %s uploading newest version...").printf(filename));
@@ -1225,8 +1255,7 @@ namespace App {
             this.log_message(_("CHANGE IN LOCAL FILE: %s uploaded ✓").printf(remote_file.name));
         }
 
-        public DriveFile upload_new_local_dir(string path, string? parent_id) {
-        // TODO: TEST
+        public DriveFile upload_new_local_dir(string path, string? parent_id) throws ErrorGoogleDriveAPI {
             string parent = parent_id;
             if (parent_id == null || parent_id == "") {
                 string current_file = path.split("/")[path.split("/").length-1];
@@ -1238,7 +1267,7 @@ namespace App {
             return dfile;
         }
 
-        public DriveFile upload_new_local_file(string path, string? parent_id) {
+        public DriveFile upload_new_local_file(string path, string? parent_id) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             string filename = path.split("/")[path.split("/").length-1];
             this.log_message(_("NEW LOCAL FILE: %s uploading...").printf(filename));
@@ -1273,9 +1302,13 @@ namespace App {
             }
         }
 
-        public bool is_regular_file(string fname) {
-        // TODO: TEST
-            return fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library" && !fname.has_prefix(".");
+        public bool is_regular_file(FileInfo fileinfo) {
+            string fname = fileinfo.get_name ();
+            if (fname != ".trash" && fname != ".page_token" && fname != ".vgrive_library" && !fname.has_prefix(".")) {
+                return ! fileinfo.get_is_symlink ();
+            } else {
+                return false;
+            }
         }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -1329,7 +1362,7 @@ namespace App {
             return file.query_exists();
         }
 
-        public void update_local_write_date(string? date, string filepath) {
+        public void update_local_write_date(string? date, string filepath) throws ErrorGoogleDriveAPI {
         // TODO: TEST
             string? aux = date;
             if (aux == null) {
@@ -1344,7 +1377,7 @@ namespace App {
             }
             File f = File.new_for_path(filepath);
             FileInfo fileinfo = f.query_info ("*", FileQueryInfoFlags.NONE);
-            TimeVal tv = new TimeVal();
+            TimeVal tv = TimeVal();
             tv.from_iso8601(aux);
             fileinfo.set_modification_time(tv);
             f.set_attributes_from_info(fileinfo, FileQueryInfoFlags.NONE);
@@ -1381,7 +1414,7 @@ namespace App {
             minutes = strtime.split("T")[1].split(":")[1];
             seconds = strtime.split("T")[1].split(":")[2].substring(0, 2);
             timezone = strtime.substring(strtime.last_index_of_char('Z'), 1);
-            DateTime local =  new DateTime (new TimeZone(timezone), year.to_int(), month.to_int(), day.to_int(), hour.to_int(), minutes.to_int(), seconds.to_double());
+            DateTime local =  new DateTime (new TimeZone(timezone), int.parse(year), int.parse(month), int.parse(day), int.parse(hour), int.parse(minutes), double.parse(seconds));
 
             strtime = dfile_write_date;
             year =  strtime.split("-")[0];
@@ -1391,7 +1424,7 @@ namespace App {
             minutes = strtime.split("T")[1].split(":")[1];
             seconds = strtime.split("T")[1].split(":")[2].substring(0, 2);
             timezone = strtime.substring(strtime.last_index_of_char('Z'), 1);
-            DateTime remote =  new DateTime (new TimeZone(timezone), year.to_int(), month.to_int(), day.to_int(), hour.to_int(), minutes.to_int(), seconds.to_double());
+            DateTime remote =  new DateTime (new TimeZone(timezone), int.parse(year), int.parse(month), int.parse(day), int.parse(hour), int.parse(minutes), double.parse(seconds));
             return local.compare(remote);
         }
 

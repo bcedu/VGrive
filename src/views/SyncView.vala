@@ -105,6 +105,14 @@ namespace App.Views {
 
         public void connect_signals(AppController controler) {
             controler.log_event.connect ((msg) => {
+                if (msg.has_prefix("Error found, process stoped.")) {
+                    //this.start_stop_btn.clicked();
+                    this.start_stop_btn.get_style_context().remove_class ("redbutton");
+                    this.start_stop_btn.get_style_context().add_class ("greenbutton");
+                    this.start_stop_btn.set_label (_("Start"));
+                    this.status_lb.set_label (_("Not syncing"));
+                    this.spinner.stop ();
+                }
                 // Log to console
                 print("LOG: "+msg);
                 print("\n");

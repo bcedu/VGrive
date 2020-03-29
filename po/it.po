@@ -345,7 +345,7 @@ msgstr "Disconnessione"
 
 #: src/views/ViewConf.vala:54
 msgid "Delete all files from \".trash\":"
-msgstr "Elimina tutti i file da \".Cestino\":""
+msgstr "Elimina tutti i file da \".Cestino\":"
 
 #: src/views/ViewConf.vala:56 src/views/ViewConf.vala:239
 msgid "Empty the trash"

@@ -20,14 +20,7 @@ using App.Configs;
 using App.Controllers;
 
 namespace App {
-
-    /**
-     * The {@code Application} class is a foundation for all granite-based applications.
-     *
-     * @see Granite.Application
-     * @since 1.0.0
-     */
-    public class Application : Granite.Application {
+    public class Application : Gtk.Application {
 
         public AppController controller;
 
@@ -39,7 +32,9 @@ namespace App {
                 application_id: Constants.ID,
                 flags: ApplicationFlags.FLAGS_NONE
             );
+        }
 
+        construct {
             var quit_action = new SimpleAction ("quit", null);
             quit_action.activate.connect (() => {
                 controller.quit ();
@@ -47,7 +42,7 @@ namespace App {
 
             add_action (quit_action);
             string[] accel_quit = {"<Control>q", "0"};
-            set_accels_for_action ("app.quit", accel_quit);
+            set_accels_for_action ("app.quit", { "<Control>q" });
         }
 
         /**

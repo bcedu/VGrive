@@ -88,8 +88,7 @@ namespace App.Views {
             laux = this.create_label(_("Begin sync when app is started:"));
             baux.pack_start(laux, false, false, 0);
             auto_sync = this.create_switch();
-            var saved_state = AppSettings.get_default();
-            if (saved_state.auto_sync == 1) auto_sync.set_active (true);
+            if (Application.settings.get_int("auto-sync") == 1) auto_sync.set_active (true);
             else auto_sync.set_active (false);
             baux.pack_start(auto_sync, false, false, 0);
             mainbox.pack_start(baux, false, false, 0);
@@ -97,7 +96,7 @@ namespace App.Views {
             baux = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
             laux = this.create_label(_("vGrive folder:"));
             baux.pack_start(laux, false, false, 0);
-            selected_folder = this.create_label(saved_state.sync_folder, 0, Gtk.Align.START);
+            selected_folder = this.create_label(Application.settings.get_string("sync-folder"), 0, Gtk.Align.START);
             change_folder = this.create_button(_("Change folder"));
             baux2 = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
             baux2.halign = Gtk.Align.START;
@@ -131,13 +130,12 @@ namespace App.Views {
                 stack.set_visible_child_name ("step3_box");
             });
             continue_button.clicked.connect (() => {
-                var saved_state = AppSettings.get_default();
-                if (auto_sync.get_active ()) saved_state.auto_sync = 1;
-                else  saved_state.auto_sync = 0;
+                if (auto_sync.get_active ()) Application.settings.set_int("auto-sync", 1);
+                else  Application.settings.set_int("auto-sync", 0);
                 if (this.folder_changed) {
                     folder_changed = false;
-                    saved_state.sync_folder = this.selected_folder.get_label();
-                    controler.vgrive.change_main_path(saved_state.sync_folder);
+                    Application.settings.set_string("sync-folder", this.selected_folder.get_label());
+                    controler.vgrive.change_main_path(Application.settings.get_string("sync-folder"));
                 }
                 var res = controler.vgrive.request_and_set_credentials(grive_code.get_text());
                 this.update_view_on_hide (controler);
@@ -150,9 +148,8 @@ namespace App.Views {
         public void update_view(AppController controler) {
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Log In"));
             controler.window.headerbar.back_button.set_label (_("Back"));
-            var saved_state = AppSettings.get_default();
-            auto_sync.active = (bool) saved_state.auto_sync;
-            selected_folder.label = saved_state.sync_folder;
+            auto_sync.active = (bool) Application.settings.get_int ("auto-sync");
+            selected_folder.label = Application.settings.get_string ("sync-folder");
         }
 
         public void update_view_on_hide(AppController controler) {

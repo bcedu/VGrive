@@ -54,19 +54,17 @@ public class Main {
             printerr ("Run '%s --help' to see a full list of available command line options.\n", args[0]);
             return 1;
         }
-
-        var saved_state = AppSettings.get_default();
         if (minimized) {
-            saved_state.start_minimized = (int)minimized;
+            App.Application.settings.set_int ("start-minimized", (int)minimized);
         }
         if (windowed) {
-            saved_state.start_minimized = (int)(!windowed);
+            App.Application.settings.set_int ("start-minimized", (int)(!windowed));
         }
         if (auto_sync) {
-            saved_state.auto_sync = (int)auto_sync;
+            App.Application.settings.set_int ("auto-sync", (int)auto_sync);
         }
         if (advanced_view) {
-            saved_state.advanced_view = advanced_view;
+            App.Application.settings.set_boolean ("advanced-view", advanced_view);
         }
 
         var app = new App.Application ();

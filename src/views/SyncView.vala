@@ -88,8 +88,7 @@ namespace App.Views {
 
         private Gtk.Box build_start_stop_buttons(AppController controler) {
             this.change_view = new CheckButton.with_label (_("Advanced View"));
-            var saved_state = AppSettings.get_default();
-            saved_state.schema.bind ("advanced-view", change_view, "active", SettingsBindFlags.DEFAULT);
+            Application.settings.bind ("advanced-view", change_view, "active", SettingsBindFlags.DEFAULT);
 
             this.start_stop_btn = new Gtk.Button.with_label (_("Stop"));
             this.start_stop_btn.get_style_context().add_class ("redbutton");
@@ -154,10 +153,9 @@ namespace App.Views {
         }
 
         public void update_view(AppController controler) {
-            var saved_state = AppSettings.get_default();
             if (initial_action) {
                 initial_action = false;
-                if (saved_state.auto_sync == 1 && !controler.vgrive.is_syncing ()) {
+                if (Application.settings.get_int ("auto-sync") == 1 && !controler.vgrive.is_syncing ()) {
                     controler.vgrive.start_syncing ();
                     this.start_stop_btn.get_style_context().remove_class ("greenbutton");
                     this.start_stop_btn.get_style_context().add_class ("redbutton");

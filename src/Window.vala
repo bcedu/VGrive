@@ -32,7 +32,6 @@ namespace App {
     public class AppWindow : Gtk.ApplicationWindow {
 
         public AppHeaderBar headerbar;
-        private AppSettings saved_state;
 
         /**
          * Constructs a new {@code AppWindow} object.
@@ -91,13 +90,12 @@ namespace App {
         }
 
         private void load_window_state() {
-            this.saved_state = AppSettings.get_default();
             // Load size
-            this.set_default_size (this.saved_state.window_width, this.saved_state.window_height);
+            this.set_default_size (Application.settings.get_int ("window-width"), Application.settings.get_int ("window-height"));
             // Load position
-            this.move (this.saved_state.window_posx, this.saved_state.window_posy);
+            this.move (Application.settings.get_int ("window-posx"), Application.settings.get_int ("window-posy"));
             // Maximize window if necessary
-            if (this.saved_state.window_state == 1) this.maximize ();
+            if (Application.settings.get_int ("window-state") == 1) this.maximize ();
             // Load position
             this.set_position (Gtk.WindowPosition.CENTER);
         }
@@ -106,13 +104,13 @@ namespace App {
             int aux1;
             int aux2;
             this.get_size (out aux1, out aux2);
-            saved_state.window_width = aux1;
-            saved_state.window_height = aux2;
+            Application.settings.set_int ("window-width", aux1);
+            Application.settings.set_int ("window-height", aux2);
             this.get_position (out aux1, out aux2);
-            saved_state.window_posx = aux1;
-            saved_state.window_posy = aux2;
-            if (this.is_maximized) saved_state.window_state = 1;
-            else saved_state.window_state = 0;
+            Application.settings.set_int ("window_posx", aux1);
+            Application.settings.set_int ("window_posy", aux2);
+            if (this.is_maximized) Application.settings.set_int ("window_state", 1);
+            else Application.settings.set_int ("window_state", 0);
             return false;
         }
 

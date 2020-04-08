@@ -1,7 +1,6 @@
 
 srcs = files([
     'configs/Constants.vala',
-    'configs/Settings.vala',
     'widgets/HeaderBar.vala',
     'views/AppView.vala',
     'views/InitialView.vala',

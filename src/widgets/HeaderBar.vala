@@ -65,11 +65,10 @@ namespace App.Widgets {
 
             mode_switch.bind_property ("active", gtk_settings, "gtk_application_prefer_dark_theme");
 
-            var saved_state = AppSettings.get_default();
-            if (saved_state.dark_mode) {
+            if (Application.settings.get_boolean("dark-mode")) {
                 this.window.get_style_context ().add_class ("dark");
             }
-            saved_state.schema.bind ("dark-mode", mode_switch, "active", SettingsBindFlags.DEFAULT);
+            Application.settings.bind ("dark-mode", mode_switch, "active", SettingsBindFlags.DEFAULT);
 
             this.pack_end(mode_switch);
             mode_switch.notify["active"].connect (() => {

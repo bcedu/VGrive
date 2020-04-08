@@ -76,21 +76,20 @@ namespace App.Views {
             laux = this.create_label(_("Begin sync when app is started:"));
             general_grid.attach (laux, 0, 5, 1, 1);
             auto_sync = this.create_switch();
-            var saved_state = AppSettings.get_default();
-            if (saved_state.auto_sync == 1) auto_sync.set_active (true);
+            if (Application.settings.get_int("auto-sync") == 1) auto_sync.set_active (true);
             else auto_sync.set_active (false);
             general_grid.attach (auto_sync, 1, 5, 1, 1);
 
             laux = this.create_label(_("Start minimized:"));
             general_grid.attach (laux, 0, 6, 1, 1);
             start_minimized = this.create_switch();
-            if (saved_state.start_minimized == 1) start_minimized.set_active (true);
+            if (Application.settings.get_int("start-minimized") == 1) start_minimized.set_active (true);
             else start_minimized.set_active (false);
             general_grid.attach (start_minimized, 1, 6, 1, 1);
 
             laux = this.create_label(_("vGrive folder:"));
             general_grid.attach (laux, 0, 7, 1, 1);
-            selected_folder = this.create_label(saved_state.sync_folder, 0, Gtk.Align.START);
+            selected_folder = this.create_label(Application.settings.get_string("sync-folder"), 0, Gtk.Align.START);
             change_folder = this.create_button(_("Change folder"));
             Gtk.Box baux = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
             baux.halign = Gtk.Align.START;
@@ -143,24 +142,22 @@ namespace App.Views {
             conf_button.visible = false;
             cancel_button.visible = true;
             controler.window.headerbar.set_title (Constants.APP_NAME+ _(": Configuration"));
-            var saved_state = AppSettings.get_default();
-            auto_sync.active = (bool) saved_state.auto_sync;
-            start_minimized.active = (bool) saved_state.start_minimized;
-            selected_folder.label = saved_state.sync_folder;
+            auto_sync.active = (bool) Application.settings.get_int("auto-sync");
+            start_minimized.active = (bool) Application.settings.get_int("start-minimized");
+            selected_folder.label = Application.settings.get_string("sync-folder");
         }
 
         public void update_view_on_hide(AppController controler) {
             conf_button.visible = true;
             cancel_button.visible = false;
-            var saved_state = AppSettings.get_default();
-            if (auto_sync.get_active ()) saved_state.auto_sync = 1;
-            else  saved_state.auto_sync = 0;
-            if (start_minimized.get_active ()) saved_state.start_minimized = 1;
-            else  saved_state.start_minimized = 0;
+            if (auto_sync.get_active ()) Application.settings.set_int("auto-sync", 1);
+            else  Application.settings.set_int("auto-sync", 0);
+            if (start_minimized.get_active ()) Application.settings.set_int("start-minimized", 1);
+            else  Application.settings.set_int("start-minimized", 0);
             if (this.folder_changed) {
                 folder_changed = false;
-                saved_state.sync_folder = this.selected_folder.get_label();
-                controler.vgrive.change_main_path(saved_state.sync_folder);
+                Application.settings.set_string("sync-folder", this.selected_folder.get_label());
+                controler.vgrive.change_main_path(Application.settings.get_string("sync-folder"));
             }
         }
 

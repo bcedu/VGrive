@@ -593,10 +593,18 @@ namespace App {
         public ResponseObject make_request(string method, string uri, RequestParam[]? params_list=null, RequestParam[]? request_headers=null, RequestContent? request_content=null, bool without_acces_token=false) throws ErrorGoogleDriveAPI {
             // Fa una petició HTTP a la API de Google Drive amb els paràmetres proporcionats
             var session = this.get_current_session();
-            string uri_auth;
-            if (without_acces_token) uri_auth = uri;
-            else uri_auth = uri + "?access_token=%s".printf(this.access_token);
-            if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
+            string uri_auth = uri;
+            bool is_first;
+            if (params_list != null) {
+                is_first = true;
+                foreach (RequestParam param in params_list) {
+                    if (is_first) {
+                        is_first = false;
+                        uri_auth = uri_auth.concat("?", param.field_name, "=", param.field_value);
+                    }
+                    else uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
+                }
+            }
             uri_auth = encode_uri(uri_auth);
             var message = new Soup.Message (method, uri_auth);
             string res;
@@ -604,8 +612,10 @@ namespace App {
             Soup.MessageHeaders res_header = null;
             try {
                 // send the HTTP request and wait for response
+                if (!without_acces_token) message.request_headers.append("Authorization", "Bearer %s".printf(this.access_token));
                 if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
                 if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
+
                 session.send_message (message);
                 bres = message.response_body.data;
                 res = (string) message.response_body.data;
@@ -636,14 +646,13 @@ namespace App {
                         if (json_response.get_member("access_token") != null) {
                             // Retry request with new token
                             this.access_token = json_response.get_string_member("access_token");
-                            if (without_acces_token) uri_auth = uri;
-                            else uri_auth = uri + "?access_token=%s".printf(this.access_token);
-                            if (params_list != null) foreach (RequestParam param in params_list) uri_auth = uri_auth.concat("&", param.field_name, "=", param.field_value);
                             uri_auth = encode_uri(uri_auth);
                             //stdout.printf("Retrying request: %s %s\n", method, uri_auth);
                             message = new Soup.Message (method, uri_auth);
+                            if (!without_acces_token) message.request_headers.append("Authorization", "Bearer %s".printf(this.access_token));
                             if (request_headers != null) foreach (RequestParam param in request_headers) message.request_headers.append(param.field_name, param.field_value);
                             if (request_content != null) message.set_request(request_content.content_type, Soup.MemoryUse.COPY, request_content.content);
+
                             session.send_message (message);
                             bres = message.response_body.data;
                             res = (string) message.response_body.data;

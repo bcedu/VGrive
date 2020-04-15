@@ -31,9 +31,9 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test if some files are google documents or not (test_is_google_doc_and_is_google_mime_type)", test_is_google_doc_and_is_google_mime_type);
         add_test(" * Test get google drive information of file (test_get_file_info)", test_get_file_info);
         add_test(" * Test get google drive extra information of file (test_get_file_info_extra)", test_get_file_info_extra);
-        add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
         add_test(" * Test starting the sync process to check deleted files (test_check_deleted_files)", test_check_deleted_files);
+        add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
     }
 
     public override void set_up () {

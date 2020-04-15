@@ -37,6 +37,12 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.6.0" date="2020-04-15">
+        <description>
+          <p>Adapt to changes of Google Drive API</p>
+          <p>Avoid error "may be sending authomated queries"</p>
+        </description>
+      </release>
       <release version="1.5.0" date="2020-03-14">
         <description>
           <p>Bug fixed that caused deleting some files that had special characters.</p>

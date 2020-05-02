@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the com.github.bcedu.vgrive package.
 # Ihor Hordiichuk <igor_ck@outlook.com>, 2020.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: com.github.bcedu.vgrive\n"
@@ -34,7 +35,7 @@ msgstr "com.github.bcedu.vgrive"
 
 #: data/com.github.bcedu.vgrive.desktop.in:10
 msgid "app;vala;share;files;drive;google;"
-msgstr "app;vala;share;files;drive;google;гугл;диск;"
+msgstr "app;vala;share;files;drive;google;програма;поділитися;файли;гугл;диск;"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:7
 msgid "Eduard Berloso Clarà"
@@ -49,9 +50,8 @@ msgid ""
 "VGrive is a client (back-end and front-end) for Google Drive made in Vala. "
 "Automatically detects changes in local and remote files and syncs them."
 msgstr ""
-"VGrive — клієнт (серверна і клієнтська частини) для Google Drive написаний "
-"на Vala. Автоматично виявляє зміни в локальних та віддалених файлах і "
-"синхронізує їх."
+"VGrive — клієнт (серверна і клієнтська частини) для Google Drive написаний на Vala. "
+"Автоматично виявляє зміни в локальних та віддалених файлах та синхронізує їх."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:43
 msgid "Welcome to the dark side: Dark mode support!"
@@ -67,7 +67,7 @@ msgstr "Оновлено вікно входу (розроблено @Fatih20 )"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:53
 msgid "Login process separated in diferents views"
-msgstr "Процес входу розділено на декілька вікон"
+msgstr "Процес входу розділено на кілька вікон"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:54
 msgid "Allow select preferences from the login view"
@@ -79,15 +79,15 @@ msgstr "Новий вигляд вікна синхронізації (розр�
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:59
 msgid "The default is cleaner and shows less information to the user"
-msgstr "Типовий вигляд спрощено і користувачу показується менше інформації"
+msgstr "Типовий вигляд спрощено й користувачу показано менше інформації"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:60
 msgid ""
 "There is an option to switch between this new view and the old view (named "
 "\"Advanced view\")"
 msgstr ""
-"Наявна функція перемикання між оновленим і попереднім виглядом (\"Додатково"
-"\")"
+"Наявна функція перемикання між оновленим і попереднім виглядом (називаєтья "
+"\"Додатково\")"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:63
 msgid "Make unity support optional (by @dguglielmi)"
@@ -95,16 +95,15 @@ msgstr "Make unity support optional (від @dguglielmi)"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:70
 msgid "New logo by @Fatih20"
-msgstr "Нова піктограма від @Fatih20"
+msgstr "Новий логотип від @Fatih20"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:71
 msgid "Use buil-in red button."
-msgstr "Використовується вбудована червона кнопка."
+msgstr "Скористайтеся вбудованою червоною кнопкою."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:72
 msgid "Fix detecting files with specials caracters though google drive api."
-msgstr ""
-"Виправлено виявлення файлів зі спеціальними символами через google drive api."
+msgstr "Виправлено виявлення файлів зі спеціальними символами через google drive api."
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:78
 msgid "VGrive initial release!"
@@ -147,7 +146,7 @@ msgstr "Теку створено: %s "
 
 #: src/VGriveClient.vala:174
 msgid "Syncing stopped by user request"
-msgstr "Користувач зупинив синхронізацію"
+msgstr "Синхронізацію зупинено користувачем"
 
 #: src/VGriveClient.vala:189 src/VGriveClient.vala:213
 msgid "Everything is up to date!"
@@ -266,11 +265,11 @@ msgstr "Копіюйте код з переглядача сюди:"
 
 #: src/views/LogInView.vala:84 src/views/ViewConf.vala:62
 msgid "Preferences"
-msgstr "Налаштування"
+msgstr "Параметри"
 
 #: src/views/LogInView.vala:88 src/views/ViewConf.vala:65
 msgid "Begin sync when app is started:"
-msgstr "Синхронізувати після запуску програми:"
+msgstr "Синхронізувати одразу після запуску програми:"
 
 #: src/views/LogInView.vala:98 src/views/ViewConf.vala:73
 msgid "vGrive folder:"
@@ -329,7 +328,7 @@ msgstr "Розпочати"
 
 #: src/views/SyncView.vala:145
 msgid "Sync is stopped. Press start to begin."
-msgstr "Синхронізацію зупинено. Щоб поновити, натисніть Розпочати "
+msgstr "Синхронізацію зупинено. Щоб поновити, натисніть Розпочати."
 
 #: src/views/ViewConf.vala:31
 msgid "Configuration"
@@ -349,7 +348,7 @@ msgstr "Вийти"
 
 #: src/views/ViewConf.vala:54
 msgid "Delete all files from \".trash\":"
-msgstr "Вилучити всі файли з \".trash\":"
+msgstr "Видалити всі файли з \".trash\":"
 
 #: src/views/ViewConf.vala:56 src/views/ViewConf.vala:239
 msgid "Empty the trash"
@@ -360,7 +359,7 @@ msgid ""
 "(note: vGrive doesn't delete any file, they are moved to the \".trash\" "
 "folder)"
 msgstr ""
-"(зауважте: vGrive не вилучає жодних файлів, їх перенесено до теки \".trash\")"
+"(зауважте: vGrive не видаляє жодних файлів, їх перенесено до теки \".trash\")"
 
 #: src/views/ViewConf.vala:112
 msgid "Save"

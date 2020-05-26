@@ -35,7 +35,7 @@ msgstr "com.github.bcedu.vgrive"
 
 #: data/com.github.bcedu.vgrive.desktop.in:10
 msgid "app;vala;share;files;drive;google;"
-msgstr "app;vala;share;files;drive;google;програма;поділитися;файли;гугл;диск;"
+msgstr "app;vala;share;files;drive;google;програма;застосунок;поділитися;файли;гугл;диск;"
 
 #: data/com.github.bcedu.vgrive.appdata.xml.in:7
 msgid "Eduard Berloso Clarà"
@@ -269,7 +269,7 @@ msgstr "Параметри"
 
 #: src/views/LogInView.vala:88 src/views/ViewConf.vala:65
 msgid "Begin sync when app is started:"
-msgstr "Синхронізувати одразу після запуску програми:"
+msgstr "Синхронізувати одразу після запуску застосунку:"
 
 #: src/views/LogInView.vala:98 src/views/ViewConf.vala:73
 msgid "vGrive folder:"

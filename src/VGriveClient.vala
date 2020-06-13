@@ -1344,7 +1344,6 @@ namespace App {
         }
 
         private string encode_uri(string param) {
-        // TODO: TEST
             string aux = Soup.URI.encode(param, null);
             return param;
         }
@@ -1360,7 +1359,7 @@ namespace App {
             */
             string aux = param.replace("\\", "\\\\");
             aux = aux.replace("'", "\\'");
-            aux = aux.replace("#", "\\#");
+            aux = aux.replace("#", "%23");
             aux = aux.replace("&", "%26");
             aux = aux.replace(" ", "+");
             return aux;

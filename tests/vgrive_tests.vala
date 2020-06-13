@@ -22,6 +22,7 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test if is in syncing process (test_is_syncing)", test_is_syncing);
         add_test(" * Test change the main path of vgrive (test_change_main_path)", test_change_main_path);
         add_test(" * Test search files and encode for q (test_search_files_and_encode_for_q)", test_search_files_and_encode_for_q);
+        add_test(" * Test get file ID with special chars (test_get_file_id)", test_get_file_id);
         add_test(" * Test get file ID and then get its content (test_get_file_id_and_test_get_file_content)", test_get_file_id_and_test_get_file_content);
         add_test(" * Test get file ID of main path and returns root (test_get_file_id_of_main_path)", test_get_file_id_of_main_path);
         add_test(" * Test upload a new file to google drive (subpath) and then delete it (test_upload_file_and_delete_file_other_path)", test_upload_file_and_delete_file_other_path);
@@ -216,6 +217,7 @@ class TestVGrive : Gee.TestCase {
         files_to_check.set("test' 4'.ods", false);
         files_to_check.set("test@ 3@.deb", false);
         files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("#test7 #,txt", false);
         files_to_check.set("muse.txt", false);
         files_to_check.set("muse_trashed.txt", false);
         // List all files in root
@@ -271,6 +273,7 @@ class TestVGrive : Gee.TestCase {
         files_to_check.set("test' 4'.ods", false);
         files_to_check.set("test@ 3@.deb", false);
         files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("#test7 #,txt", false);
         DriveFile[] all_files = this.client.search_files("trashed = False and name contains 'test'");
         foreach (DriveFile f in all_files) {
             assert (files_to_check.has_key (f.name));
@@ -284,6 +287,28 @@ class TestVGrive : Gee.TestCase {
         all_files = this.client.search_files("trashed = False and name = '%s'".printf(this.client.encode_for_q ("test& 5&.txt.torrent")));
         assert (all_files[0].name == "test& 5&.txt.torrent");
         assert (all_files.length == 1);
+    }
+
+    public void test_get_file_id () {
+        /*
+         * Test que obte el ID de fitxers amb caracters extranys.
+         *
+         * */
+        // Fitxer a una subcarpeta
+        string file_id;
+        Gee.HashMap<string, bool> files_to_check = new Gee.HashMap<string, bool>();
+        files_to_check.set("test 1 .pdf", false);
+        files_to_check.set("test_ 2_.jpg", false);
+        files_to_check.set("test@ 3@.deb", false);
+        files_to_check.set("test' 4'.ods", false);
+        files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("test é 6 è.png", false);
+        files_to_check.set("#test7 #,txt", false);
+        var it = files_to_check.map_iterator ();
+        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            file_id = this.client.get_file_id (this.mainpath+"/"+it.get_key());
+            assert (file_id != "");
+        }
     }
 
     public void test_get_file_id_and_test_get_file_content () {

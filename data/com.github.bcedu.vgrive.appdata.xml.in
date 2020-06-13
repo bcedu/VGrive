@@ -34,6 +34,13 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.6.1" date="2020-06-13">
+        <description>
+          <p>Fix error when checking files with the char '#'.
+          Update metadata from appdata.
+          </p>
+        </description>
+      </release>
       <release version="1.6.0" date="2020-04-15">
         <description>
           <p>Adapt to changes of Google Drive API.

@@ -53,7 +53,7 @@ namespace App {
             this.headerbar = new AppHeaderBar (false, this);
             this.set_titlebar (this.headerbar);
             this.load_window_state ();
-            this.set_min_size(700, 500);
+            this.set_min_size(1024, 576);
             this.delete_event.connect (save_window_state);
         }
 
@@ -93,7 +93,7 @@ namespace App {
         private void load_window_state() {
             this.saved_state = AppSettings.get_default();
             // Load size
-            this.set_default_size (this.saved_state.window_width, this.saved_state.window_height);
+            this.set_default_size (1024, 576);
             // Load position
             this.move (this.saved_state.window_posx, this.saved_state.window_posy);
             // Maximize window if necessary

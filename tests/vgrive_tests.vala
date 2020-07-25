@@ -6,8 +6,8 @@ class TestVGrive : Gee.TestCase {
 
     private VGriveClient client;
     private string mainpath = GLib.Environment.get_current_dir()+"/.testbuild/VGriveTEST";
-    private string access_token = "ya29.Il_BB3zFXkNQ22kLVBhaPUQlSNBK0PEH2B6BYW9v1kW_PzfD7r9wDw_QGDgsEXeCxwo2keeXWFgQQk-04NN9yvUstc4K-Lr0QwEGpdR4BsB5J0KHkGQGAXQAF14ToPjTOw";
-    private string refresh_token = "1//03IU2IIEPTdKeCgYIARAAGAMSNwF-L9IrnsAzIRFCLUjFKG7JQGknE2jswVrNfSMkI4GX53J8GS0eJcVrfC68zRFGKIrmWb9_OLk";
+    private string access_token = "ya29.a0Ae4lvC01aowtxNp3MPnc2eAF_eSsyc3FSgZJ_BaleYqvu23I_P4--4WOBbe6csNj1KcXwTHh1jF8UNRmi_shFJ4tsUH3CgKLl-YRu2Ab69MVq2IIQ5Wh1mEAA5AZEBPAtB_hq4UE5G_GE-V58jBd03z9R167JRMNiag";
+    private string refresh_token = "1//03TTG3NNWnzjtCgYIARAAGAMSNwF-L9Iri6xRlra2E7wk740u2eUeaksEEnpwFQQLX_F5BIZRxLveowOqCefPfVyKk062JkZb4qw";
 
     public TestVGrive() {
         // assign a name for this class
@@ -22,6 +22,7 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test if is in syncing process (test_is_syncing)", test_is_syncing);
         add_test(" * Test change the main path of vgrive (test_change_main_path)", test_change_main_path);
         add_test(" * Test search files and encode for q (test_search_files_and_encode_for_q)", test_search_files_and_encode_for_q);
+        add_test(" * Test get file ID with special chars (test_get_file_id)", test_get_file_id);
         add_test(" * Test get file ID and then get its content (test_get_file_id_and_test_get_file_content)", test_get_file_id_and_test_get_file_content);
         add_test(" * Test get file ID of main path and returns root (test_get_file_id_of_main_path)", test_get_file_id_of_main_path);
         add_test(" * Test upload a new file to google drive (subpath) and then delete it (test_upload_file_and_delete_file_other_path)", test_upload_file_and_delete_file_other_path);
@@ -31,9 +32,9 @@ class TestVGrive : Gee.TestCase {
         add_test(" * Test if some files are google documents or not (test_is_google_doc_and_is_google_mime_type)", test_is_google_doc_and_is_google_mime_type);
         add_test(" * Test get google drive information of file (test_get_file_info)", test_get_file_info);
         add_test(" * Test get google drive extra information of file (test_get_file_info_extra)", test_get_file_info_extra);
-        add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
         add_test(" * Test starting a new sync process and stop it (test_start_and_stop_syncing)", test_start_and_stop_syncing);
         add_test(" * Test starting the sync process to check deleted files (test_check_deleted_files)", test_check_deleted_files);
+        add_test(" * Test check if there are pending changes in google drive (test_has_remote_changes_and_request_page_token)", test_has_remote_changes_and_request_page_token);
     }
 
     public override void set_up () {
@@ -216,6 +217,7 @@ class TestVGrive : Gee.TestCase {
         files_to_check.set("test' 4'.ods", false);
         files_to_check.set("test@ 3@.deb", false);
         files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("#test7 #,txt", false);
         files_to_check.set("muse.txt", false);
         files_to_check.set("muse_trashed.txt", false);
         // List all files in root
@@ -271,6 +273,7 @@ class TestVGrive : Gee.TestCase {
         files_to_check.set("test' 4'.ods", false);
         files_to_check.set("test@ 3@.deb", false);
         files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("#test7 #,txt", false);
         DriveFile[] all_files = this.client.search_files("trashed = False and name contains 'test'");
         foreach (DriveFile f in all_files) {
             assert (files_to_check.has_key (f.name));
@@ -286,25 +289,43 @@ class TestVGrive : Gee.TestCase {
         assert (all_files.length == 1);
     }
 
+    public void test_get_file_id () {
+        /*
+         * Test que obte el ID de fitxers amb caracters extranys.
+         *
+         * */
+        // Fitxer a una subcarpeta
+        string file_id;
+        Gee.HashMap<string, bool> files_to_check = new Gee.HashMap<string, bool>();
+        files_to_check.set("test 1 .pdf", false);
+        files_to_check.set("test_ 2_.jpg", false);
+        files_to_check.set("test@ 3@.deb", false);
+        files_to_check.set("test' 4'.ods", false);
+        files_to_check.set("test& 5&.txt.torrent", false);
+        files_to_check.set("test é 6 è.png", false);
+        files_to_check.set("#test7 #,txt", false);
+        var it = files_to_check.map_iterator ();
+        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            file_id = this.client.get_file_id (this.mainpath+"/"+it.get_key());
+            assert (file_id != "");
+        }
+    }
+
     public void test_get_file_id_and_test_get_file_content () {
         /*
          * Test que obte el ID de un fitxer i després obté el seu contingut.
          *
          * */
         // Fitxer a una subcarpeta
-        try {
-            string file_id = this.client.get_file_id (this.mainpath+"/Muse/Millors/muse.txt");
-            assert (file_id != "");
-            uint8[] content = this.client.get_file_content (file_id);
-            assert_strings (content, get_fixture_content ("muse.txt", false));
-            // Fitxer a root
-            file_id = this.client.get_file_id (this.mainpath+"/muse.txt");
-            assert (file_id != "");
-            content = this.client.get_file_content (file_id);
-            assert_strings (content, get_fixture_content ("muse.txt", false));
-        } catch (ErrorGoogleDriveAPI e) {
-            assert_strings (e.message.data, "Google Drive Connection Error: google drive has blocked your IP, VGrive can't sync files while google drive continue blocking the IP...".data);
-        }
+        string file_id = this.client.get_file_id (this.mainpath+"/Muse/Millors/muse.txt");
+        assert (file_id != "");
+        uint8[] content = this.client.get_file_content (file_id);
+        assert_strings (content, get_fixture_content ("muse.txt", false));
+        // Fitxer a root
+        file_id = this.client.get_file_id (this.mainpath+"/muse.txt");
+        assert (file_id != "");
+        content = this.client.get_file_content (file_id);
+        assert_strings (content, get_fixture_content ("muse.txt", false));
     }
 
     public void test_get_file_id_of_main_path () {
@@ -375,25 +396,21 @@ class TestVGrive : Gee.TestCase {
          *
          * */
         // Pujem el fitxer a root
-        try {
-            var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
-            assert (res.name == "muse_new_to_upload.txt");
-            assert (res.id != null);
-            assert (res.trashed == false);
-            assert (res.parent_id == "root");
-            // Obtenim el contingut per asegurarnos que la versio es l'antiga
-            uint8[] content = this.client.get_file_content (res.id);
-            assert_strings (content, get_fixture_content ("muse_new_to_upload.txt", false));
-            // Pujem la nova versio
-            this.client.upload_file_update (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", res.id);
-            // Obtenim el contingut per asegurarnos que la versio es la nova
-            content = this.client.get_file_content (res.id);
-            assert_strings (content, get_fixture_content ("muse_new_to_upload.v2.txt", false));
-            // Eliminem el fitxer
-            this.client.delete_file (res.id);
-        } catch (ErrorGoogleDriveAPI e) {
-            assert_strings (e.message.data, "Google Drive Connection Error: google drive has blocked your IP, VGrive can't sync files while google drive continue blocking the IP...".data);
-        }
+        var res = this.client.upload_file (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "root");
+        assert (res.name == "muse_new_to_upload.txt");
+        assert (res.id != null);
+        assert (res.trashed == false);
+        assert (res.parent_id == "root");
+        // Obtenim el contingut per asegurarnos que la versio es l'antiga
+        uint8[] content = this.client.get_file_content (res.id);
+        assert_strings (content, get_fixture_content ("muse_new_to_upload.txt", false));
+        // Pujem la nova versio
+        this.client.upload_file_update (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", res.id);
+        // Obtenim el contingut per asegurarnos que la versio es la nova
+        content = this.client.get_file_content (res.id);
+        assert_strings (content, get_fixture_content ("muse_new_to_upload.v2.txt", false));
+        // Eliminem el fitxer
+        this.client.delete_file (res.id);
     }
 
     public void test_upload_dir_main_path () {
@@ -717,53 +734,49 @@ class TestVGrive : Gee.TestCase {
          *
          * */
         // Ho preparem tot
-        try {
-            DriveFile res = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "", "root");
-            DriveFile res2 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", "", "root");
-            DriveFile res3 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v3.txt", "", "root");
-            this.client.move_local_file_to_trash(this.mainpath+"/muse_new_to_upload.v3.txt");
-            this.client.delete_file(res2.id);
+        DriveFile res = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.txt", "", "root");
+        DriveFile res2 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v2.txt", "", "root");
+        DriveFile res3 = this.add_file_to_drive (GLib.Environment.get_current_dir()+"/tests/fixtures/muse_new_to_upload.v3.txt", "", "root");
+        this.client.move_local_file_to_trash(this.mainpath+"/muse_new_to_upload.v3.txt");
+        this.client.delete_file(res2.id);
 
-            File f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
-            assert(f.query_exists() == true);
-            DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
-            assert (found_files.length == 1);
+        File f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
+        assert(f.query_exists() == true);
+        DriveFile[] found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
 
-            f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
-            assert(f.query_exists() == true);
-            found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
-            assert (found_files.length == 0);
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
+        assert(f.query_exists() == true);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
+        assert (found_files.length == 0);
 
-            f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
-            assert(f.query_exists() == false);
-            found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
-            assert (found_files.length == 1);
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
+        assert (found_files.length == 1);
 
-            // Executem el metode
-            this.client.syncing = true;
-            this.client.check_deleted_files ();
+        // Executem el metode
+        this.client.syncing = true;
+        this.client.check_deleted_files ();
 
-            // Comprovem que hagi passat el que esperavem
-            f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
-            assert(f.query_exists() == true);
-            found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
-            assert (found_files.length == 1);
+        // Comprovem que hagi passat el que esperavem
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.txt");
+        assert(f.query_exists() == true);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res.name));
+        assert (found_files.length == 1);
 
-            f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
-            assert(f.query_exists() == false);
-            found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
-            assert (found_files.length == 0);
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v2.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res2.name));
+        assert (found_files.length == 0);
 
-            f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
-            assert(f.query_exists() == false);
-            found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
-            assert (found_files.length == 0);
+        f = File.new_for_path(this.mainpath+"/muse_new_to_upload.v3.txt");
+        assert(f.query_exists() == false);
+        found_files = this.client.search_files ("trashed = False and name = '%s' and 'root' in parents".printf (res3.name));
+        assert (found_files.length == 0);
 
-            // Netegem fitxers
-            this.client.delete_file (res.id);
-        } catch (ErrorGoogleDriveAPI e) {
-            assert_strings (e.message.data, "Google Drive Connection Error: google drive has blocked your IP, VGrive can't sync files while google drive continue blocking the IP...".data);
-        }
+        // Netegem fitxers
+        this.client.delete_file (res.id);
     }
 }
 

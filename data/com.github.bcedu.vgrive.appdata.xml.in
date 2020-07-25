@@ -21,22 +21,32 @@ Automatically detects changes in local and remote files and syncs them.</p>
           <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/init.png</image>
       </screenshot>
       <screenshot>
-          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login_1.png</image>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login.png</image>
       </screenshot>
       <screenshot>
-          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login_3.png</image>
-      </screenshot>
-      <screenshot>
-          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/sync_simple.png</image>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/login2.png</image>
       </screenshot>
       <screenshot>
           <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/sync.png</image>
       </screenshot>
       <screenshot>
-          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/conf.png</image>
+          <image>https://raw.githubusercontent.com/bcedu/VGrive/master/data/imgs/advanced.png</image>
       </screenshot>
   </screenshots>
     <releases>
+      <release version="1.6.1" date="2020-06-13">
+        <description>
+          <p>Fix error when checking files with the char '#'.
+          Update metadata from appdata.
+          </p>
+        </description>
+      </release>
+      <release version="1.6.0" date="2020-04-15">
+        <description>
+          <p>Adapt to changes of Google Drive API.
+          Avoid error "may be sending authomated queries".</p>
+        </description>
+      </release>
       <release version="1.5.0" date="2020-03-14">
         <description>
           <p>Bug fixed that caused deleting some files that had special characters.</p>
@@ -45,33 +55,30 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </release>
       <release version="1.4.0" date="2019-11-22">
         <description>
-          <p>New option to start VGrive minimized.</p>
-          <p>For users who have enabled tray icons: Show vgrive icon in the notification area with options to close and show the app.</p>
-          <p>Added comand line options. Type "com.github.bcedu.vgrive --help" to see more information.</p>
-          <p>Bug fixes:
+          <p>
+          New option to start VGrive minimized.
+          For users who have enabled tray icons: Show vgrive icon in the notification area with options to close and show the app.
+          Added comand line options. Type "com.github.bcedu.vgrive --help" to see more information.
+          Translations updates: Updated Dutch translation.
+          Bug fixes:
             <ul>
               <li>Fix api search with specials chars like "\", "@", ...</li>
-              <li>Use single Soup Session to avoid crash caused by to many opened sessions.</li>
-              <li>New way to update messages shown in the advanced view to avoid crash caused by the text buffer.</li>
-            </ul>
-          </p>
-          <p>Translations updates:
-            <ul>
-              <li>Updated Dutch translation.</li>
+              <li>Use single Soup Session to avoid crash caused by to many opened sessions</li>
+              <li>New way to update messages shown in the advanced view to avoid crash caused by the text buffer</li>
             </ul>
           </p>
         </description>
       </release>
       <release version="1.3.0" date="2019-11-07">
         <description>
-          <p>Add 'cancel' button in the conf menu to exit configuration without saving.</p>
-          <p>Save state of "Advanced View".</p>
+          <p>Add 'cancel' button in the conf menu to exit configuration without saving.
+          Save state of "Advanced View".</p>
         </description>
       </release>
       <release version="1.2.4" date="2019-11-06">
         <description>
-          <p>Bug Fix: Ignore Google Docs (and other Google files).</p>
-          <p>Translations:
+          <p>Bug Fix: Ignore Google Docs (and other Google files).
+          Translations:
           <ul>
             <li>Polish and French translations (by @roypen and @NathanBnm )</li>
             <li>Catalan translations updated</li>
@@ -82,14 +89,14 @@ Automatically detects changes in local and remote files and syncs them.</p>
       </release>
       <release version="1.2.0" date="2019-11-01">
         <description>
-          <ul>
-            <li>Welcome to the dark side: Dark mode support!</li>
-            <li>Spanish and Galician translations by @riesp</li>
-          </ul>
+          <p>Welcome to the dark side: Dark mode support!
+          Spanish and Galician translations by @riesp.
+          </p>
         </description>
       </release>
       <release version="1.1.0" date="2019-10-29">
         <description>
+          <p>Improvments and features included with the new version:
           <ul>
             <li><p>New Login view (designed by @Fatih20 )</p>
               <ul>
@@ -105,20 +112,23 @@ Automatically detects changes in local and remote files and syncs them.</p>
             </li>
             <li>Make unity support optional (by @dguglielmi)</li>
           </ul>
+          </p>
         </description>
       </release>
       <release version="1.0.10" date="2019-10-22">
         <description>
+          <p>Improvments and features included with the new version:
           <ul>
             <li>New logo by @Fatih20</li>
-            <li>Use buil-in red button.</li>
-            <li>Fix detecting files with specials caracters though google drive api.</li>
+            <li>Use buil-in red button</li>
+            <li>Fix detecting files with specials caracters though google drive api</li>
           </ul>
+          </p>
         </description>
       </release>
       <release version="1.0.0" date="2019-08-29">
         <description>
-          <p>VGrive initial release!</p>
+          <p>VGrive initial release! This is the first release of VGrive: a google drive client for linux.</p>
         </description>
       </release>
     </releases>
@@ -133,6 +143,7 @@ Automatically detects changes in local and remote files and syncs them.</p>
   <content_rating type="oars-1.0">
     <content_attribute id="social-chat">mild</content_attribute>
   </content_rating>
+  <translation type="gettext"></translation>
 </component>
 
 

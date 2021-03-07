@@ -1063,7 +1063,7 @@ namespace App {
         }
 
         public DriveFile get_file_info_extra(string file_id, string fields) throws ErrorGoogleDriveAPI {
-            RequestParam[1] params = new RequestParam[1];
+            RequestParam[] params = new RequestParam[1];
             params[0] = {"fields", fields};
             string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
             var parser = new Json.Parser ();

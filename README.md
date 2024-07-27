@@ -1,3 +1,5 @@
+## Unmantained. Do no use, it does'nt work. I never updated vgrive to work with the new API
+
 # VGrive
 
 > Flatpak repo: https://github.com/flathub/com.github.bcedu.vgrive

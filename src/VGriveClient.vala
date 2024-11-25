@@ -47,7 +47,7 @@ namespace App {
         public uint8[] content;
     }
 
-    public struct DriveFile {
+    public class DriveFile {
         public string kind;
         public string id;
         public string name;
@@ -716,18 +716,21 @@ namespace App {
             unowned Json.Object obj;
             foreach (unowned Json.Node item in json_files.get_elements ()) {
                 obj = item.get_object ();
-                results[nfiles] = {
-                    obj.get_string_member("kind"), // kind
-                    obj.get_string_member("id"), // id
-                    obj.get_string_member("name"), // name
-                    "".data, // content
-                    obj.get_string_member("mimeType"), // mimeType
-                    parent_id, // parent_id
-                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
-                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
-                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
-                    new string[0]
-                };
+                DriveFile result = new DriveFile ();
+                result.kind = obj.get_string_member("kind"); 
+                result.id = obj.get_string_member("id"); 
+                result.name = obj.get_string_member("name"); 
+                result.mimeType = obj.get_string_member("mimeType"); 
+                result.parent_id = parent_id; 
+                result.modifiedTime = 
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+                result.createdTime = 
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+                result.trashed = 
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+                result.local_path = null; 
+                results[nfiles] = result;
+
                 nfiles += 1;
                 if (nfiles == results.length) results.resize(results.length*2);
             }
@@ -748,20 +751,23 @@ namespace App {
                 json_files = json_response.get_member("files").get_array ();
                 foreach (unowned Json.Node item in json_files.get_elements ()) {
                     obj = item.get_object ();
-                    results[nfiles] = {
-                        obj.get_string_member("kind"), // kind
-                        obj.get_string_member("id"), // id
-                        obj.get_string_member("name"), // name
-                        "".data, // content
-                        obj.get_string_member("mimeType"), // mimeType
-                        parent_id, // parent_id
-                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
-                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
-                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
-                        new string[0]
-                    };
+                    DriveFile result = new DriveFile ();
+                    result.kind = obj.get_string_member("kind"); 
+                    result.id = obj.get_string_member("id"); 
+                    result.name = obj.get_string_member("name"); 
+                    result.mimeType = obj.get_string_member("mimeType"); 
+                    result.parent_id = parent_id; 
+                    result.modifiedTime = 
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+                    result.createdTime = 
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+                    result.trashed = 
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+                    result.local_path = null; 
+                    results[nfiles] = result;
+    
                     nfiles += 1;
-                    if (nfiles == results.length) results.resize(results.length*2);
+                        if (nfiles == results.length) results.resize(results.length*2);
                 }
                 files_left = json_response.get_member("nextPageToken") != null && (number < 0 || nfiles < number);
             }
@@ -815,23 +821,27 @@ namespace App {
                 Json.Object json_response = parser.get_root().get_object();
                 if (json_response.get_member("error") != null) {
                     stdout.printf("%s\n", res2.response);
-                    return {};
+                    return new DriveFile ();
                 }
-                return {
-                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
-                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
-                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
-                    "".data, // content
-                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
-                    parent_id, // parent_id
-                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
-                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
-                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
-                    new string[0]
-                };
+
+                DriveFile result = new DriveFile ();
+                result.kind = json_response.get_string_member("kind"); 
+                result.id = json_response.get_string_member("id"); 
+                result.name = json_response.get_string_member("name"); 
+                result.mimeType = json_response.get_string_member("mimeType"); 
+                result.parent_id = parent_id; 
+                result.modifiedTime = 
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : ""; 
+                result.createdTime = 
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : ""; 
+                result.trashed = 
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false; 
+                result.local_path = null; 
+
+                return result;
             } catch (Error e) {
                 stderr.printf ("Error: %s\n", e.message);
-                return  {};
+                return  new DriveFile ();
             }
         }
 
@@ -878,23 +888,26 @@ namespace App {
                 Json.Object json_response = parser.get_root().get_object();
                 if (json_response.get_member("error") != null) {
                     stdout.printf("%s\n", res2.response);
-                    return {};
+                    return new DriveFile ();
                 }
-                return {
-                    (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
-                    (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
-                    (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
-                    "".data, // content
-                    (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
-                    "", // parent_id
-                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
-                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
-                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
-                    new string[0]
-                };
+
+                DriveFile result = new DriveFile ();
+                result.kind = json_response.get_string_member("kind"); 
+                result.id = json_response.get_string_member("id"); 
+                result.name = json_response.get_string_member("name"); 
+                result.mimeType = json_response.get_string_member("mimeType"); 
+                result.modifiedTime = 
+                    (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : ""; 
+                result.createdTime = 
+                    (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : ""; 
+                result.trashed = 
+                    (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false; 
+                result.local_path = null; 
+
+                return result;
             } catch (Error e) {
                 stderr.printf ("Error: %s\n", e.message);
-                return  {};
+                return  new DriveFile ();
             }
         }
 
@@ -921,20 +934,24 @@ namespace App {
             Json.Object json_response = parser.get_root().get_object();
             if (json_response.get_member("error") != null) {
                 stdout.printf("%s\n", res2.response);
-                return {};
+                return new DriveFile ();
             }
-            return {
-                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
-                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
-                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
-                "".data, // content
-                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
-                parent_id, // parent_id
-                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
-                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
-                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
-                new string[0]
-            };
+
+            DriveFile result = new DriveFile ();
+            result.kind = json_response.get_string_member("kind"); 
+            result.id = json_response.get_string_member("id"); 
+            result.name = json_response.get_string_member("name"); 
+            result.mimeType = json_response.get_string_member("mimeType");
+            result.parent_id = parent_id;
+            result.modifiedTime = 
+                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : ""; 
+            result.createdTime = 
+                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : ""; 
+            result.trashed = 
+                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false; 
+            result.local_path = null; 
+
+            return result;
         }
 
         public DriveFile[] search_files(string q) throws ErrorGoogleDriveAPI {
@@ -955,18 +972,22 @@ namespace App {
             unowned Json.Object obj;
             foreach (unowned Json.Node item in json_files.get_elements ()) {
                 obj = item.get_object ();
-                results[nfiles] = {
-                    obj.get_string_member("kind"), // kind
-                    obj.get_string_member("id"), // id
-                    obj.get_string_member("name"), // name
-                    "".data, // content
-                    obj.get_string_member("mimeType"), // mimeType
-                    "", // parent_id
-                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
-                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
-                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
-                    new string[0]
-                };
+
+                DriveFile result = new DriveFile ();
+                result.kind = obj.get_string_member("kind"); 
+                result.id = obj.get_string_member("id"); 
+                result.name = obj.get_string_member("name"); 
+                result.mimeType = obj.get_string_member("mimeType");
+                result.modifiedTime = 
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+                result.createdTime = 
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+                result.trashed = 
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+                result.local_path = null; 
+    
+                results[nfiles] = result;
+
                 nfiles += 1;
                 if (nfiles == results.length) results.resize(results.length*2);
             }
@@ -986,18 +1007,22 @@ namespace App {
                 json_files = json_response.get_member("files").get_array ();
                 foreach (unowned Json.Node item in json_files.get_elements ()) {
                     obj = item.get_object ();
-                    results[nfiles] = {
-                        obj.get_string_member("kind"), // kind
-                        obj.get_string_member("id"), // id
-                        obj.get_string_member("name"), // name
-                        "".data, // content
-                        obj.get_string_member("mimeType"), // mimeType
-                        "", // parent_id
-                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
-                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
-                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
-                        new string[0]
-                    };
+
+                    DriveFile result = new DriveFile ();
+                    result.kind = obj.get_string_member("kind"); 
+                    result.id = obj.get_string_member("id"); 
+                    result.name = obj.get_string_member("name"); 
+                    result.mimeType = obj.get_string_member("mimeType");
+                    result.modifiedTime = 
+                        (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+                    result.createdTime = 
+                        (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+                    result.trashed = 
+                        (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+                    result.local_path = null; 
+        
+    
+                    results[nfiles] = result;
                     nfiles += 1;
                     if (nfiles == results.length) results.resize(results.length*2);
                 }
@@ -1039,25 +1064,28 @@ namespace App {
             Json.Object json_response = parser.get_root().get_object();
             if (json_response.get_member("error") != null) {
                 stdout.printf("%s\n", res);
-                return {};
+                return new DriveFile ();
             }
-            DriveFile result = {};
+            DriveFile result = new DriveFile ();
             Json.Array json_files = json_response.get_member("files").get_array ();
             unowned Json.Object obj;
             foreach (unowned Json.Node item in json_files.get_elements ()) {
                 obj = item.get_object ();
-                result = {
-                    obj.get_string_member("kind"), // kind
-                    obj.get_string_member("id"), // id
-                    obj.get_string_member("name"), // name
-                    "".data, // content
-                    obj.get_string_member("mimeType"), // mimeType
-                    parent_id, // parent_id
-                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : "",
-                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : "",
-                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false,
-                    new string[0]
-                };
+
+                result = new DriveFile ();
+                result.kind = obj.get_string_member("kind"); 
+                result.id = obj.get_string_member("id"); 
+                result.name = obj.get_string_member("name"); 
+                result.mimeType = obj.get_string_member("mimeType");
+                result.parent_id = parent_id;
+                result.modifiedTime = 
+                    (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+                result.createdTime = 
+                    (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+                result.trashed = 
+                    (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+                result.local_path = null; 
+
             }
             return result;
         }
@@ -1068,51 +1096,44 @@ namespace App {
             string res = this.make_request("GET", this.api_uri+"/files/"+file_id, params, null, null, false).response;
             var parser = new Json.Parser ();
             parser.load_from_data (res, -1);
-            Json.Object json_response = parser.get_root().get_object();
-            if (json_response.get_member("error") != null) {
+            Json.Object obj = parser.get_root().get_object();
+            if (obj.get_member("error") != null) {
                 // Si tenim només un error, l'error es de tipus 400 i el problema està en el camp "fields", retornarem un DriveFile amb els camps buits i ja està
-                if (json_response.get_object_member ("error").has_member ("errors") && json_response.get_object_member ("error").has_member ("code") && json_response.get_object_member ("error").get_int_member ("code") == 400) {
-                    Json.Array errors = json_response.get_object_member ("error").get_array_member ("errors");
+                if (obj.get_object_member ("error").has_member ("errors") && obj.get_object_member ("error").has_member ("code") && obj.get_object_member ("error").get_int_member ("code") == 400) {
+                    Json.Array errors = obj.get_object_member ("error").get_array_member ("errors");
                     if (errors.get_length () == 1 && errors.get_object_element (0).has_member ("location") && errors.get_object_element (0).get_string_member ("location") == "fields") {
-                        return {
-                            null, // kind
-                            null, // id
-                            null, // name
-                            null, // content
-                            null, // mimeType
-                            null, // parent_id
-                            null,
-                            null,
-                            false,
-                            null
-                        };
+                        return new DriveFile ();
                     }
                 }
                 stdout.printf("Get Attrs Error:%s\n", res);
-                return {};
+                return new DriveFile ();
             }
             string[] parents = new string[2];
             uint nparents = 0;
-            if (json_response.has_member("parents")) {
-                Json.Array json_parents = json_response.get_member("parents").get_array ();
+            if (obj.has_member("parents")) {
+                Json.Array json_parents = obj.get_member("parents").get_array ();
                 foreach (unowned Json.Node item in json_parents.get_elements ()) {
                     parents[nparents] = json_parents.get_string_element(nparents);
                     nparents += 1;
                     if (parents.length >= nparents) parents.resize(parents.length*2);
                 }
             }
-            return {
-                (json_response.has_member ("kind")) ? json_response.get_string_member("kind") : "", // kind
-                (json_response.has_member ("id")) ? json_response.get_string_member("id") : "", // id
-                (json_response.has_member ("name")) ? json_response.get_string_member("name") : "", // name
-                "".data, // content
-                (json_response.has_member ("mimeType")) ? json_response.get_string_member("mimeType") : "", // mimeType
-                "", // parent_id
-                (json_response.has_member ("modifiedTime")) ? json_response.get_string_member("modifiedTime") : "",
-                (json_response.has_member ("createdTime")) ? json_response.get_string_member("createdTime") : "",
-                (json_response.has_member ("trashed")) ? json_response.get_boolean_member("trashed") : false,
-                parents[0:nparents]
-            };
+
+            var result = new DriveFile ();
+            result.kind = (obj.has_member ("kind")) ? obj.get_string_member("kind") : ""; 
+            result.id = (obj.has_member ("id")) ? obj.get_string_member("id"): ""; 
+            result.name = (obj.has_member("name")) ? obj.get_string_member("name") : ""; 
+            result.mimeType = (obj.has_member("mimeType")) ? obj.get_string_member("mimeType"): "";
+            result.modifiedTime = 
+                (obj.has_member ("modifiedTime")) ? obj.get_string_member("modifiedTime") : ""; 
+            result.createdTime = 
+                (obj.has_member ("createdTime")) ? obj.get_string_member("createdTime") : ""; 
+            result.trashed = 
+                (obj.has_member ("trashed")) ? obj.get_boolean_member("trashed") : false; 
+            result.parents = parents[0:nparents];
+            result.local_path = null; 
+
+            return result;
         }
 
         public string get_file_id(string path) throws ErrorGoogleDriveAPI {
